@@ -33,7 +33,7 @@ const TYPE_ICONS: Record<string, string> = {
   user: 'person',
 };
 
-export default function Header() {
+export default function Header({ onMenuToggle }: { onMenuToggle?: () => void }) {
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -140,9 +140,18 @@ export default function Header() {
   const icon = (type: string) => TYPE_ICONS[type] || 'label';
 
   return (
-    <header className="sticky top-0 z-40 w-full h-14 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline flex justify-between items-center px-lg transition-colors duration-150 shadow-sm">
-      {/* Search Bar */}
-      <div ref={searchRef} className="flex items-center flex-1 max-w-md relative group">
+    <header className="sticky top-0 z-30 w-full h-14 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline flex justify-between items-center px-3 md:px-lg transition-colors duration-150 shadow-sm">
+      <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+        <button
+          onClick={onMenuToggle}
+          className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors"
+          aria-label="Open menu"
+        >
+          <span className="material-symbols-outlined text-[22px]">menu</span>
+        </button>
+
+        {/* Search Bar */}
+        <div ref={searchRef} className="flex items-center flex-1 w-full max-w-none md:max-w-md relative group">
         <span className="material-symbols-outlined absolute left-3 text-on-surface-variant opacity-70 group-focus-within:text-primary transition-colors text-[20px]">
           search
         </span>
@@ -154,17 +163,17 @@ export default function Header() {
           onKeyDown={(e) => {
             if (e.key === 'Escape') setShowResults(false);
           }}
-          className="w-full bg-surface-container-highest dark:bg-[#1f222c] border border-outline-variant/30 rounded-lg pl-10 pr-4 py-1.5 font-body-sm text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-          placeholder="Search knowledge base, tickets, tracker, docs..."
+          className="w-full bg-surface-container-highest dark:bg-[#1f222c] border border-outline-variant/30 rounded-lg pl-10 pr-3 py-1.5 font-body-sm text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+          placeholder="Search..."
           type="text"
         />
-        <div className="absolute right-3 px-1.5 py-0.5 rounded border border-outline-variant/50 text-[10px] font-mono text-on-surface-variant bg-surface opacity-80">
+        <div className="hidden md:block absolute right-3 px-1.5 py-0.5 rounded border border-outline-variant/50 text-[10px] font-mono text-on-surface-variant bg-surface opacity-80">
           Cmd+K
         </div>
 
         {/* Search Results Dropdown */}
         {showResults && (
-          <div className="absolute left-0 right-0 top-full mt-2 bg-surface dark:bg-surface-dim border border-outline-variant dark:border-outline rounded-xl shadow-lg z-50 max-h-80 overflow-y-auto">
+          <div className="fixed md:absolute inset-x-0 md:inset-x-auto top-14 md:top-full md:left-0 md:right-0 md:mt-2 bg-surface dark:bg-surface-dim border-y md:border border-outline-variant dark:border-outline shadow-2xl z-50 max-h-[80vh] md:max-h-80 overflow-y-auto px-4 md:px-0">
             {loading && (
               <div className="px-4 py-3 text-body-sm text-on-surface-variant">
                 Searching...
@@ -180,7 +189,7 @@ export default function Header() {
                 <button
                   key={`${result.type}-${result.id}`}
                   onClick={() => handleResultClick(result.url)}
-                  className="w-full text-left px-4 py-3 hover:bg-surface-container-high flex items-start gap-3 border-b border-outline-variant/20 last:border-0"
+                  className="w-full text-left px-4 py-3 hover:bg-surface-container-high flex items-center md:items-start gap-3 border-b border-outline-variant/20 last:border-0"
                 >
                   <span className="material-symbols-outlined text-[20px] text-on-surface-variant mt-0.5">
                     {icon(result.type)}
@@ -201,9 +210,10 @@ export default function Header() {
           </div>
         )}
       </div>
+      </div>
 
       {/* Right Side Actions */}
-      <div className="flex items-center gap-sm ml-auto">
+      <div className="flex items-center gap-sm">
         {/* Notifications */}
         <div className="relative">
           <button
@@ -285,17 +295,17 @@ export default function Header() {
         <div className="relative">
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="flex items-center gap-2 ml-1 p-1 pr-2 rounded-full border border-outline-variant/30 hover:border-outline transition-colors bg-surface-container-low"
+            className="flex items-center gap-2 ml-1 p-1 md:pr-2 rounded-full border border-outline-variant/30 hover:border-outline transition-colors bg-surface-container-low"
           >
             <img
               className="w-6 h-6 rounded-full object-cover bg-outline"
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUHCfDxd5xK2pPP4YSuc8JUFWHAZTtuWKqEljxLC-lRERATfjgg46Dwtse_kX4WRg7B3gqBN-UNn8Jxq1o3CvUH9w1raMUCbI4yf3xflaFZEM_tecI8xZBIMSeaFyZQv2ZFXjhn_bcr6JR4ahng6mTljMi5iAWI8oEygQILEIlUzV3HJExBz8ZgyK_X9ay4DoXkldRt1UHepiZcVOf4BolLL7gwclZc2n8Nnn0pdxidG-_BOwPrywpW8tJQyQMNA5bOcaOVgnUzM7w"
               alt="User avatar"
             />
-            <span className="font-label-md text-label-md text-on-surface">
+            <span className="hidden md:inline font-label-md text-label-md text-on-surface">
               {session?.user?.name || 'User'}
             </span>
-            <span className="material-symbols-outlined text-[16px] text-on-surface-variant">
+            <span className="hidden md:inline material-symbols-outlined text-[16px] text-on-surface-variant">
               expand_more
             </span>
           </button>

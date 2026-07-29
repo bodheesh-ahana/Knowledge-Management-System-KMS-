@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 
 const LEAD_ROLES = new Set(['TeamLead', 'Manager', 'Admin']);
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const userRole = (session?.user as any)?.role as string | undefined;
@@ -38,10 +38,27 @@ export default function Sidebar() {
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 
+  const handleLinkClick = () => {
+    if (onClose) onClose();
+  };
+
   return (
     <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          onClick={onClose}
+          className="fixed inset-0 bg-on-surface/40 z-40 md:hidden"
+          aria-hidden="true"
+        />
+      )}
+
       {/* Sidebar */}
-      <nav className="fixed left-0 top-0 h-screen w-sidebar-width bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline flex flex-col py-lg px-md transition-all duration-200 ease-in-out z-50">
+      <nav
+        className={`fixed left-0 top-0 h-screen w-sidebar-width bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline flex flex-col py-lg px-md transition-transform duration-200 ease-in-out z-50 md:translate-x-0 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
         {/* Logo */}
         <div className="flex items-center gap-sm mb-2xl px-sm">
           <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-on-primary shadow-sm">
@@ -64,6 +81,7 @@ export default function Sidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={handleLinkClick}
                   className={`flex items-center gap-md px-sm py-2 rounded transition-all duration-200 ease-in-out font-label-md text-label-md ${
                     isActive(item.href)
                       ? 'bg-secondary-container dark:bg-secondary-container text-on-secondary-container dark:text-on-secondary-container border-l-2 border-primary'
@@ -87,6 +105,7 @@ export default function Sidebar() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
+                    onClick={handleLinkClick}
                     className="flex items-center gap-md px-sm py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-label-md text-label-md"
                   >
                     <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
@@ -100,15 +119,20 @@ export default function Sidebar() {
 
         {/* Bottom Section */}
         <div className="mt-auto pt-lg border-t border-outline-variant dark:border-outline/20 flex flex-col gap-sm">
-          <button className="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-2 px-4 rounded-lg font-label-md text-label-md shadow hover:bg-primary-fixed-variant transition-colors">
+          <Link
+            href="/tracker"
+            onClick={handleLinkClick}
+            className="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-2 px-4 rounded-lg font-label-md text-label-md shadow hover:bg-primary-fixed-variant transition-colors"
+          >
             <span className="material-symbols-outlined text-[18px]">add</span>
             Quick Add
-          </button>
+          </Link>
           <ul className="flex flex-col gap-xs space-y-1 mt-sm">
             {bottomItems.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={handleLinkClick}
                   className="flex items-center gap-md px-sm py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-label-md text-label-md"
                 >
                   <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
