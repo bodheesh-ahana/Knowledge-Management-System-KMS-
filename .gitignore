@@ -46,3 +46,6 @@ playwright-report/
 # Later can migrate to cloud storage (Cloudinary, S3, etc.)
 public/uploads/
 !public/uploads/.gitkeep
+
+# Database dumps
+dump/
