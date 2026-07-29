@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KMS - Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#0053db",
+                        "on-primary-fixed": "#00174b",
+                        "surface-variant": "#dae2fd",
+                        "surface-container-low": "#f2f3ff",
+                        "outline": "#737686",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#e0e3e5",
+                        "surface-container": "#eaedff",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#eeefff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "on-tertiary-container": "#eff1f3",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "surface-container-highest": "#dae2fd",
+                        "surface": "#faf8ff",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#0b1c30",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#131b2e",
+                        "surface-dim": "#d2d9f4",
+                        "primary-container": "#2563eb",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "secondary-fixed": "#d3e4fe",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "secondary-container": "#d0e1fb",
+                        "inverse-primary": "#b4c5ff",
+                        "surface-container-high": "#e2e7ff",
+                        "on-background": "#131b2e",
+                        "tertiary-container": "#6b6e70",
+                        "inverse-on-surface": "#eef0ff",
+                        "inverse-surface": "#283044",
+                        "error": "#ba1a1a",
+                        "outline-variant": "#c3c6d7",
+                        "surface-bright": "#faf8ff",
+                        "secondary": "#505f76",
+                        "primary": "#004ac6",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "tertiary": "#525657",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-secondary-container": "#54647a",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#434655",
+                        "background": "#faf8ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "3xl": "64px",
+                        "container-max": "1440px",
+                        "xl": "32px",
+                        "sidebar-width": "260px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "2xl": "48px",
+                        "base": "4px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Geist", "sans-serif"],
+                        "body-md": ["Geist", "sans-serif"],
+                        "h2": ["Geist", "sans-serif"],
+                        "h3": ["Geist", "sans-serif"],
+                        "body-sm": ["Geist", "sans-serif"],
+                        "h1": ["Geist", "sans-serif"],
+                        "body-lg": ["Geist", "sans-serif"],
+                        "mono": ["jetbrainsMono", "monospace"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "h2": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "h3": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "h1": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background dark:bg-background text-on-background dark:text-on-background font-body-md text-body-md antialiased selection:bg-primary selection:text-on-primary">
+<!-- TopNavBar (Mobile mainly, or global header) -->
+<header class="sticky top-0 z-40 w-full h-14 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline flex justify-between items-center px-lg transition-colors duration-150 hidden md:flex">
+<div class="flex items-center gap-md">
+<!-- Placeholder for mobile menu toggle if needed -->
+</div>
+<div class="flex-1 flex justify-start items-center ml-sidebar-width pl-lg">
+<!-- Search Bar Area -->
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+<input class="w-full bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-md pl-8 pr-sm py-xs font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-on-surface dark:text-inverse-on-surface placeholder:text-outline-variant" placeholder="Search KMS..." type="text"/>
+<div class="absolute right-2 top-1/2 -translate-y-1/2 text-outline-variant font-label-md text-label-md border border-outline-variant rounded px-1">Cmd+K</div>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-150 p-xs rounded-full hover:bg-surface-container-high dark:hover:bg-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-150 p-xs rounded-full hover:bg-surface-container-high dark:hover:bg-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">contrast</span>
+</button>
+<button class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-150 p-xs rounded-full hover:bg-surface-container-high dark:hover:bg-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<button class="bg-primary hover:bg-primary-fixed-dim text-on-primary font-label-md text-label-md py-xs px-md rounded transition-colors ml-sm">Quick Add</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant overflow-hidden ml-sm cursor-pointer">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a corporate employee in a well-lit modern office setting, facing the camera with a neutral expression, high-resolution and clean aesthetic suitable for an enterprise avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmZs9CQIOt_-XQSxBCxg2WOCeOmRoWtqVTqmkOX9d5Bk8ECNxd7d5VVkhIsWovf4Y6oyie0eoqV4MJf7F2CZ4Rqt7G32fcyg8V1lBlOpL9bCUGExl3a9j4sSn5-KSGqhJdLDVncUW8SLjC2akbjphzqIKMH_hMo9W2IVYHDkX_AezMk-zLtUkBYIdB1FLPtmkoJoRfgnXm0JOI7IANrxcNdpVj3t3fvQy13sJ1aqof2vFLDeMNs8e8JE2VsABgSjoYiBVBa1JfDTXg"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-sidebar-width bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline flex flex-col py-lg px-md z-50 hidden md:flex">
+<div class="flex items-center gap-sm px-sm mb-xl">
+<div class="w-8 h-8 bg-primary rounded flex items-center justify-center text-on-primary font-bold">K</div>
+<div>
+<h1 class="font-h3 text-h3 font-bold text-primary dark:text-primary-fixed-dim leading-none">KMS</h1>
+<p class="font-label-md text-label-md text-on-surface-variant mt-xs">Enterprise Support</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-xs overflow-y-auto">
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md group" href="#">
+<span class="material-symbols-outlined text-[20px] text-outline group-hover:text-on-surface">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md group" href="#">
+<span class="material-symbols-outlined text-[20px] text-outline group-hover:text-on-surface">auto_stories</span>
+                Knowledge Base
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md group" href="#">
+<span class="material-symbols-outlined text-[20px] text-outline group-hover:text-on-surface">confirmation_number</span>
+                Tickets
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md group" href="#">
+<span class="material-symbols-outlined text-[20px] text-outline group-hover:text-on-surface">apps</span>
+                Applications
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md group" href="#">
+<span class="material-symbols-outlined text-[20px] text-outline group-hover:text-on-surface">track_changes</span>
+                Internal Tracker
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md group" href="#">
+<span class="material-symbols-outlined text-[20px] text-outline group-hover:text-on-surface">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md group" href="#">
+<span class="material-symbols-outlined text-[20px] text-outline group-hover:text-on-surface">description</span>
+                Documents
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md group" href="#">
+<span class="material-symbols-outlined text-[20px] text-outline group-hover:text-on-surface">notifications</span>
+                Notifications
+            </a>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md group" href="#">
+<span class="material-symbols-outlined text-[20px] text-outline group-hover:text-on-surface">group</span>
+                Users
+            </a>
+<!-- Active State -->
+<a class="flex items-center gap-md px-md py-sm rounded-md bg-secondary-container dark:bg-secondary-container text-on-secondary-container dark:text-on-secondary-container border-l-2 border-primary transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="mt-auto pt-lg border-t border-outline-variant dark:border-outline">
+<div class="font-label-md text-label-md text-outline px-sm mb-sm uppercase tracking-wider">Quick Links</div>
+<a class="flex items-center gap-md px-md py-xs rounded-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-sm text-body-sm group" href="#">
+<span class="material-symbols-outlined text-[16px] text-outline group-hover:text-on-surface">widgets</span>
+                Applications
+            </a>
+<a class="flex items-center gap-md px-md py-xs rounded-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-sm text-body-sm group" href="#">
+<span class="material-symbols-outlined text-[16px] text-outline group-hover:text-on-surface">star</span>
+                Favourite Articles
+            </a>
+<a class="flex items-center gap-md px-md py-xs rounded-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-sm text-body-sm group" href="#">
+<span class="material-symbols-outlined text-[16px] text-outline group-hover:text-on-surface">drafts</span>
+                Drafts
+            </a>
+<a class="flex items-center gap-md px-md py-xs rounded-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-sm text-body-sm group" href="#">
+<span class="material-symbols-outlined text-[16px] text-outline group-hover:text-on-surface">history</span>
+                Recent Entries
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-sidebar-width min-h-[calc(100vh-56px)] p-lg lg:p-xl bg-background dark:bg-background">
+<div class="max-w-container-max mx-auto">
+<!-- Header -->
+<div class="mb-xl">
+<h2 class="font-h1 text-h1 text-on-background dark:text-on-surface mb-xs">Settings</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant dark:text-outline">Manage your workspace preferences and account configurations.</p>
+</div>
+<!-- Settings Layout Grid -->
+<div class="flex flex-col md:flex-row gap-2xl relative items-start">
+<!-- Settings Sub-Navigation -->
+<nav class="w-full md:w-64 shrink-0 flex flex-col gap-xs sticky top-24">
+<a class="px-md py-sm rounded-md font-body-md text-body-md text-on-surface-variant dark:text-outline hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors" href="#">
+                        Profile
+                    </a>
+<!-- Active State for Sub-Nav -->
+<a class="px-md py-sm rounded-md font-body-md text-body-md bg-surface-container-high dark:bg-surface-container-highest text-on-surface dark:text-inverse-on-surface font-semibold flex items-center justify-between" href="#">
+                        Appearance
+                        <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</a>
+<a class="px-md py-sm rounded-md font-body-md text-body-md text-on-surface-variant dark:text-outline hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors" href="#">
+                        Notifications
+                    </a>
+<a class="px-md py-sm rounded-md font-body-md text-body-md text-on-surface-variant dark:text-outline hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors" href="#">
+                        Keyboard Shortcuts
+                    </a>
+<a class="px-md py-sm rounded-md font-body-md text-body-md text-on-surface-variant dark:text-outline hover:bg-surface-container dark:hover:bg-surface-container-highest transition-colors" href="#">
+                        Security
+                    </a>
+</nav>
+<!-- Settings Content Area -->
+<section class="flex-1 max-w-[720px] bg-surface dark:bg-surface-dim border border-outline-variant dark:border-outline rounded-xl p-lg lg:p-xl shadow-sm">
+<h3 class="font-h2 text-h2 text-on-surface dark:text-inverse-on-surface mb-lg pb-sm border-b border-outline-variant dark:border-outline">Appearance</h3>
+<!-- Theme Section -->
+<div class="mb-2xl">
+<div class="mb-md">
+<h4 class="font-h3 text-h3 text-on-surface dark:text-inverse-on-surface mb-xs">Theme</h4>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-outline">Customize the visual theme of your workspace.</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-md">
+<!-- Theme Option: Light -->
+<label class="relative cursor-pointer group">
+<input class="peer sr-only" name="theme" type="radio" value="light"/>
+<div class="border border-outline-variant dark:border-outline rounded-lg p-md transition-all group-hover:border-primary peer-checked:border-primary peer-checked:bg-surface-container-low dark:peer-checked:bg-surface-container-lowest peer-checked:ring-1 peer-checked:ring-primary flex flex-col items-center gap-sm">
+<div class="w-full h-24 bg-surface-bright rounded-md border border-outline-variant flex items-center justify-center mb-sm overflow-hidden relative">
+<!-- Mockup UI inside -->
+<div class="absolute inset-0 bg-white flex flex-col">
+<div class="h-4 bg-gray-100 border-b border-gray-200 flex items-center px-2"><div class="w-16 h-1 bg-gray-300 rounded"></div></div>
+<div class="flex-1 flex px-2 py-2 gap-2">
+<div class="w-8 bg-gray-50 rounded border border-gray-100"></div>
+<div class="flex-1 bg-gray-50 rounded border border-gray-100"></div>
+</div>
+</div>
+</div>
+<span class="font-body-md text-body-md font-medium text-on-surface dark:text-outline flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">light_mode</span>
+                                        Light
+                                    </span>
+</div>
+</label>
+<!-- Theme Option: Dark (Active) -->
+<label class="relative cursor-pointer group">
+<input checked="" class="peer sr-only" name="theme" type="radio" value="dark"/>
+<div class="border border-outline-variant dark:border-outline rounded-lg p-md transition-all group-hover:border-primary peer-checked:border-primary peer-checked:bg-surface-container-low dark:peer-checked:bg-surface-container-lowest peer-checked:ring-1 peer-checked:ring-primary flex flex-col items-center gap-sm">
+<div class="w-full h-24 bg-surface-dim rounded-md border border-outline flex items-center justify-center mb-sm overflow-hidden relative">
+<!-- Mockup UI inside -->
+<div class="absolute inset-0 bg-gray-900 flex flex-col">
+<div class="h-4 bg-gray-800 border-b border-gray-700 flex items-center px-2"><div class="w-16 h-1 bg-gray-600 rounded"></div></div>
+<div class="flex-1 flex px-2 py-2 gap-2">
+<div class="w-8 bg-gray-800 rounded border border-gray-700"></div>
+<div class="flex-1 bg-gray-800 rounded border border-gray-700"></div>
+</div>
+</div>
+</div>
+<span class="font-body-md text-body-md font-medium text-on-surface dark:text-inverse-on-surface flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">dark_mode</span>
+                                        Dark
+                                    </span>
+</div>
+</label>
+<!-- Theme Option: System -->
+<label class="relative cursor-pointer group">
+<input class="peer sr-only" name="theme" type="radio" value="system"/>
+<div class="border border-outline-variant dark:border-outline rounded-lg p-md transition-all group-hover:border-primary peer-checked:border-primary peer-checked:bg-surface-container-low dark:peer-checked:bg-surface-container-lowest peer-checked:ring-1 peer-checked:ring-primary flex flex-col items-center gap-sm">
+<div class="w-full h-24 bg-gradient-to-r from-surface-bright to-surface-dim rounded-md border border-outline-variant flex items-center justify-center mb-sm overflow-hidden relative">
+<!-- Mockup UI inside -->
+<div class="absolute inset-0 flex">
+<div class="flex-1 bg-white flex flex-col">
+<div class="h-4 bg-gray-100 border-b border-gray-200"></div>
+<div class="flex-1"></div>
+</div>
+<div class="flex-1 bg-gray-900 flex flex-col">
+<div class="h-4 bg-gray-800 border-b border-gray-700"></div>
+<div class="flex-1"></div>
+</div>
+</div>
+</div>
+<span class="font-body-md text-body-md font-medium text-on-surface dark:text-outline flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">desktop_windows</span>
+                                        System
+                                    </span>
+</div>
+</label>
+</div>
+</div>
+<!-- Display Density Section -->
+<div class="mb-lg">
+<div class="mb-md">
+<h4 class="font-h3 text-h3 text-on-surface dark:text-inverse-on-surface mb-xs">Display Density</h4>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-outline">Adjust the vertical spacing of list items and tables.</p>
+</div>
+<div class="space-y-sm">
+<!-- Density: Comfortable -->
+<label class="flex items-start gap-md p-md rounded-lg border border-outline-variant dark:border-outline hover:bg-surface-container-low dark:hover:bg-surface-container-lowest transition-colors cursor-pointer group relative">
+<div class="pt-xs">
+<input checked="" class="w-4 h-4 text-primary bg-surface border-outline-variant focus:ring-primary focus:ring-2 dark:bg-surface-dim dark:border-outline" name="density" type="radio" value="comfortable"/>
+</div>
+<div class="flex-1">
+<div class="font-body-md font-medium text-on-surface dark:text-inverse-on-surface mb-xs">Comfortable</div>
+<div class="font-body-sm text-on-surface-variant dark:text-outline mb-md">More spacing between elements. Better for touch devices or scanning text.</div>
+<!-- Visual Indicator -->
+<div class="border border-outline-variant dark:border-outline rounded bg-surface dark:bg-surface-dim p-sm flex flex-col gap-sm opacity-70 group-hover:opacity-100 transition-opacity">
+<div class="h-8 bg-surface-container-high dark:bg-surface-container-highest rounded-sm w-full"></div>
+<div class="h-8 bg-surface-container-high dark:bg-surface-container-highest rounded-sm w-full"></div>
+<div class="h-8 bg-surface-container-high dark:bg-surface-container-highest rounded-sm w-3/4"></div>
+</div>
+</div>
+</label>
+<!-- Density: Compact -->
+<label class="flex items-start gap-md p-md rounded-lg border border-outline-variant dark:border-outline hover:bg-surface-container-low dark:hover:bg-surface-container-lowest transition-colors cursor-pointer group relative">
+<div class="pt-xs">
+<input class="w-4 h-4 text-primary bg-surface border-outline-variant focus:ring-primary focus:ring-2 dark:bg-surface-dim dark:border-outline" name="density" type="radio" value="compact"/>
+</div>
+<div class="flex-1">
+<div class="font-body-md font-medium text-on-surface dark:text-inverse-on-surface mb-xs">Compact</div>
+<div class="font-body-sm text-on-surface-variant dark:text-outline mb-md">Maximum information density. Ideal for large datasets or power users.</div>
+<!-- Visual Indicator -->
+<div class="border border-outline-variant dark:border-outline rounded bg-surface dark:bg-surface-dim p-sm flex flex-col gap-[4px] opacity-70 group-hover:opacity-100 transition-opacity">
+<div class="h-5 bg-surface-container-high dark:bg-surface-container-highest rounded-sm w-full"></div>
+<div class="h-5 bg-surface-container-high dark:bg-surface-container-highest rounded-sm w-full"></div>
+<div class="h-5 bg-surface-container-high dark:bg-surface-container-highest rounded-sm w-full"></div>
+<div class="h-5 bg-surface-container-high dark:bg-surface-container-highest rounded-sm w-3/4"></div>
+</div>
+</div>
+</label>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="mt-xl pt-lg border-t border-outline-variant dark:border-outline flex justify-end gap-md">
+<button class="px-lg py-sm font-label-md text-label-md text-on-surface dark:text-inverse-on-surface border border-outline-variant dark:border-outline rounded hover:bg-surface-container-low dark:hover:bg-surface-container-lowest transition-colors">Discard Changes</button>
+<button class="px-lg py-sm font-label-md text-label-md bg-primary text-on-primary rounded hover:bg-primary-fixed-dim transition-colors">Save Preferences</button>
+</div>
+</section>
+</div>
+</div>
+</main>
+</body></html>

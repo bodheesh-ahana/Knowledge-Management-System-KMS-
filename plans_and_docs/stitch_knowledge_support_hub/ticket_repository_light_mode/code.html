@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KMS Engine - Internal Tracker</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-fixed": "#d3e4fe",
+                      "on-primary-fixed": "#00174b",
+                      "on-surface-variant": "#434655",
+                      "background": "#faf8ff",
+                      "tertiary-fixed": "#e0e3e5",
+                      "on-primary": "#ffffff",
+                      "primary-fixed": "#dbe1ff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-variant": "#dae2fd",
+                      "surface-container-highest": "#dae2fd",
+                      "secondary-container": "#d0e1fb",
+                      "surface-container": "#eaedff",
+                      "surface-bright": "#faf8ff",
+                      "outline-variant": "#c3c6d7",
+                      "surface-container-high": "#e2e7ff",
+                      "tertiary": "#525657",
+                      "secondary-fixed-dim": "#b7c8e1",
+                      "tertiary-container": "#6b6e70",
+                      "on-tertiary": "#ffffff",
+                      "inverse-primary": "#b4c5ff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "surface-tint": "#0053db",
+                      "inverse-on-surface": "#eef0ff",
+                      "outline": "#737686",
+                      "on-secondary-container": "#54647a",
+                      "surface-container-low": "#f2f3ff",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "on-surface": "#131b2e",
+                      "on-primary-container": "#eeefff",
+                      "inverse-surface": "#283044",
+                      "error": "#ba1a1a",
+                      "primary": "#004ac6",
+                      "on-secondary": "#ffffff",
+                      "primary-container": "#2563eb",
+                      "on-tertiary-container": "#eff1f3",
+                      "on-secondary-fixed-variant": "#38485d",
+                      "surface": "#faf8ff",
+                      "secondary": "#505f76",
+                      "on-background": "#131b2e",
+                      "surface-dim": "#d2d9f4",
+                      "on-error-container": "#93000a",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-secondary-fixed": "#0b1c30",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "primary-fixed-dim": "#b4c5ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "3xl": "64px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "xl": "32px",
+                      "lg": "24px",
+                      "base": "4px",
+                      "2xl": "48px",
+                      "sidebar-width": "260px",
+                      "md": "16px",
+                      "container-max": "1440px"
+              },
+              "fontFamily": {
+                      "mono": [
+                              "jetbrainsMono"
+                      ],
+                      "body-lg": [
+                              "Geist"
+                      ],
+                      "body-sm": [
+                              "Geist"
+                      ],
+                      "label-md": [
+                              "Geist"
+                      ],
+                      "h2": [
+                              "Geist"
+                      ],
+                      "h3": [
+                              "Geist"
+                      ],
+                      "h1": [
+                              "Geist"
+                      ],
+                      "body-md": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "mono": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h3": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased overflow-hidden flex h-screen">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col bg-surface dark:bg-surface w-sidebar-width h-screen border-r border-outline-variant dark:border-outline-variant py-lg z-40 relative">
+<div class="px-md mb-xl">
+<h1 class="font-h3 text-h3 font-bold text-on-surface dark:text-on-surface">KMS Engine</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Enterprise Support</p>
+</div>
+<div class="px-md mb-lg">
+<button class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary font-label-md text-label-md h-[40px] rounded hover:bg-primary-container transition-colors duration-200 shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+                New Entry
+            </button>
+</div>
+<nav class="flex-1 px-sm space-y-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">menu_book</span>
+                Knowledge Base
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">confirmation_number</span>
+                Tickets
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">apps</span>
+                Applications
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded bg-surface-container-high dark:bg-surface-container-high text-primary dark:text-inverse-primary border-l-2 border-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+                Internal Tracker
+            </a>
+</nav>
+<div class="px-sm mt-auto pt-lg space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">description</span>
+                Documentation
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-lg w-full h-[56px] border-b border-outline-variant dark:border-outline-variant bg-surface dark:bg-surface">
+<div class="flex items-center gap-lg">
+<div class="md:hidden font-h3 text-h3 font-bold text-on-surface">KMS Engine</div>
+<div class="hidden md:flex items-center gap-md">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 16px;">search</span>
+<input class="h-[32px] w-[240px] pl-8 pr-3 rounded bg-background border border-outline-variant text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow" placeholder="Search reference..." type="text"/>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<nav class="hidden md:flex items-center gap-4">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-lowest px-2 py-1 rounded transition-all duration-150" href="#">Docs</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-lowest px-2 py-1 rounded transition-all duration-150" href="#">Support</a>
+</nav>
+<div class="h-4 w-px bg-outline-variant mx-2 hidden md:block"></div>
+<button class="text-primary dark:text-inverse-primary font-label-md hover:bg-surface-container-low dark:hover:bg-surface-container-lowest px-3 py-1.5 rounded transition-all duration-150">Quick Add</button>
+<div class="flex items-center gap-2">
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">notifications</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant overflow-hidden ml-2 cursor-pointer">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a software engineer, corporate modern style, soft lighting, sharp focus on face, minimalist background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQdbiuPWYWjglXU5SAIMyr40K32idvgpNg0n9dMYz3pBtbDjBuIpVVOdRmg2iPbg6ky1eH8H0jf-ZvXj3Q2s5-03Nx-Y4qvgOJltHou8fMti2k4rKsFHZ02hLkiFKV17Xr6U9NtIO4cgBzCVvW3K2IrpVTW9QLcYNnr2bjyLUft62vL8V0Y3x2MzBZV1-Z9DbvnpbkF2Cbktug5v3fsZgarVC5fjKnEFOitGGQMf8gIw_C0X6ct6ustlI4osbySUddzcvDKmx6mjWS"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<div class="flex-1 overflow-auto p-md lg:p-lg">
+<div class="max-w-[1440px] mx-auto w-full flex flex-col h-full gap-md">
+<!-- Page Header & Filters -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-sm">
+<div>
+<h2 class="font-h2 text-h2 font-semibold text-on-background">Internal Reference Tracker</h2>
+<p class="text-body-sm text-on-surface-variant mt-1">Global view of all internal tickets and associated knowledge base articles.</p>
+</div>
+<div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+<div class="relative">
+<select class="appearance-none h-[32px] pl-3 pr-8 rounded bg-surface border border-outline-variant text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow cursor-pointer">
+<option>All Applications</option>
+<option>CRM Portal</option>
+<option>Billing System</option>
+<option>Auth Service</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" style="font-size: 16px;">expand_more</span>
+</div>
+<div class="relative">
+<select class="appearance-none h-[32px] pl-3 pr-8 rounded bg-surface border border-outline-variant text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow cursor-pointer">
+<option>Status: All</option>
+<option>Open</option>
+<option>In Progress</option>
+<option>Resolved</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" style="font-size: 16px;">expand_more</span>
+</div>
+<button class="h-[32px] px-3 flex items-center gap-2 rounded bg-surface border border-outline-variant text-body-sm text-on-surface hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined" style="font-size: 16px;">filter_list</span>
+                            More Filters
+                        </button>
+<button class="h-[32px] w-[32px] flex items-center justify-center rounded bg-surface border border-outline-variant text-on-surface hover:bg-surface-container transition-colors ml-auto sm:ml-2">
+<span class="material-symbols-outlined" style="font-size: 16px;">download</span>
+</button>
+</div>
+</div>
+<!-- Table Container (Bento/Card style wrapper) -->
+<div class="flex-1 bg-surface border border-subtle rounded-lg flex flex-col min-h-[500px]">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-4 px-4 py-3 border-b border-outline-variant bg-surface-container-lowest text-label-md text-on-surface-variant sticky top-0 z-10 rounded-t-lg">
+<div class="col-span-2 sm:col-span-1">Ticket #</div>
+<div class="col-span-5 sm:col-span-3">Issue Summary</div>
+<div class="hidden sm:block col-span-2">Application</div>
+<div class="hidden lg:block col-span-1">Requester</div>
+<div class="hidden md:block col-span-1">Owner</div>
+<div class="col-span-2 sm:col-span-1 text-center">Priority</div>
+<div class="col-span-2 sm:col-span-1 text-center">Status</div>
+<div class="hidden lg:block col-span-2 text-right">Knowledge Linked</div>
+</div>
+<!-- Table Body -->
+<div class="flex-1 overflow-y-auto">
+<!-- Row 1 -->
+<div class="grid grid-cols-12 gap-4 px-4 py-3 border-b border-outline-variant hover:bg-surface-container-low transition-colors group cursor-pointer items-center text-body-sm text-on-surface">
+<div class="col-span-2 sm:col-span-1 font-mono text-mono text-on-surface-variant">#4092</div>
+<div class="col-span-5 sm:col-span-3 font-medium truncate group-hover:text-primary transition-colors">OAuth Token Expiration Failure</div>
+<div class="hidden sm:block col-span-2 truncate text-on-surface-variant">Auth Service</div>
+<div class="hidden lg:flex col-span-1 items-center gap-2">
+<div class="w-5 h-5 rounded-full bg-tertiary-container text-on-tertiary flex items-center justify-center text-[10px] font-bold">JD</div>
+<span class="truncate">J. Doe</span>
+</div>
+<div class="hidden md:flex col-span-1 items-center gap-2">
+<div class="w-5 h-5 rounded-full bg-primary-container text-on-primary flex items-center justify-center text-[10px] font-bold">AS</div>
+<span class="truncate">A. Smith</span>
+</div>
+<div class="col-span-2 sm:col-span-1 flex justify-center">
+<span class="inline-flex items-center px-1.5 py-0.5 rounded-sm bg-error-container text-on-error-container text-[10px] font-semibold tracking-wide uppercase">High</span>
+</div>
+<div class="col-span-2 sm:col-span-1 flex justify-center">
+<span class="inline-flex items-center gap-1 text-on-surface-variant text-[11px] font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                                    Open
+                                </span>
+</div>
+<div class="hidden lg:flex col-span-2 justify-end items-center gap-2">
+<span class="material-symbols-outlined text-outline" style="font-size: 16px;">link</span>
+<span class="text-primary hover:underline truncate max-w-[120px]">KB-Auth-Refresh</span>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-12 gap-4 px-4 py-3 border-b border-outline-variant hover:bg-surface-container-low transition-colors group cursor-pointer items-center text-body-sm text-on-surface">
+<div class="col-span-2 sm:col-span-1 font-mono text-mono text-on-surface-variant">#4091</div>
+<div class="col-span-5 sm:col-span-3 font-medium truncate group-hover:text-primary transition-colors">Data Export Timeout &gt; 50k rows</div>
+<div class="hidden sm:block col-span-2 truncate text-on-surface-variant">Reporting DB</div>
+<div class="hidden lg:flex col-span-1 items-center gap-2">
+<div class="w-5 h-5 rounded-full bg-tertiary-container text-on-tertiary flex items-center justify-center text-[10px] font-bold">MR</div>
+<span class="truncate">M. Ross</span>
+</div>
+<div class="hidden md:flex col-span-1 items-center gap-2">
+<div class="w-5 h-5 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center text-[10px] font-bold">KL</div>
+<span class="truncate">K. Lee</span>
+</div>
+<div class="col-span-2 sm:col-span-1 flex justify-center">
+<span class="inline-flex items-center px-1.5 py-0.5 rounded-sm bg-surface-variant text-on-surface-variant text-[10px] font-semibold tracking-wide uppercase">Med</span>
+</div>
+<div class="col-span-2 sm:col-span-1 flex justify-center">
+<span class="inline-flex items-center gap-1 text-on-surface-variant text-[11px] font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                                    In Prog
+                                </span>
+</div>
+<div class="hidden lg:flex col-span-2 justify-end items-center gap-2">
+<span class="text-on-surface-variant text-xs italic">Unlinked</span>
+<button class="text-on-surface-variant hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined" style="font-size: 16px;">add_link</span>
+</button>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="grid grid-cols-12 gap-4 px-4 py-3 border-b border-outline-variant hover:bg-surface-container-low transition-colors group cursor-pointer items-center text-body-sm text-on-surface">
+<div class="col-span-2 sm:col-span-1 font-mono text-mono text-on-surface-variant">#4088</div>
+<div class="col-span-5 sm:col-span-3 font-medium truncate group-hover:text-primary transition-colors text-on-surface-variant line-through">UI Misalignment in Dashboard Header</div>
+<div class="hidden sm:block col-span-2 truncate text-on-surface-variant">CRM Portal</div>
+<div class="hidden lg:flex col-span-1 items-center gap-2">
+<div class="w-5 h-5 rounded-full bg-tertiary-container text-on-tertiary flex items-center justify-center text-[10px] font-bold">JD</div>
+<span class="truncate">J. Doe</span>
+</div>
+<div class="hidden md:flex col-span-1 items-center gap-2">
+<div class="w-5 h-5 rounded-full bg-primary-container text-on-primary flex items-center justify-center text-[10px] font-bold">AS</div>
+<span class="truncate">A. Smith</span>
+</div>
+<div class="col-span-2 sm:col-span-1 flex justify-center">
+<span class="inline-flex items-center px-1.5 py-0.5 rounded-sm bg-surface-container-highest text-on-surface-variant text-[10px] font-semibold tracking-wide uppercase opacity-70">Low</span>
+</div>
+<div class="col-span-2 sm:col-span-1 flex justify-center">
+<span class="inline-flex items-center gap-1 text-on-surface-variant text-[11px] font-medium opacity-70">
+<span class="material-symbols-outlined" style="font-size: 12px;">check_circle</span>
+                                    Resolved
+                                </span>
+</div>
+<div class="hidden lg:flex col-span-2 justify-end items-center gap-2">
+<span class="material-symbols-outlined text-outline" style="font-size: 16px;">link</span>
+<span class="text-primary hover:underline truncate max-w-[120px]">UI-Guidelines-V2</span>
+</div>
+</div>
+</div>
+<!-- Pagination Footer -->
+<div class="px-4 py-3 border-t border-outline-variant bg-surface-container-lowest flex items-center justify-between rounded-b-lg text-body-sm text-on-surface-variant">
+<div>Showing 1 to 3 of 142 entries</div>
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant hover:bg-surface-container disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined" style="font-size: 18px;">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant hover:bg-surface-container">
+<span class="material-symbols-outlined" style="font-size: 18px;">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

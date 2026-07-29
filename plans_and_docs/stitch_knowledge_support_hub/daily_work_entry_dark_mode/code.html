@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Daily Work Entry - KMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-fixed": "#d3e4fe",
+                      "on-primary-fixed": "#00174b",
+                      "on-surface-variant": "#434655",
+                      "background": "#faf8ff",
+                      "tertiary-fixed": "#e0e3e5",
+                      "on-primary": "#ffffff",
+                      "primary-fixed": "#dbe1ff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-variant": "#dae2fd",
+                      "surface-container-highest": "#dae2fd",
+                      "secondary-container": "#d0e1fb",
+                      "surface-container": "#eaedff",
+                      "surface-bright": "#faf8ff",
+                      "outline-variant": "#c3c6d7",
+                      "surface-container-high": "#e2e7ff",
+                      "tertiary": "#525657",
+                      "secondary-fixed-dim": "#b7c8e1",
+                      "tertiary-container": "#6b6e70",
+                      "on-tertiary": "#ffffff",
+                      "inverse-primary": "#b4c5ff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "surface-tint": "#0053db",
+                      "inverse-on-surface": "#eef0ff",
+                      "outline": "#737686",
+                      "on-secondary-container": "#54647a",
+                      "surface-container-low": "#f2f3ff",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "on-surface": "#131b2e",
+                      "on-primary-container": "#eeefff",
+                      "inverse-surface": "#283044",
+                      "error": "#ba1a1a",
+                      "primary": "#004ac6",
+                      "on-secondary": "#ffffff",
+                      "primary-container": "#2563eb",
+                      "on-tertiary-container": "#eff1f3",
+                      "on-secondary-fixed-variant": "#38485d",
+                      "surface": "#faf8ff",
+                      "secondary": "#505f76",
+                      "on-background": "#131b2e",
+                      "surface-dim": "#d2d9f4",
+                      "on-error-container": "#93000a",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-secondary-fixed": "#0b1c30",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "primary-fixed-dim": "#b4c5ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "3xl": "64px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "xl": "32px",
+                      "lg": "24px",
+                      "base": "4px",
+                      "2xl": "48px",
+                      "sidebar-width": "260px",
+                      "md": "16px",
+                      "container-max": "1440px"
+              },
+              "fontFamily": {
+                      "mono": [
+                              "jetbrainsMono"
+                      ],
+                      "body-lg": [
+                              "Geist"
+                      ],
+                      "body-sm": [
+                              "Geist"
+                      ],
+                      "label-md": [
+                              "Geist"
+                      ],
+                      "h2": [
+                              "Geist"
+                      ],
+                      "h3": [
+                              "Geist"
+                      ],
+                      "h1": [
+                              "Geist"
+                      ],
+                      "body-md": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "mono": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h3": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap');
+        body { font-family: 'Geist', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom scrollbar for dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #737686;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface dark:bg-[#0b0f19] dark:text-[#e2e2e9] min-h-screen flex selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar Component -->
+<nav class="hidden md:flex flex-col h-screen w-sidebar-width border-r border-outline-variant dark:border-[#2d3142] bg-surface-container-low dark:bg-[#121623] fixed left-0 top-0 py-lg px-md z-30 transition-all duration-200 ease-in-out">
+<div class="flex items-center gap-sm mb-2xl">
+<div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-on-primary font-bold">K</div>
+<div>
+<div class="font-h2 text-h2 font-bold text-primary dark:text-primary-fixed-dim">KMS</div>
+<div class="font-label-md text-label-md text-on-surface-variant dark:text-[#a0a5b5]">Enterprise Support</div>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md py-sm px-md rounded flex items-center justify-center gap-xs mb-lg transition-colors duration-150">
+<span class="material-symbols-outlined text-[16px]">add</span>
+            Quick Add
+        </button>
+<div class="flex-1 overflow-y-auto pr-xs space-y-xs">
+<a class="flex items-center gap-sm px-sm py-sm rounded font-body-md text-body-md text-on-surface-variant dark:text-[#a0a5b5] hover:bg-surface-container-high dark:hover:bg-[#1f2438] transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-sm px-sm py-sm rounded font-body-md text-body-md text-on-surface-variant dark:text-[#a0a5b5] hover:bg-surface-container-high dark:hover:bg-[#1f2438] transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">auto_stories</span>
+                Knowledge Base
+            </a>
+<a class="flex items-center gap-sm px-sm py-sm rounded font-body-md text-body-md text-on-surface-variant dark:text-[#a0a5b5] hover:bg-surface-container-high dark:hover:bg-[#1f2438] transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">confirmation_number</span>
+                Tickets
+            </a>
+<a class="flex items-center gap-sm px-sm py-sm rounded font-body-md text-body-md text-on-surface-variant dark:text-[#a0a5b5] hover:bg-surface-container-high dark:hover:bg-[#1f2438] transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">apps</span>
+                Applications
+            </a>
+<a class="flex items-center gap-sm px-sm py-sm rounded font-body-md text-body-md bg-secondary-container dark:bg-[#1c2e4a] text-on-secondary-container dark:text-[#d3e4fe] border-l-2 border-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">track_changes</span>
+                Internal Tracker
+            </a>
+<a class="flex items-center gap-sm px-sm py-sm rounded font-body-md text-body-md text-on-surface-variant dark:text-[#a0a5b5] hover:bg-surface-container-high dark:hover:bg-[#1f2438] transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-sm px-sm py-sm rounded font-body-md text-body-md text-on-surface-variant dark:text-[#a0a5b5] hover:bg-surface-container-high dark:hover:bg-[#1f2438] transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">description</span>
+                Documents
+            </a>
+<a class="flex items-center gap-sm px-sm py-sm rounded font-body-md text-body-md text-on-surface-variant dark:text-[#a0a5b5] hover:bg-surface-container-high dark:hover:bg-[#1f2438] transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+                Notifications
+            </a>
+<a class="flex items-center gap-sm px-sm py-sm rounded font-body-md text-body-md text-on-surface-variant dark:text-[#a0a5b5] hover:bg-surface-container-high dark:hover:bg-[#1f2438] transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+                Users
+            </a>
+<a class="flex items-center gap-sm px-sm py-sm rounded font-body-md text-body-md text-on-surface-variant dark:text-[#a0a5b5] hover:bg-surface-container-high dark:hover:bg-[#1f2438] transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+                Settings
+            </a>
+</div>
+<div class="mt-auto pt-lg border-t border-outline-variant dark:border-[#2d3142] space-y-xs">
+<a class="flex items-center gap-sm px-sm py-sm rounded font-body-md text-body-md text-on-surface-variant dark:text-[#a0a5b5] hover:bg-surface-container-high dark:hover:bg-[#1f2438] transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">widgets</span>
+                Applications
+            </a>
+<a class="flex items-center gap-sm px-sm py-sm rounded font-body-md text-body-md text-on-surface-variant dark:text-[#a0a5b5] hover:bg-surface-container-high dark:hover:bg-[#1f2438] transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">star</span>
+                Favourite Articles
+            </a>
+<a class="flex items-center gap-sm px-sm py-sm rounded font-body-md text-body-md text-on-surface-variant dark:text-[#a0a5b5] hover:bg-surface-container-high dark:hover:bg-[#1f2438] transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">drafts</span>
+                Drafts
+            </a>
+<a class="flex items-center gap-sm px-sm py-sm rounded font-body-md text-body-md text-on-surface-variant dark:text-[#a0a5b5] hover:bg-surface-container-high dark:hover:bg-[#1f2438] transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">history</span>
+                Recent Entries
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:pl-sidebar-width min-h-screen">
+<!-- TopNavBar Component -->
+<header class="sticky top-0 z-40 w-full h-14 bg-surface dark:bg-[#0b0f19]/90 backdrop-blur-md border-b border-outline-variant dark:border-[#2d3142] flex justify-between items-center px-lg transition-colors duration-150">
+<div class="flex items-center gap-md">
+<div class="md:hidden font-h3 text-h3 font-semibold text-on-surface dark:text-[#e2e2e9]">KMS</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden lg:flex items-center bg-surface-container-low dark:bg-[#121623] border border-outline-variant dark:border-[#2d3142] rounded px-sm py-xs text-on-surface-variant dark:text-[#a0a5b5] font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] mr-xs">search</span>
+                    Cmd+K
+                </div>
+<div class="flex items-center gap-xs">
+<button class="p-xs text-on-surface-variant dark:text-[#a0a5b5] hover:text-primary dark:hover:text-primary-fixed-dim transition-colors rounded hover:bg-surface-container-high dark:hover:bg-[#1f2438]">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="p-xs text-on-surface-variant dark:text-[#a0a5b5] hover:text-primary dark:hover:text-primary-fixed-dim transition-colors rounded hover:bg-surface-container-high dark:hover:bg-[#1f2438]">
+<span class="material-symbols-outlined text-[20px]">contrast</span>
+</button>
+<button class="p-xs text-on-surface-variant dark:text-[#a0a5b5] hover:text-primary dark:hover:text-primary-fixed-dim transition-colors rounded hover:bg-surface-container-high dark:hover:bg-[#1f2438]">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-variant dark:bg-[#2d3142] overflow-hidden border border-outline-variant dark:border-[#434655]">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A detailed corporate headshot of a professional in a modern office setting. The lighting is soft and natural, casting a professional light-mode aesthetic over the subject. The background is slightly blurred to emphasize the individual. The overall mood is focused and corporate." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0Kt21zcd8a_zqsU--YTI-40Xu9iFGIYoFUHydkisQujskhkt5OczDNu1Sne_n79Wgsm3kz__K3f_p8X8NQ3EZuNE-e3S6zIm7nM-0pF6-yhQof_e3iLu7XswvdL7TifXTJdmbW7Y-vIp__9gjeKHoOfpicerd1OIm3FrzzDonGq1W-PDQ0d_ZMUOcrWj4E9A_K76dXcmzXuFth9RnL5kZ8iuI5kI5c75dqt9XKIukkwBHDWFRBkkwF0I_-RutIDHePbDJ78L1zLUB"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 p-md lg:p-lg max-w-container-max mx-auto w-full flex flex-col gap-xl relative">
+<!-- Breadcrumbs & Header -->
+<div class="flex flex-col gap-xs mb-md">
+<div class="flex items-center gap-xs font-label-md text-label-md text-on-surface-variant dark:text-[#a0a5b5]">
+<a class="hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Internal Tracker</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface dark:text-[#e2e2e9]">Daily Work Entry</span>
+</div>
+<h1 class="font-h1 text-h1 text-on-surface dark:text-[#ffffff]">Log Effort</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant dark:text-[#a0a5b5]">Record time spent on active investigations and resolutions.</p>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-lg items-start">
+<!-- Main Entry Card (Glassmorphism/Modern) -->
+<div class="xl:col-span-8 bg-surface dark:bg-[#121623]/80 backdrop-blur-xl border border-outline-variant dark:border-[#2d3142] rounded-xl p-lg lg:p-xl flex flex-col gap-lg shadow-sm">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Ticket # -->
+<div class="flex flex-col gap-xs relative">
+<label class="font-label-md text-label-md text-on-surface-variant dark:text-[#a0a5b5]">Ticket # / Reference</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-sm text-[16px] text-on-surface-variant dark:text-[#737686]">search</span>
+<input class="w-full pl-[32px] pr-sm py-sm bg-surface dark:bg-[#0b0f19] border border-outline-variant dark:border-[#2d3142] rounded font-body-md text-body-md text-on-surface dark:text-[#e2e2e9] focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-outline dark:placeholder:text-[#434655] transition-all" placeholder="e.g. INC-2049..." type="text"/>
+<div class="absolute right-sm flex gap-xs">
+<span class="px-xs py-[2px] rounded bg-surface-variant dark:bg-[#1f2438] font-mono text-[10px] text-on-surface-variant dark:text-[#a0a5b5]">⌘K</span>
+</div>
+</div>
+</div>
+<!-- Role -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant dark:text-[#a0a5b5]">Role</label>
+<div class="relative">
+<select class="w-full px-sm py-sm bg-surface dark:bg-[#0b0f19] border border-outline-variant dark:border-[#2d3142] rounded font-body-md text-body-md text-on-surface dark:text-[#e2e2e9] focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none transition-all">
+<option>L2 Support Engineer</option>
+<option>L3 Support Engineer</option>
+<option>Technical Account Manager</option>
+<option>SME</option>
+</select>
+<span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- Work Type -->
+<div class="md:col-span-2 flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant dark:text-[#a0a5b5]">Work Type</label>
+<div class="flex flex-wrap gap-sm">
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="work_type" type="radio"/>
+<div class="px-md py-sm rounded border border-outline-variant dark:border-[#2d3142] bg-surface dark:bg-[#0b0f19] text-on-surface-variant dark:text-[#a0a5b5] font-body-md text-body-md peer-checked:bg-primary-container peer-checked:border-primary peer-checked:text-on-primary-container dark:peer-checked:bg-[#1c2e4a] dark:peer-checked:border-primary dark:peer-checked:text-[#d3e4fe] transition-all hover:bg-surface-container-low dark:hover:bg-[#1f2438]">
+                                        Investigation
+                                    </div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="work_type" type="radio"/>
+<div class="px-md py-sm rounded border border-outline-variant dark:border-[#2d3142] bg-surface dark:bg-[#0b0f19] text-on-surface-variant dark:text-[#a0a5b5] font-body-md text-body-md peer-checked:bg-primary-container peer-checked:border-primary peer-checked:text-on-primary-container dark:peer-checked:bg-[#1c2e4a] dark:peer-checked:border-primary dark:peer-checked:text-[#d3e4fe] transition-all hover:bg-surface-container-low dark:hover:bg-[#1f2438]">
+                                        Documentation
+                                    </div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="work_type" type="radio"/>
+<div class="px-md py-sm rounded border border-outline-variant dark:border-[#2d3142] bg-surface dark:bg-[#0b0f19] text-on-surface-variant dark:text-[#a0a5b5] font-body-md text-body-md peer-checked:bg-primary-container peer-checked:border-primary peer-checked:text-on-primary-container dark:peer-checked:bg-[#1c2e4a] dark:peer-checked:border-primary dark:peer-checked:text-[#d3e4fe] transition-all hover:bg-surface-container-low dark:hover:bg-[#1f2438]">
+                                        Meeting
+                                    </div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="work_type" type="radio"/>
+<div class="px-md py-sm rounded border border-outline-variant dark:border-[#2d3142] bg-surface dark:bg-[#0b0f19] text-on-surface-variant dark:text-[#a0a5b5] font-body-md text-body-md peer-checked:bg-primary-container peer-checked:border-primary peer-checked:text-on-primary-container dark:peer-checked:bg-[#1c2e4a] dark:peer-checked:border-primary dark:peer-checked:text-[#d3e4fe] transition-all hover:bg-surface-container-low dark:hover:bg-[#1f2438]">
+                                        Resolution
+                                    </div>
+</label>
+</div>
+</div>
+<!-- Hours Spent -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant dark:text-[#a0a5b5]">Hours Spent</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-sm text-[16px] text-on-surface-variant dark:text-[#737686]">schedule</span>
+<input class="w-full pl-[32px] pr-sm py-sm bg-surface dark:bg-[#0b0f19] border border-outline-variant dark:border-[#2d3142] rounded font-mono text-[14px] text-on-surface dark:text-[#e2e2e9] focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="0.00" step="0.25" type="number"/>
+<span class="absolute right-sm font-label-md text-label-md text-on-surface-variant dark:text-[#737686]">hrs</span>
+</div>
+</div>
+</div>
+<!-- Description -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant dark:text-[#a0a5b5]">Description of Work</label>
+<textarea class="w-full px-sm py-sm bg-surface dark:bg-[#0b0f19] border border-outline-variant dark:border-[#2d3142] rounded font-body-md text-body-md text-on-surface dark:text-[#e2e2e9] focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-outline dark:placeholder:text-[#434655] resize-none transition-all" placeholder="Briefly describe the investigative steps or resolution applied..." rows="4"></textarea>
+</div>
+<!-- Flags -->
+<div class="flex flex-wrap gap-md py-sm border-t border-outline-variant dark:border-[#2d3142]">
+<label class="flex items-center gap-xs cursor-pointer group">
+<div class="w-4 h-4 rounded border border-outline-variant dark:border-[#737686] flex items-center justify-center bg-surface dark:bg-[#0b0f19] group-hover:border-primary transition-colors">
+<input class="sr-only peer" type="checkbox"/>
+<span class="material-symbols-outlined text-[14px] text-transparent peer-checked:text-primary transition-colors">check</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant dark:text-[#a0a5b5] group-hover:text-on-surface dark:group-hover:text-[#e2e2e9] transition-colors">SLA Breached</span>
+</label>
+<label class="flex items-center gap-xs cursor-pointer group">
+<div class="w-4 h-4 rounded border border-outline-variant dark:border-[#737686] flex items-center justify-center bg-surface dark:bg-[#0b0f19] group-hover:border-primary transition-colors">
+<input class="sr-only peer" type="checkbox"/>
+<span class="material-symbols-outlined text-[14px] text-transparent peer-checked:text-error dark:peer-checked:text-[#ffb4ab] transition-colors">check</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant dark:text-[#a0a5b5] group-hover:text-on-surface dark:group-hover:text-[#e2e2e9] transition-colors">Escalated to Engineering</span>
+</label>
+</div>
+<!-- Actions -->
+<div class="flex justify-end gap-sm mt-sm">
+<button class="px-lg py-sm rounded font-label-md text-label-md border border-outline-variant dark:border-[#434655] text-on-surface-variant dark:text-[#a0a5b5] hover:bg-surface-container-high dark:hover:bg-[#1f2438] transition-colors">
+                            Clear
+                        </button>
+<button class="px-lg py-sm rounded font-label-md text-label-md bg-primary text-on-primary hover:bg-primary-container dark:hover:bg-[#003ea8] shadow-sm transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">save</span>
+                            Log Effort
+                        </button>
+</div>
+</div>
+<!-- Recent Entries Widget (Side Column) -->
+<div class="xl:col-span-4 flex flex-col gap-md">
+<div class="flex items-center justify-between">
+<h3 class="font-h3 text-h3 text-on-surface dark:text-[#e2e2e9]">Recent Entries</h3>
+<button class="text-primary dark:text-primary-fixed-dim font-label-md text-label-md hover:underline">View All</button>
+</div>
+<div class="flex flex-col gap-sm">
+<!-- Entry 1 -->
+<div class="p-md rounded-lg border border-outline-variant dark:border-[#2d3142] bg-surface-container-lowest dark:bg-[#0b0f19] hover:bg-surface-container-low dark:hover:bg-[#121623] transition-colors group relative overflow-hidden">
+<div class="flex justify-between items-start mb-xs">
+<div class="flex items-center gap-xs">
+<span class="px-xs py-[2px] rounded bg-secondary-container dark:bg-[#1c2e4a] text-on-secondary-container dark:text-[#d3e4fe] font-mono text-[10px]">INC-1982</span>
+<span class="font-label-md text-label-md text-on-surface-variant dark:text-[#a0a5b5]">• 2h ago</span>
+</div>
+<span class="font-mono text-body-sm text-on-surface dark:text-[#e2e2e9]">1.5h</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface dark:text-[#c4c7c9] line-clamp-2 mb-sm">
+                                Investigated database lock contention issues causing slow response times on the main dashboard.
+                            </p>
+<div class="flex items-center gap-xs">
+<span class="px-xs py-[2px] rounded border border-outline-variant dark:border-[#434655] text-on-surface-variant dark:text-[#a0a5b5] font-label-md text-[10px]">Investigation</span>
+</div>
+<!-- One-click Duplicate Overlay -->
+<div class="absolute inset-0 bg-surface/90 dark:bg-[#121623]/90 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200">
+<button class="px-md py-xs rounded bg-surface-variant dark:bg-[#1f2438] text-primary dark:text-primary-fixed-dim font-label-md text-label-md border border-primary dark:border-[#003ea8] flex items-center gap-xs hover:bg-primary hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+                                    Duplicate Entry
+                                </button>
+</div>
+</div>
+<!-- Entry 2 -->
+<div class="p-md rounded-lg border border-outline-variant dark:border-[#2d3142] bg-surface-container-lowest dark:bg-[#0b0f19] hover:bg-surface-container-low dark:hover:bg-[#121623] transition-colors group relative overflow-hidden">
+<div class="flex justify-between items-start mb-xs">
+<div class="flex items-center gap-xs">
+<span class="px-xs py-[2px] rounded bg-secondary-container dark:bg-[#1c2e4a] text-on-secondary-container dark:text-[#d3e4fe] font-mono text-[10px]">REQ-873</span>
+<span class="font-label-md text-label-md text-on-surface-variant dark:text-[#a0a5b5]">• 4h ago</span>
+</div>
+<span class="font-mono text-body-sm text-on-surface dark:text-[#e2e2e9]">0.5h</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface dark:text-[#c4c7c9] line-clamp-2 mb-sm">
+                                Client sync meeting regarding Q3 feature rollout and API deprecation timeline.
+                            </p>
+<div class="flex items-center gap-xs">
+<span class="px-xs py-[2px] rounded border border-outline-variant dark:border-[#434655] text-on-surface-variant dark:text-[#a0a5b5] font-label-md text-[10px]">Meeting</span>
+</div>
+<div class="absolute inset-0 bg-surface/90 dark:bg-[#121623]/90 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200">
+<button class="px-md py-xs rounded bg-surface-variant dark:bg-[#1f2438] text-primary dark:text-primary-fixed-dim font-label-md text-label-md border border-primary dark:border-[#003ea8] flex items-center gap-xs hover:bg-primary hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+                                    Duplicate Entry
+                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ticket Workspace - KMS Engine</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#d3e4fe",
+                        "on-primary-fixed": "#00174b",
+                        "on-surface-variant": "#434655",
+                        "background": "#faf8ff",
+                        "tertiary-fixed": "#e0e3e5",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#dae2fd",
+                        "surface-container-highest": "#dae2fd",
+                        "secondary-container": "#d0e1fb",
+                        "surface-container": "#eaedff",
+                        "surface-bright": "#faf8ff",
+                        "outline-variant": "#c3c6d7",
+                        "surface-container-high": "#e2e7ff",
+                        "tertiary": "#525657",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "tertiary-container": "#6b6e70",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "surface-tint": "#0053db",
+                        "inverse-on-surface": "#eef0ff",
+                        "outline": "#737686",
+                        "on-secondary-container": "#54647a",
+                        "surface-container-low": "#f2f3ff",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "on-surface": "#131b2e",
+                        "on-primary-container": "#eeefff",
+                        "inverse-surface": "#283044",
+                        "error": "#ba1a1a",
+                        "primary": "#004ac6",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#2563eb",
+                        "on-tertiary-container": "#eff1f3",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "surface": "#faf8ff",
+                        "secondary": "#505f76",
+                        "on-background": "#131b2e",
+                        "surface-dim": "#d2d9f4",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-secondary-fixed": "#0b1c30",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "primary-fixed-dim": "#b4c5ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "3xl": "64px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "2xl": "48px",
+                        "sidebar-width": "260px",
+                        "md": "16px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "mono": ["JetBrains Mono"],
+                        "body-lg": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "h2": ["Geist"],
+                        "h3": ["Geist"],
+                        "h1": ["Geist"],
+                        "body-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "h2": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "h3": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "h1": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #434655; /* on-surface-variant approx */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b6e70; /* tertiary-container */
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex antialiased">
+<!-- Top Navigation (Mobile only, hidden on md+) -->
+<nav class="md:hidden sticky top-0 z-50 flex items-center justify-between px-lg w-full h-[56px] border-b border-outline-variant dark:border-outline-variant bg-surface dark:bg-surface transition-all duration-150">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary dark:text-inverse-primary" data-icon="menu">menu</span>
+<span class="font-h3 text-h3 font-bold text-on-surface dark:text-on-surface">KMS Engine</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-on-surface-variant" data-icon="search">search</span>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-variant">
+<img alt="User Profile" class="object-cover w-full h-full" data-alt="A small, professional headshot portrait of a support engineer in a bright, modern corporate environment. The lighting is soft and even, highlighting a friendly but focused expression. Light mode aesthetic with clean background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHUjzWlS0_DjbAGDjzYXSUaXQi_y61cx6sjrtMwoPmM9mkKJdharI0_XYttVC-TNFjMqj3uFmI0Jg-68WN36Lz1qXaX6H5lXcr18kj66SqsV7lNyky3RLTj_69QHF-haij0kNbARvPNRBwSFRBDiiAnOviID7PC5nIEbkdYwqlf1MJ4pu3KVwjVDShK1Goq4-vWs3adE1yBOKTDAp-Datz6GhkN1ivUYLdmU5ZmJ_YIumL79T-BFF7FBtH0--gk18aRfmlJUQDrK0W"/>
+</div>
+</div>
+</nav>
+<!-- SideNavBar (Web only, hidden on mobile) -->
+<aside class="hidden md:flex w-sidebar-width h-screen border-r border-outline-variant dark:border-outline-variant bg-surface dark:bg-surface flex-col py-lg shrink-0 sticky top-0 z-40 transition-colors duration-200">
+<!-- Brand/Header -->
+<div class="px-lg mb-xl flex items-center gap-md">
+<div class="w-10 h-10 rounded-DEFAULT bg-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary fill" data-icon="hub">hub</span>
+</div>
+<div>
+<h1 class="font-h3 text-h3 font-bold text-on-surface dark:text-on-surface">KMS Engine</h1>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Enterprise Support</p>
+</div>
+</div>
+<!-- Primary CTA -->
+<div class="px-lg mb-lg">
+<button class="w-full flex items-center justify-center gap-sm h-10 bg-primary text-on-primary rounded-DEFAULT font-label-md text-label-md transition-colors hover:bg-primary-container">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+                New Entry
+            </button>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 px-sm space-y-1 overflow-y-auto">
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="menu_book">menu_book</span>
+<span class="font-body-md text-body-md font-medium">Knowledge Base</span>
+</a>
+<!-- Active State -->
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT bg-surface-container-high dark:bg-surface-container-high text-primary dark:text-inverse-primary border-l-2 border-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[20px] fill" data-icon="confirmation_number">confirmation_number</span>
+<span class="font-body-md text-body-md font-medium">Tickets</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="apps">apps</span>
+<span class="font-body-md text-body-md font-medium">Applications</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="analytics">analytics</span>
+<span class="font-body-md text-body-md font-medium">Internal Tracker</span>
+</a>
+</nav>
+<!-- Footer Links -->
+<div class="px-sm mt-auto pt-lg space-y-1">
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md font-medium">Settings</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="description">description</span>
+<span class="font-body-md text-body-md font-medium">Documentation</span>
+</a>
+<div class="mt-md px-md flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-variant shrink-0 border border-outline-variant">
+<img alt="Engineer Avatar" class="object-cover w-full h-full" data-alt="A small, professional headshot portrait of a support engineer in a bright, modern corporate environment. Light mode aesthetic with clean background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoxmCoGVxrvLXAVsFBcE7c29UZQ3_f1nZzQbhFsYt0x5UYDJZeNVVXyPpCoRJPgZ5ewku_eisiyO39QQJmYerocn86bwOta0QW8nMYEhOPc-2Ail-9oJq575rDJg-g_OsayOSdmJ6I5hLGgypf-owCzSakP_wl_5ErvOAYDTpOOh2KyAt-vHuqTArbqVLtcOAl7uIPpujmdyZ5shf_mqLMifszovB0YLZM5Hz0ohncJYjLGXIKNk99mumdyTJtEL_9xkq2Oi8uRu8K"/>
+</div>
+<div class="truncate text-on-surface-variant">
+<p class="font-label-md text-label-md font-medium truncate">J. Doe</p>
+<p class="font-body-sm text-body-sm opacity-70 truncate">L2 Support</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-background relative h-screen overflow-hidden">
+<!-- Top Nav Header (Contextual to Workspace) -->
+<header class="hidden md:flex items-center justify-between px-lg h-[56px] border-b border-outline-variant bg-surface shrink-0 z-30 sticky top-0 w-full transition-all duration-150">
+<div class="flex items-center gap-md text-on-surface-variant">
+<button class="hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="flex items-center gap-sm font-label-md text-label-md">
+<span class="hover:underline cursor-pointer">Tickets</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<span class="text-on-surface font-medium">#INC-8492</span>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<!-- Global Search Placeholder -->
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full h-8 pl-8 pr-3 bg-surface-container border border-outline-variant rounded-DEFAULT font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="Search workspace..." type="text"/>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant">
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Workspace Scrollable Area -->
+<div class="flex-1 overflow-auto flex flex-col md:flex-row">
+<!-- Left Column: Timeline & Conversation (Canvas) -->
+<section class="flex-1 min-w-0 flex flex-col p-md md:p-lg border-r border-outline-variant">
+<!-- Ticket Header Content -->
+<div class="mb-lg pb-md border-b border-outline-variant">
+<div class="flex items-start justify-between mb-sm">
+<h2 class="font-h2 text-h2 font-semibold text-on-surface tracking-tight">Database Connectivity Failure in EU-West-1 Production</h2>
+<div class="flex items-center gap-xs">
+<span class="px-2 py-1 rounded bg-error-container text-on-error-container font-label-md text-label-md uppercase tracking-wider">P1 - Critical</span>
+</div>
+</div>
+<div class="flex items-center gap-md text-on-surface-variant font-body-sm text-body-sm">
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]" data-icon="person">person</span> Reporter: Sarah Jenkins</span>
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span> Opened: 2h ago</span>
+</div>
+</div>
+<!-- Conversation Timeline -->
+<div class="flex-1 overflow-y-auto space-y-xl pr-sm mb-lg">
+<!-- Event: System Note -->
+<div class="flex gap-md relative">
+<div class="absolute left-4 top-8 bottom-[-2rem] w-px bg-outline-variant -z-10"></div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high border-2 border-surface flex items-center justify-center shrink-0 z-10">
+<span class="material-symbols-outlined text-[16px] text-tertiary" data-icon="info">info</span>
+</div>
+<div class="flex-1 pt-1">
+<p class="font-body-sm text-body-sm text-on-surface-variant">Automated alert triggered by Datadog integration. Multiple connection timeouts observed on <code class="font-mono text-mono bg-surface-container px-1 py-0.5 rounded">db-cluster-eu-w1-a</code>.</p>
+<span class="font-label-md text-label-md text-outline mt-1 block">10:42 AM</span>
+</div>
+</div>
+<!-- Event: User Message -->
+<div class="flex gap-md relative">
+<div class="absolute left-4 top-8 bottom-[-2rem] w-px bg-outline-variant -z-10"></div>
+<div class="w-8 h-8 rounded-full bg-surface-variant border-2 border-surface overflow-hidden shrink-0 z-10">
+<img alt="Sarah Jenkins" class="object-cover w-full h-full" data-alt="A clean, minimalist portrait of a female software developer looking concerned, set against a plain light gray background. Studio lighting, highly professional, enterprise application style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJBK9f30uT4w6joHbhSNPxpbM8qcNy726p_MuiyPHIIPNyzRm2DtTHmoayNL4z0CCpTjFewHcosxMSvzjW-uY6JkHBJ--ombVa1JSJC-0bVdBsKBa275FF_SnOe4xbgkGJMZkIe9Oz_mwv64SUyunWgkcpY35OyQfSdDUlfOW-JnQgxSJ0wD4PjhlsBF_nGCi_6xwbEZnCyVhwIi5886NqlemY7fPbLzVeglqL-UdwCP6Rv4zT19wzZLe-GiGpRE13Bvm1A2b9i2ip"/>
+</div>
+<div class="flex-1 bg-surface-container-lowest border border-outline-variant rounded-lg p-md shadow-sm">
+<div class="flex justify-between items-center mb-sm">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Sarah Jenkins (Reporter)</span>
+<span class="font-label-md text-label-md text-outline">10:45 AM</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mb-md">
+                                We are seeing complete failure for microservices trying to reach the primary read replica in eu-west-1. Application logs show generic timeout errors. No changes were deployed in the last 24 hours. Impacting checkout flow.
+                            </p>
+<!-- Attachment -->
+<div class="flex items-center gap-sm p-sm bg-surface-container-low rounded border border-outline-variant w-fit">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="insert_drive_file">insert_drive_file</span>
+<span class="font-body-sm text-body-sm text-on-surface">app-errors-1045.log</span>
+<span class="font-body-sm text-body-sm text-outline ml-md">1.2 MB</span>
+</div>
+</div>
+</div>
+<!-- Event: Internal Note -->
+<div class="flex gap-md relative">
+<div class="absolute left-4 top-8 bottom-[-2rem] w-px bg-outline-variant -z-10"></div>
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container border-2 border-surface flex items-center justify-center shrink-0 z-10">
+<span class="material-symbols-outlined text-[16px] fill" data-icon="lock">lock</span>
+</div>
+<div class="flex-1 bg-[#fff8e6] border border-[#f5d085] rounded-lg p-md shadow-sm dark:bg-[#3d3215] dark:border-[#7a642a]">
+<div class="flex justify-between items-center mb-xs">
+<span class="font-label-md text-label-md font-semibold text-[#8a6813] dark:text-[#f5d085] flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]" data-icon="visibility_off">visibility_off</span>
+                                    Internal Note (L2 Support)
+                                </span>
+<span class="font-label-md text-label-md text-[#8a6813] dark:text-[#f5d085] opacity-70">11:15 AM</span>
+</div>
+<p class="font-body-md text-body-md text-[#5c450c] dark:text-[#f7e0a8]">
+                                I'm checking the AWS dashboard. There's an active incident reported for RDS in that specific availability zone. Not an isolated issue on our end. Escalating to CloudOps immediately.
+                            </p>
+</div>
+</div>
+</div>
+<!-- Reply Composer Area -->
+<div class="mt-auto border border-outline-variant rounded-lg bg-surface-container-lowest overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all shadow-sm">
+<div class="flex items-center gap-xs p-xs border-b border-outline-variant bg-surface-container-low">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant transition-colors" title="Format Text">
+<span class="material-symbols-outlined text-[18px]" data-icon="format_bold">format_bold</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant transition-colors" title="Attach File">
+<span class="material-symbols-outlined text-[18px]" data-icon="attach_file">attach_file</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant transition-colors ml-auto flex items-center gap-xs font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]" data-icon="visibility_off">visibility_off</span> Add Internal Note
+                        </button>
+</div>
+<textarea class="w-full h-24 p-md bg-transparent border-none resize-none focus:ring-0 font-body-md text-body-md text-on-surface placeholder:text-outline" placeholder="Type a reply..."></textarea>
+<div class="flex items-center justify-between p-sm bg-surface-container-lowest border-t border-outline-variant">
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded-full overflow-hidden bg-surface-variant border border-outline-variant">
+<img alt="Engineer Avatar" class="object-cover w-full h-full" data-alt="A small, professional headshot portrait of a support engineer in a bright, modern corporate environment. Light mode aesthetic with clean background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRX3F9_ZwroBKv88MZmZTvOxpSA4ScbXVAj2ExoI9PeiGasKFFY5RhLJ-F4sT1OJdON6Em425Dl7rf-Ho9-_7cNSXMRBF7Bd-OOST5fv0AWsw0N6G1MXutMW3Iqf_JakbGVN3ugfl7UYPVjKn-OE93OXfQvE95COQ0DVzdT-Er1IYr_-Vg67EOuMQShMPd-W63L8iohtP7wMBhNuVpisQMFi0pX5auPFGj7ly-OBrQvd3FvjLE-0U8GyMfaEbMUrGMdLamKZUQITO1"/>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Replying as <strong class="text-on-surface">J. Doe</strong></span>
+</div>
+<div class="flex gap-sm">
+<button class="px-md py-sm rounded-DEFAULT border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+                                Resolve
+                            </button>
+<button class="px-md py-sm rounded-DEFAULT bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container flex items-center gap-xs transition-colors shadow-sm">
+                                Send Reply <span class="material-symbols-outlined text-[18px]" data-icon="send">send</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Column: Metadata & Related (Contextual Drawer) -->
+<aside class="w-full md:w-[320px] shrink-0 bg-surface flex flex-col overflow-y-auto">
+<!-- Ticket Properties -->
+<div class="p-lg border-b border-outline-variant">
+<h3 class="font-h3 text-h3 font-semibold text-on-surface mb-md">Details</h3>
+<div class="space-y-md">
+<div>
+<label class="font-label-md text-label-md text-outline block mb-xs">Status</label>
+<div class="w-full flex items-center justify-between px-sm py-1.5 border border-outline-variant rounded-DEFAULT bg-surface-container-lowest hover:bg-surface-container-low cursor-pointer transition-colors">
+<div class="flex items-center gap-xs">
+<div class="w-2 h-2 rounded-full bg-[#d97706]"></div> <!-- Orange status -->
+<span class="font-body-sm text-body-sm text-on-surface">Investigating</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<div>
+<label class="font-label-md text-label-md text-outline block mb-xs">Assignee</label>
+<div class="w-full flex items-center justify-between px-sm py-1.5 border border-outline-variant rounded-DEFAULT bg-surface-container-lowest hover:bg-surface-container-low cursor-pointer transition-colors">
+<div class="flex items-center gap-sm">
+<div class="w-5 h-5 rounded-full overflow-hidden bg-surface-variant shrink-0 border border-outline-variant">
+<img alt="Engineer Avatar" class="object-cover w-full h-full" data-alt="A small, professional headshot portrait of a support engineer in a bright, modern corporate environment. Light mode aesthetic with clean background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNAbxbW5LikSBL1Q4ss13TiCphCx1dovBNlXwsdKr85h0A34VjzdlrzODLipVvU4uTni913jfRMFszUkPS1Q6NCIpiFGGA7ffKFdiKUumAP9nKGYcsH4UkxIPhjwtnYZy1d32_BZkfmrv75ZvA8umNUZbjlwPpjwM4UWn_1KHDsNMHNgxWLIMLefgoJT3GWizVGg9Xc7BFAeBU3Pw4tJc6zD3OUvhJo5-o1KSvr-qq5S9bs4Ohu-WoR2WqXs-GqnRvncnCweQwq37v"/>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface">J. Doe</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<div>
+<label class="font-label-md text-label-md text-outline block mb-xs">Component</label>
+<div class="flex flex-wrap gap-xs">
+<span class="inline-flex items-center px-2 py-1 rounded bg-secondary-container text-on-secondary-container font-mono text-mono text-[11px] border border-[#a8c6f7]">RDS Database</span>
+<span class="inline-flex items-center px-2 py-1 rounded bg-surface-container-high text-on-surface font-mono text-mono text-[11px] border border-outline-variant">EU-West-1</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Related Knowledge Base -->
+<div class="p-lg">
+<div class="flex items-center justify-between mb-md">
+<h3 class="font-h3 text-h3 font-semibold text-on-surface">Suggested Articles</h3>
+<button class="text-primary hover:text-primary-container font-label-md text-label-md">View all</button>
+</div>
+<div class="space-y-sm">
+<!-- Article Card -->
+<a class="block p-sm border border-outline-variant rounded-DEFAULT bg-surface-container-lowest hover:bg-surface-container-low transition-colors group" href="#">
+<div class="flex gap-sm">
+<span class="material-symbols-outlined text-secondary mt-0.5" data-icon="article">article</span>
+<div>
+<h4 class="font-body-sm text-body-sm font-medium text-on-surface group-hover:text-primary transition-colors leading-tight mb-1">Troubleshooting AWS RDS Timeout Errors</h4>
+<div class="flex items-center gap-xs font-label-md text-label-md text-outline">
+<span>Infrastructure</span> • <span>Updated 2w ago</span>
+</div>
+</div>
+</div>
+</a>
+<!-- Article Card -->
+<a class="block p-sm border border-outline-variant rounded-DEFAULT bg-surface-container-lowest hover:bg-surface-container-low transition-colors group" href="#">
+<div class="flex gap-sm">
+<span class="material-symbols-outlined text-secondary mt-0.5" data-icon="article">article</span>
+<div>
+<h4 class="font-body-sm text-body-sm font-medium text-on-surface group-hover:text-primary transition-colors leading-tight mb-1">Escalation Matrix for P1 Outages</h4>
+<div class="flex items-center gap-xs font-label-md text-label-md text-outline">
+<span>Process</span> • <span>Updated 1mo ago</span>
+</div>
+</div>
+</div>
+</a>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</body></html>

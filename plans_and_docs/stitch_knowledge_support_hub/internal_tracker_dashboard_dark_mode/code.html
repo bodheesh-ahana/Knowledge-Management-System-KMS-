@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Internal Tracker - KMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap');
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#d3e4fe",
+                        "on-primary-fixed": "#00174b",
+                        "on-surface-variant": "#434655",
+                        "background": "#faf8ff",
+                        "tertiary-fixed": "#e0e3e5",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#dae2fd",
+                        "surface-container-highest": "#dae2fd",
+                        "secondary-container": "#d0e1fb",
+                        "surface-container": "#eaedff",
+                        "surface-bright": "#faf8ff",
+                        "outline-variant": "#c3c6d7",
+                        "surface-container-high": "#e2e7ff",
+                        "tertiary": "#525657",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "tertiary-container": "#6b6e70",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "surface-tint": "#0053db",
+                        "inverse-on-surface": "#eef0ff",
+                        "outline": "#737686",
+                        "on-secondary-container": "#54647a",
+                        "surface-container-low": "#f2f3ff",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "on-surface": "#131b2e",
+                        "on-primary-container": "#eeefff",
+                        "inverse-surface": "#283044",
+                        "error": "#ba1a1a",
+                        "primary": "#004ac6",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#2563eb",
+                        "on-tertiary-container": "#eff1f3",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "surface": "#faf8ff",
+                        "secondary": "#505f76",
+                        "on-background": "#131b2e",
+                        "surface-dim": "#d2d9f4",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-secondary-fixed": "#0b1c30",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "primary-fixed-dim": "#b4c5ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "3xl": "64px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "2xl": "48px",
+                        "sidebar-width": "260px",
+                        "md": "16px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "mono": ["jetbrainsMono"],
+                        "body-lg": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "h2": ["Geist"],
+                        "h3": ["Geist"],
+                        "h1": ["Geist"],
+                        "body-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "h2": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "h3": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "h1": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #131b2e; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #434655; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #737686; 
+        }
+        
+        .bento-card {
+            background-color: #131b2e;
+            border: 1px solid #434655;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .bento-card:hover {
+            border-color: #737686;
+        }
+        
+        /* Azure DevOps inspired minimalist chart bars */
+        .chart-bar {
+            background: linear-gradient(180deg, #2563eb 0%, #004ac6 100%);
+            border-radius: 2px 2px 0 0;
+            transition: height 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-background dark:bg-surface-dim text-on-surface dark:text-on-primary antialiased font-body-md h-screen overflow-hidden flex">
+<!-- SideNavBar (Shared Component) -->
+<nav class="hidden md:flex bg-surface-container-low dark:bg-surface-container-lowest fixed left-0 top-0 h-screen w-sidebar-width border-r border-outline-variant dark:border-outline flex-col py-lg px-md z-50">
+<!-- Brand Header -->
+<div class="mb-xl flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
+<img alt="KMS Enterprise Logo" class="w-full h-full object-cover rounded-full" data-alt="A minimalist logo for KMS Enterprise. A simple, modern geometric K in stark white on a deep indigo background. Clean lines, corporate identity, flat design, high contrast, professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwtNlj1HH1E-iiI45YrQfD_KXVDIgnF-2J-F5ei9Wr-yt3UXBtcmqGluhn9ObPDkYp0lzbgD23wJp3XMAlg3kzceLHlnrblyMbtPSxpFxSh0j6tdz98fHuCEvzYENyDEYcLLf2UCw3HBFHRHrXk6TQy5cSegP6RmfJIsXN9Ndx_OU3e5rSOExo98ouD0mfX9kaucBaBLgdGO1ULqXKCgc6MOXB-YRzMkdGT7hr7NoRmJCwc8Jbmgd58TMm_Y6glUctaR7wT_jwOTtc"/>
+</div>
+<div>
+<h1 class="font-h2 text-h2 font-bold text-primary dark:text-primary-fixed-dim">KMS</h1>
+<p class="font-label-md text-label-md text-on-surface-variant dark:text-outline uppercase tracking-wider">Enterprise Support</p>
+</div>
+</div>
+<!-- CTA -->
+<button class="mb-lg w-full h-[40px] bg-primary text-on-primary rounded-DEFAULT font-label-md text-label-md hover:bg-primary-container transition-colors flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">add</span>
+            Quick Add
+        </button>
+<!-- Main Navigation -->
+<div class="flex-1 overflow-y-auto">
+<div class="space-y-xs">
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-DEFAULT font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-DEFAULT font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">auto_stories</span>
+                    Knowledge Base
+                </a>
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-DEFAULT font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">confirmation_number</span>
+                    Tickets
+                </a>
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-DEFAULT font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">apps</span>
+                    Applications
+                </a>
+<!-- Active Item -->
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-DEFAULT font-body-md text-body-md bg-secondary-container dark:bg-secondary-container text-on-secondary-container dark:text-on-secondary-container border-l-2 border-primary transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">track_changes</span>
+                    Internal Tracker
+                </a>
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-DEFAULT font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+                    Analytics
+                </a>
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-DEFAULT font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">description</span>
+                    Documents
+                </a>
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-DEFAULT font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+                    Notifications
+                </a>
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-DEFAULT font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+                    Users
+                </a>
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-DEFAULT font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+                    Settings
+                </a>
+</div>
+<!-- Footer Tabs (Favorites/Recent) -->
+<div class="mt-xl pt-lg border-t border-outline-variant dark:border-outline">
+<p class="font-label-md text-label-md text-outline px-sm mb-sm uppercase tracking-wider">Quick Links</p>
+<div class="space-y-xs">
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-DEFAULT font-body-sm text-body-sm text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[16px]">widgets</span>
+                        Applications
+                    </a>
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-DEFAULT font-body-sm text-body-sm text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[16px]">star</span>
+                        Favourite Articles
+                    </a>
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-DEFAULT font-body-sm text-body-sm text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[16px]">drafts</span>
+                        Drafts
+                    </a>
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-DEFAULT font-body-sm text-body-sm text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[16px]">history</span>
+                        Recent Entries
+                    </a>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col md:ml-sidebar-width h-screen bg-background dark:bg-on-background relative z-0">
+<!-- TopNavBar (Shared Component) -->
+<header class="bg-surface dark:bg-surface-dim sticky top-0 z-40 w-full h-14 border-b border-outline-variant dark:border-outline flex justify-between items-center px-lg shrink-0">
+<!-- Mobile Menu Toggle (Left) -->
+<button class="md:hidden text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-150 p-sm">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Search (Center-ish/Left) -->
+<div class="flex-1 flex items-center md:ml-0 ml-sm">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-[18px] text-outline">search</span>
+<input class="w-full bg-background dark:bg-on-surface-variant border border-outline-variant dark:border-outline rounded-DEFAULT pl-xl pr-sm py-[6px] font-body-sm text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-outline dark:text-on-primary" placeholder="Search entries, tickets, engineers..." type="text"/>
+<div class="absolute right-sm top-1/2 -translate-y-1/2 flex items-center gap-xs">
+<kbd class="hidden md:inline-block font-mono text-mono text-outline bg-surface-container-high dark:bg-background px-[4px] py-[2px] rounded-sm border border-outline-variant dark:border-outline">Cmd+K</kbd>
+</div>
+</div>
+</div>
+<!-- Trailing Actions (Right) -->
+<div class="flex items-center gap-md ml-lg">
+<button class="hidden lg:flex items-center gap-xs bg-primary text-on-primary h-[32px] px-md rounded-DEFAULT font-label-md text-label-md hover:bg-primary-container transition-colors duration-150">
+                    Quick Add
+                </button>
+<div class="flex items-center gap-xs">
+<button class="p-sm text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-150 rounded-full hover:bg-surface-container-low dark:hover:bg-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="p-sm text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-150 rounded-full hover:bg-surface-container-low dark:hover:bg-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">contrast</span>
+</button>
+<button class="p-sm text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-150 rounded-full hover:bg-surface-container-low dark:hover:bg-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high dark:bg-on-surface-variant overflow-hidden border border-outline-variant dark:border-outline shrink-0 ml-sm cursor-pointer">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a software engineer, dark moody lighting, cinematic, 85mm lens, sharp focus, corporate profile picture, looking directly at camera, serious expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFShaGb1tS0UFXM4eRKQL1R5yE11fyDaFzTXeV42FQIGw4Lu0VYVFKLukDmUpGgawIVonsZrxdntt1S1zgxitzApUR3YxxEKxFeczq9zJTaCSqZOTV7sQntSvYZVKVTTiIBxsLongzmv6uVJgv1HXaoTj_p63dIkiW6u18Qk_rWf6QR3s3uNilRdjlm4m1DgW1fs8lnYHFJcc1NamqZhXAiY6WktYcYOZjtCu83vfM-Z0lNOZEVkl_NtMzDlLbN6RkKHv-TgIcXhIh"/>
+</div>
+</div>
+</header>
+<!-- Page Content Canvas -->
+<div class="flex-1 overflow-y-auto p-md lg:p-lg">
+<div class="max-w-container-max mx-auto space-y-lg">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-lg border-b border-outline dark:border-on-surface-variant pb-md">
+<div>
+<h2 class="font-h1 text-h1 font-semibold text-on-surface dark:text-on-primary mb-xs">Internal Tracker Dashboard</h2>
+<p class="font-body-md text-body-md text-outline">Real-time effort, SLA metrics, and contribution analytics for engineering pods.</p>
+</div>
+<div class="flex items-center gap-sm">
+<select class="bg-background dark:bg-on-surface-variant border border-outline-variant dark:border-outline rounded-DEFAULT px-sm py-[6px] font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-primary text-on-surface dark:text-on-primary">
+<option>Last 7 Days</option>
+<option>This Sprint</option>
+<option>Last 30 Days</option>
+<option>Q3 2024</option>
+</select>
+<button class="p-sm bg-surface-container-high dark:bg-on-surface-variant border border-outline-variant dark:border-outline rounded-DEFAULT hover:bg-surface-variant dark:hover:bg-tertiary transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+</div>
+</div>
+<!-- Metrics Bento Grid (Level 1 Surface) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md">
+<!-- Metric: Today's Hours -->
+<div class="bento-card p-md flex flex-col justify-between h-32 relative overflow-hidden group">
+<div class="absolute right-0 top-0 w-24 h-24 bg-primary/10 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-start z-10">
+<h3 class="font-label-md text-label-md text-outline uppercase">Today's Hours</h3>
+<span class="material-symbols-outlined text-primary text-[20px]">schedule</span>
+</div>
+<div class="z-10">
+<div class="flex items-baseline gap-sm">
+<span class="font-h1 text-h1 font-semibold">142.5</span>
+<span class="font-mono text-mono text-outline">hrs</span>
+</div>
+<div class="flex items-center gap-xs mt-xs text-xs">
+<span class="material-symbols-outlined text-[14px] text-green-400">trending_up</span>
+<span class="text-green-400 font-label-md">+12%</span>
+<span class="text-outline font-body-sm text-[11px]">vs yesterday</span>
+</div>
+</div>
+</div>
+<!-- Metric: Weekly Hours -->
+<div class="bento-card p-md flex flex-col justify-between h-32 relative overflow-hidden group">
+<div class="absolute right-0 top-0 w-24 h-24 bg-secondary/10 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-start z-10">
+<h3 class="font-label-md text-label-md text-outline uppercase">Weekly Sprint</h3>
+<span class="material-symbols-outlined text-inverse-primary text-[20px]">date_range</span>
+</div>
+<div class="z-10">
+<div class="flex items-baseline gap-sm">
+<span class="font-h1 text-h1 font-semibold">845</span>
+<span class="font-mono text-mono text-outline">/ 1200 hrs</span>
+</div>
+<div class="w-full bg-on-surface-variant rounded-full h-[4px] mt-sm overflow-hidden">
+<div class="bg-inverse-primary h-[4px] rounded-full" style="width: 70%"></div>
+</div>
+</div>
+</div>
+<!-- Metric: KB Contributions -->
+<div class="bento-card p-md flex flex-col justify-between h-32 relative overflow-hidden group">
+<div class="absolute right-0 top-0 w-24 h-24 bg-tertiary/10 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-start z-10">
+<h3 class="font-label-md text-label-md text-outline uppercase">KB Commits</h3>
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-[20px]">library_add</span>
+</div>
+<div class="z-10">
+<div class="flex items-baseline gap-sm">
+<span class="font-h1 text-h1 font-semibold">47</span>
+<span class="font-mono text-mono text-outline">docs</span>
+</div>
+<div class="flex items-center gap-xs mt-xs text-xs">
+<span class="material-symbols-outlined text-[14px] text-red-400">trending_down</span>
+<span class="text-red-400 font-label-md">-3%</span>
+<span class="text-outline font-body-sm text-[11px]">vs last sprint</span>
+</div>
+</div>
+</div>
+<!-- Metric: SLA Performance -->
+<div class="bento-card p-md flex flex-col justify-between h-32 relative overflow-hidden group">
+<div class="absolute right-0 top-0 w-24 h-24 bg-green-500/10 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-start z-10">
+<h3 class="font-label-md text-label-md text-outline uppercase">SLA Met</h3>
+<span class="material-symbols-outlined text-green-400 text-[20px]">verified</span>
+</div>
+<div class="z-10">
+<div class="flex items-baseline gap-sm">
+<span class="font-h1 text-h1 font-semibold">98.2</span>
+<span class="font-mono text-mono text-outline">%</span>
+</div>
+<div class="flex items-center gap-xs mt-xs text-xs">
+<span class="inline-block w-2 h-2 rounded-full bg-green-400"></span>
+<span class="text-outline font-body-sm text-[11px]">Target: 95%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-md">
+<!-- Left Column: Charts -->
+<div class="lg:col-span-2 space-y-md">
+<!-- Effort By Engineer Bar Chart -->
+<div class="bento-card p-lg h-80 flex flex-col">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-h3 text-h3 font-semibold">Effort Distribution (Top 5)</h3>
+<button class="text-outline hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+<!-- Pseudo Bar Chart -->
+<div class="flex-1 flex items-end gap-sm px-md pb-md relative border-b border-on-surface-variant">
+<!-- Y Axis Labels -->
+<div class="absolute left-0 top-0 bottom-md flex flex-col justify-between text-outline font-mono text-[10px] w-8">
+<span>40h</span>
+<span>30h</span>
+<span>20h</span>
+<span>10h</span>
+<span>0</span>
+</div>
+<!-- Bars -->
+<div class="ml-8 flex-1 flex justify-around items-end h-full pt-4">
+<div class="flex flex-col items-center w-12 group cursor-pointer">
+<div class="w-full chart-bar h-[85%] relative">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-on-tertiary text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 shadow-lg">34h - J. Doe</div>
+</div>
+<span class="font-mono text-[11px] text-outline mt-sm">JD</span>
+</div>
+<div class="flex flex-col items-center w-12 group cursor-pointer">
+<div class="w-full chart-bar h-[70%] bg-opacity-80 relative">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-on-tertiary text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 shadow-lg">28h - S. Smith</div>
+</div>
+<span class="font-mono text-[11px] text-outline mt-sm">SS</span>
+</div>
+<div class="flex flex-col items-center w-12 group cursor-pointer">
+<div class="w-full chart-bar h-[90%] bg-opacity-90 relative">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-on-tertiary text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 shadow-lg">36h - M. Lee</div>
+</div>
+<span class="font-mono text-[11px] text-outline mt-sm">ML</span>
+</div>
+<div class="flex flex-col items-center w-12 group cursor-pointer">
+<div class="w-full chart-bar h-[45%] bg-opacity-60 relative">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-on-tertiary text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 shadow-lg">18h - A. Chen</div>
+</div>
+<span class="font-mono text-[11px] text-outline mt-sm">AC</span>
+</div>
+<div class="flex flex-col items-center w-12 group cursor-pointer">
+<div class="w-full chart-bar h-[60%] bg-opacity-70 relative">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-on-tertiary text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 shadow-lg">24h - R. Patel</div>
+</div>
+<span class="font-mono text-[11px] text-outline mt-sm">RP</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary Metrics Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Tickets by App (Donut placeholder) -->
+<div class="bento-card p-lg h-64 flex flex-col">
+<h3 class="font-h3 text-h3 font-semibold mb-md">Tickets by Application</h3>
+<div class="flex-1 flex items-center justify-center relative">
+<!-- Pseudo Donut Chart made with CSS -->
+<div class="w-32 h-32 rounded-full border-[16px] border-primary-container relative">
+<div class="absolute inset-[-16px] rounded-full border-[16px] border-transparent border-t-secondary-fixed border-r-secondary-fixed rotate-45"></div>
+<div class="absolute inset-[-16px] rounded-full border-[16px] border-transparent border-l-tertiary rotate-[-30deg]"></div>
+<!-- Center hole -->
+<div class="absolute inset-0 m-auto flex flex-col items-center justify-center">
+<span class="font-h2 font-bold">214</span>
+<span class="text-[10px] text-outline">Total</span>
+</div>
+</div>
+<!-- Legend -->
+<div class="ml-lg space-y-sm">
+<div class="flex items-center gap-xs text-xs font-mono text-outline">
+<span class="w-3 h-3 rounded-sm bg-primary-container"></span> CRM (45%)
+                                        </div>
+<div class="flex items-center gap-xs text-xs font-mono text-outline">
+<span class="w-3 h-3 rounded-sm bg-secondary-fixed"></span> ERP (35%)
+                                        </div>
+<div class="flex items-center gap-xs text-xs font-mono text-outline">
+<span class="w-3 h-3 rounded-sm bg-tertiary"></span> Portal (20%)
+                                        </div>
+</div>
+</div>
+</div>
+<!-- SLA Trends (Line chart placeholder) -->
+<div class="bento-card p-lg h-64 flex flex-col">
+<h3 class="font-h3 text-h3 font-semibold mb-md">SLA Trend (7 Days)</h3>
+<div class="flex-1 relative w-full h-full">
+<!-- Placeholder for a line chart -->
+<svg class="w-full h-full overflow-visible preserve-3d" viewbox="0 0 100 50">
+<path d="M0,40 Q10,35 20,42 T40,25 T60,30 T80,15 T100,5" fill="none" stroke="#004ac6" stroke-width="2" vector-effect="non-scaling-stroke"></path>
+<path d="M0,40 Q10,35 20,42 T40,25 T60,30 T80,15 T100,5 L100,50 L0,50 Z" fill="url(#grad)" opacity="0.2"></path>
+<defs>
+<lineargradient id="grad" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#004ac6" stop-opacity="1"></stop>
+<stop offset="100%" stop-color="#004ac6" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Data points -->
+<circle cx="20" cy="42" fill="#d3e4fe" r="2"></circle>
+<circle cx="40" cy="25" fill="#d3e4fe" r="2"></circle>
+<circle cx="60" cy="30" fill="#d3e4fe" r="2"></circle>
+<circle cx="80" cy="15" fill="#d3e4fe" r="2"></circle>
+<circle cx="100" cy="5" fill="#d3e4fe" r="2"></circle>
+</svg>
+<div class="absolute bottom-0 w-full flex justify-between text-[10px] font-mono text-outline border-t border-on-surface-variant pt-xs">
+<span>Mon</span>
+<span>Wed</span>
+<span>Fri</span>
+<span>Sun</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Recent Activity Feed -->
+<div class="lg:col-span-1">
+<div class="bento-card h-[calc(100%-0px)] flex flex-col">
+<div class="p-lg border-b border-on-surface-variant flex justify-between items-center bg-on-background/50 rounded-t-lg backdrop-blur-sm sticky top-0 z-10">
+<h3 class="font-h3 text-h3 font-semibold">Recent Entries</h3>
+<button class="text-xs font-label-md text-primary hover:text-primary-fixed transition-colors">View All</button>
+</div>
+<div class="flex-1 overflow-y-auto p-0">
+<!-- Activity List -->
+<ul class="divide-y divide-on-surface-variant">
+<!-- Item 1 -->
+<li class="p-md hover:bg-on-surface-variant/30 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-xs">
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded-full bg-primary-container text-on-primary flex items-center justify-center text-[10px] font-bold">JD</div>
+<span class="font-label-md text-sm text-on-primary">John Doe</span>
+</div>
+<span class="font-mono text-[10px] text-outline group-hover:text-primary-fixed-dim transition-colors">10m ago</span>
+</div>
+<div class="pl-8">
+<p class="font-body-sm text-outline line-clamp-2">Resolved P1 Database lock contention on CRM production cluster.</p>
+<div class="flex items-center gap-sm mt-sm">
+<span class="inline-flex items-center gap-xs px-2 py-0.5 rounded-sm bg-on-surface-variant text-tertiary-fixed font-mono text-[10px]">
+<span class="material-symbols-outlined text-[12px]">schedule</span> 2.5h
+                                                </span>
+<span class="inline-flex items-center gap-xs px-2 py-0.5 rounded-sm bg-primary/20 text-primary-fixed-dim font-mono text-[10px] border border-primary/30">
+                                                    TKT-8942
+                                                </span>
+</div>
+</div>
+</li>
+<!-- Item 2 -->
+<li class="p-md hover:bg-on-surface-variant/30 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-xs">
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded-full bg-secondary text-on-secondary flex items-center justify-center text-[10px] font-bold">SS</div>
+<span class="font-label-md text-sm text-on-primary">Sarah Smith</span>
+</div>
+<span class="font-mono text-[10px] text-outline group-hover:text-primary-fixed-dim transition-colors">45m ago</span>
+</div>
+<div class="pl-8">
+<p class="font-body-sm text-outline line-clamp-2">Published new KB article: 'OAuth2 Token Renewal Procedures'.</p>
+<div class="flex items-center gap-sm mt-sm">
+<span class="inline-flex items-center gap-xs px-2 py-0.5 rounded-sm bg-on-surface-variant text-tertiary-fixed font-mono text-[10px]">
+<span class="material-symbols-outlined text-[12px]">schedule</span> 1.0h
+                                                </span>
+<span class="inline-flex items-center gap-xs px-2 py-0.5 rounded-sm bg-secondary/20 text-secondary-fixed font-mono text-[10px] border border-secondary/30">
+                                                    KB-Docs
+                                                </span>
+</div>
+</div>
+</li>
+<!-- Item 3 -->
+<li class="p-md hover:bg-on-surface-variant/30 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-xs">
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center text-[10px] font-bold">ML</div>
+<span class="font-label-md text-sm text-on-primary">Mike Lee</span>
+</div>
+<span class="font-mono text-[10px] text-outline group-hover:text-primary-fixed-dim transition-colors">2h ago</span>
+</div>
+<div class="pl-8">
+<p class="font-body-sm text-outline line-clamp-2">Code review for ERP migration script PR #442.</p>
+<div class="flex items-center gap-sm mt-sm">
+<span class="inline-flex items-center gap-xs px-2 py-0.5 rounded-sm bg-on-surface-variant text-tertiary-fixed font-mono text-[10px]">
+<span class="material-symbols-outlined text-[12px]">schedule</span> 0.5h
+                                                </span>
+<span class="inline-flex items-center gap-xs px-2 py-0.5 rounded-sm bg-tertiary/20 text-tertiary-fixed font-mono text-[10px] border border-tertiary/30">
+                                                    Internal
+                                                </span>
+</div>
+</div>
+</li>
+<!-- Item 4 -->
+<li class="p-md hover:bg-on-surface-variant/30 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-xs">
+<div class="flex items-center gap-sm">
+<div class="w-6 h-6 rounded-full bg-primary-container text-on-primary flex items-center justify-center text-[10px] font-bold">JD</div>
+<span class="font-label-md text-sm text-on-primary">John Doe</span>
+</div>
+<span class="font-mono text-[10px] text-outline group-hover:text-primary-fixed-dim transition-colors">3h ago</span>
+</div>
+<div class="pl-8">
+<p class="font-body-sm text-outline line-clamp-2">Investigated memory leak in Node.js microservice. Profiling active.</p>
+<div class="flex items-center gap-sm mt-sm">
+<span class="inline-flex items-center gap-xs px-2 py-0.5 rounded-sm bg-on-surface-variant text-tertiary-fixed font-mono text-[10px]">
+<span class="material-symbols-outlined text-[12px]">schedule</span> 3.0h
+                                                </span>
+<span class="inline-flex items-center gap-xs px-2 py-0.5 rounded-sm bg-primary/20 text-primary-fixed-dim font-mono text-[10px] border border-primary/30">
+                                                    TKT-8930
+                                                </span>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

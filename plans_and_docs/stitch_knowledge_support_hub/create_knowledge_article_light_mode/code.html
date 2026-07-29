@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Knowledge Article - KMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for focus */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #444749; /* on-tertiary-fixed-variant approx */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b6e70;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#dae2fd",
+                        "outline": "#737686",
+                        "on-surface-variant": "#434655",
+                        "on-primary-container": "#eeefff",
+                        "secondary-fixed": "#d3e4fe",
+                        "primary-container": "#2563eb",
+                        "on-secondary-fixed": "#0b1c30",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "background": "#faf8ff",
+                        "primary-fixed": "#dbe1ff",
+                        "outline-variant": "#c3c6d7",
+                        "on-primary-fixed": "#00174b",
+                        "inverse-primary": "#b4c5ff",
+                        "on-secondary-container": "#54647a",
+                        "primary": "#004ac6",
+                        "tertiary": "#525657",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#0053db",
+                        "surface-bright": "#faf8ff",
+                        "on-tertiary-container": "#eff1f3",
+                        "tertiary-fixed": "#e0e3e5",
+                        "surface-container-low": "#f2f3ff",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "inverse-on-surface": "#eef0ff",
+                        "tertiary-container": "#6b6e70",
+                        "error": "#ba1a1a",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e2e7ff",
+                        "on-background": "#131b2e",
+                        "secondary-container": "#d0e1fb",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#505f76",
+                        "on-surface": "#131b2e",
+                        "surface-variant": "#dae2fd",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "surface": "#faf8ff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#283044",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "surface-container": "#eaedff",
+                        "surface-dim": "#d2d9f4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "2xl": "48px",
+                        "sidebar-width": "260px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "3xl": "64px",
+                        "base": "4px",
+                        "container-max": "1440px",
+                        "md": "16px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Geist"],
+                        "h1": ["Geist"],
+                        "mono": ["jetbrainsMono"],
+                        "h3": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "body-md": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "h2": ["Geist"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "h1": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "h3": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "h2": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background dark:bg-on-background text-on-surface dark:text-inverse-on-surface font-body-md antialiased overflow-x-hidden">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen w-sidebar-width bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline flex flex-col py-lg px-md transition-all duration-200 ease-in-out z-50">
+<!-- Brand/Header -->
+<div class="flex items-center gap-sm mb-xl px-sm">
+<div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[20px]" data-weight="fill" style="font-variation-settings: 'FILL' 1;">corporate_fare</span>
+</div>
+<div>
+<h2 class="font-h2 text-h2 font-bold text-primary dark:text-primary-fixed-dim tracking-tight leading-none">KMS</h2>
+<p class="font-label-md text-label-md text-on-surface-variant dark:text-outline mt-1 uppercase tracking-wider">Enterprise Support</p>
+</div>
+</div>
+<!-- Main Navigation Tabs -->
+<div class="flex-1 overflow-y-auto">
+<ul class="space-y-1">
+<li><a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors duration-200" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span class="font-body-md text-body-md">Dashboard</span></a></li>
+<li><a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-secondary-container dark:bg-secondary-container text-on-secondary-container dark:text-on-secondary-container border-l-2 border-primary transition-colors duration-200" href="#"><span class="material-symbols-outlined text-[20px]">auto_stories</span><span class="font-body-md text-body-md font-semibold">Knowledge Base</span></a></li>
+<li><a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors duration-200" href="#"><span class="material-symbols-outlined text-[20px]">confirmation_number</span><span class="font-body-md text-body-md">Tickets</span></a></li>
+<li><a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors duration-200" href="#"><span class="material-symbols-outlined text-[20px]">apps</span><span class="font-body-md text-body-md">Applications</span></a></li>
+<li><a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors duration-200" href="#"><span class="material-symbols-outlined text-[20px]">track_changes</span><span class="font-body-md text-body-md">Internal Tracker</span></a></li>
+<li><a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors duration-200" href="#"><span class="material-symbols-outlined text-[20px]">analytics</span><span class="font-body-md text-body-md">Analytics</span></a></li>
+<li><a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors duration-200" href="#"><span class="material-symbols-outlined text-[20px]">description</span><span class="font-body-md text-body-md">Documents</span></a></li>
+</ul>
+</div>
+<div class="mt-auto pt-lg border-t border-outline-variant dark:border-outline">
+<ul class="space-y-1 mb-lg">
+<li><a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors duration-200" href="#"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="font-body-md text-body-md">Notifications</span></a></li>
+<li><a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors duration-200" href="#"><span class="material-symbols-outlined text-[20px]">group</span><span class="font-body-md text-body-md">Users</span></a></li>
+<li><a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors duration-200" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-body-md text-body-md">Settings</span></a></li>
+</ul>
+<button class="w-full flex items-center justify-center gap-2 py-2 px-4 rounded bg-primary text-on-primary font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span> Quick Add
+            </button>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<main class="ml-sidebar-width min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-40 w-full h-[56px] border-b border-outline-variant dark:border-outline bg-surface dark:bg-surface-dim flex justify-between items-center px-lg transition-colors duration-150">
+<!-- Left Side / Search Placeholder -->
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-outline">search</span>
+<input class="w-full h-8 pl-9 pr-3 rounded border border-outline bg-surface-container-lowest dark:bg-on-background text-on-surface dark:text-inverse-on-surface font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="Search knowledge base..." type="text"/>
+<div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+<kbd class="font-mono text-mono text-[10px] text-outline px-1 border border-outline rounded">Cmd+K</kbd>
+</div>
+</div>
+</div>
+<!-- Right Side / Actions -->
+<div class="flex items-center gap-sm">
+<button class="w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-[20px]">contrast</span>
+</button>
+<div class="w-px h-5 bg-outline-variant dark:bg-outline mx-2"></div>
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-outline object-cover cursor-pointer" data-alt="A professional headshot of a corporate employee in a well-lit office, wearing a dark blazer. The lighting is soft and neutral, conveying trust and competence in a modern enterprise setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCffl1MlPWXE3jrylk4WAtfuayGE-f4XSW8-QhytN0Nphlkt87n4zZftJzdcPt-NWkdLYqdTqEvDTP0nl5w1WyFRxWOCoo4I2Av7V0ccspvIGi-NsUCUAkzYCq9_YOTtSulgapZOuZT7XLdnja9M-AhC1ViuGbtSkli19nrPdPzTSHi3G5benknw9AVFKmOT7wB61Qxl3pomFj81pO2evn6k1KgqDX7D9blCSiWHKII-dBVEmt9PXSDO5_PAWIEBQpF8osJwNqJEiUR"/>
+</div>
+</header>
+<!-- Editor Workspace -->
+<div class="flex-1 flex flex-col">
+<!-- Sticky Action Bar for Editor -->
+<div class="sticky top-[56px] z-30 bg-surface dark:bg-surface-dim/90 backdrop-blur-sm border-b border-outline px-lg py-3 flex justify-between items-center shadow-sm">
+<div class="flex items-center gap-3">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</button>
+<div class="h-4 w-px bg-outline mx-1"></div>
+<div class="font-body-sm text-body-sm text-outline flex items-center gap-2">
+<span>Knowledge Base</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span>Drafts</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</div>
+<h1 class="font-h3 text-h3 text-on-surface dark:text-inverse-on-surface font-semibold m-0 leading-none">Troubleshooting VPN Connectivity</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5 text-tertiary dark:text-tertiary-fixed-dim font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[14px]">cloud_done</span>
+<span>Saved just now</span>
+</div>
+<button class="px-4 py-1.5 rounded border border-outline text-on-surface dark:text-inverse-on-surface font-label-md text-label-md hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors">
+                        Preview
+                    </button>
+<button class="px-4 py-1.5 rounded bg-primary text-on-primary font-label-md text-label-md hover:bg-on-primary-fixed-variant shadow-[0_1px_2px_rgba(0,0,0,0.1)] transition-all">
+                        Publish Article
+                    </button>
+</div>
+</div>
+<!-- Content Area (Stepper & Editor) -->
+<div class="flex-1 max-w-[1000px] w-full mx-auto p-lg grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-xl">
+<!-- Main Editor Column -->
+<div class="flex flex-col gap-xl">
+<!-- Progress Stepper -->
+<div class="flex items-center justify-between w-full relative">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-px bg-outline-variant dark:bg-outline z-0"></div>
+<!-- Step 1: Info (Completed) -->
+<div class="relative z-10 flex flex-col items-center gap-2 bg-background dark:bg-on-background px-2">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-sm ring-4 ring-background dark:ring-on-background">
+<span class="material-symbols-outlined text-[14px]" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-label-md text-label-md text-primary font-semibold">Info</span>
+</div>
+<!-- Step 2: Details (Completed) -->
+<div class="relative z-10 flex flex-col items-center gap-2 bg-background dark:bg-on-background px-2">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-sm ring-4 ring-background dark:ring-on-background">
+<span class="material-symbols-outlined text-[14px]" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-label-md text-label-md text-primary font-semibold">Details</span>
+</div>
+<!-- Step 3: Root Cause (Active) -->
+<div class="relative z-10 flex flex-col items-center gap-2 bg-background dark:bg-on-background px-2">
+<div class="w-6 h-6 rounded-full border-2 border-primary bg-surface-container-highest dark:bg-inverse-surface flex items-center justify-center text-primary dark:text-primary-fixed-dim ring-4 ring-background dark:ring-on-background">
+<span class="font-label-md text-label-md">3</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface dark:text-inverse-on-surface font-bold">Root Cause</span>
+</div>
+<!-- Step 4: Steps (Pending) -->
+<div class="relative z-10 flex flex-col items-center gap-2 bg-background dark:bg-on-background px-2">
+<div class="w-6 h-6 rounded-full border border-outline bg-surface dark:bg-surface-dim flex items-center justify-center text-outline ring-4 ring-background dark:ring-on-background">
+<span class="font-label-md text-label-md">4</span>
+</div>
+<span class="font-label-md text-label-md text-outline">Steps</span>
+</div>
+<!-- Step 5: Resolution (Pending) -->
+<div class="relative z-10 flex flex-col items-center gap-2 bg-background dark:bg-on-background px-2">
+<div class="w-6 h-6 rounded-full border border-outline bg-surface dark:bg-surface-dim flex items-center justify-center text-outline ring-4 ring-background dark:ring-on-background">
+<span class="font-label-md text-label-md">5</span>
+</div>
+<span class="font-label-md text-label-md text-outline">Resolution</span>
+</div>
+<!-- Step 6: Review (Pending) -->
+<div class="relative z-10 flex flex-col items-center gap-2 bg-background dark:bg-on-background px-2">
+<div class="w-6 h-6 rounded-full border border-outline bg-surface dark:bg-surface-dim flex items-center justify-center text-outline ring-4 ring-background dark:ring-on-background">
+<span class="font-label-md text-label-md">6</span>
+</div>
+<span class="font-label-md text-label-md text-outline">Review</span>
+</div>
+</div>
+<!-- Active Step Content: Root Cause Rich Text Editor -->
+<div class="mt-4 flex flex-col gap-4 animate-[fadeIn_0.3s_ease-out]">
+<div>
+<h2 class="font-h3 text-h3 font-semibold text-on-surface dark:text-inverse-on-surface">Explain the Root Cause</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-outline mt-1">Detail the underlying technical reason for the issue to help agents understand context.</p>
+</div>
+<div class="border border-outline rounded-lg bg-surface dark:bg-surface-dim overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.05)] focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<!-- Editor Toolbar -->
+<div class="border-b border-outline bg-surface-container-lowest dark:bg-inverse-surface p-2 flex items-center gap-1 flex-wrap">
+<select class="h-8 border border-transparent hover:border-outline bg-transparent rounded font-body-sm text-body-sm text-on-surface dark:text-inverse-on-surface focus:outline-none focus:ring-0">
+<option>Paragraph</option>
+<option>Heading 1</option>
+<option>Heading 2</option>
+<option>Code Block</option>
+</select>
+<div class="w-px h-4 bg-outline mx-1"></div>
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface dark:text-inverse-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[18px]">format_bold</span></button>
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface dark:text-inverse-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[18px]">format_italic</span></button>
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface dark:text-inverse-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[18px]">format_underlined</span></button>
+<div class="w-px h-4 bg-outline mx-1"></div>
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface dark:text-inverse-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[18px]">format_list_bulleted</span></button>
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface dark:text-inverse-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[18px]">format_list_numbered</span></button>
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface dark:text-inverse-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[18px]">link</span></button>
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface dark:text-inverse-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[18px]">image</span></button>
+<div class="w-px h-4 bg-outline mx-1"></div>
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface dark:text-inverse-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[18px]">code</span></button>
+</div>
+<!-- Editor Canvas -->
+<div class="p-lg min-h-[300px] outline-none font-body-md text-body-md text-on-surface dark:text-inverse-on-surface cursor-text" contenteditable="true">
+<p>The most common cause for Error 503 during VPN initialization on macOS Ventura is a conflict with the built-in firewall blocking the virtual network adapter created by the client.</p>
+<br/>
+<p>When the client attempts to establish the <code>utun</code> interface, aggressive firewall rules may silently drop the handshake packets. This usually manifests immediately after an OS update where network extension permissions are reset.</p>
+</div>
+</div>
+<!-- Form Navigation -->
+<div class="flex justify-between items-center mt-6 pt-4 border-t border-outline">
+<button class="px-4 py-2 rounded text-secondary dark:text-tertiary-fixed-dim font-label-md text-label-md hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span> Back to Details
+                            </button>
+<button class="px-6 py-2 rounded bg-surface-container-highest dark:bg-inverse-surface text-on-surface dark:text-inverse-on-surface border border-outline font-label-md text-label-md hover:border-primary transition-colors flex items-center gap-2">
+                                Continue to Steps <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Side Panel (Metadata & AI) -->
+<aside class="flex flex-col gap-6">
+<!-- AI Assistant Card -->
+<div class="border border-outline-variant dark:border-outline rounded-lg bg-surface dark:bg-surface-dim overflow-hidden flex flex-col shadow-[0_2px_4px_-2px_rgba(0,0,0,0.1)]">
+<div class="bg-surface-container-highest dark:bg-inverse-surface px-4 py-3 border-b border-outline flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary dark:text-primary-fixed-dim">auto_awesome</span>
+<span class="font-label-md text-label-md font-semibold text-on-surface dark:text-inverse-on-surface">AI Suggestions</span>
+</div>
+<div class="p-4 flex flex-col gap-4">
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-outline">Based on your title and details, consider adding these tags for better searchability:</p>
+<div class="flex flex-wrap gap-2">
+<button class="px-2 py-1 rounded-full border border-outline bg-background dark:bg-on-background text-on-surface dark:text-inverse-on-surface font-mono text-[11px] hover:border-primary hover:text-primary transition-colors flex items-center gap-1 group">
+<span class="material-symbols-outlined text-[14px] group-hover:text-primary">add</span> VPN
+                                </button>
+<button class="px-2 py-1 rounded-full border border-outline bg-background dark:bg-on-background text-on-surface dark:text-inverse-on-surface font-mono text-[11px] hover:border-primary hover:text-primary transition-colors flex items-center gap-1 group">
+<span class="material-symbols-outlined text-[14px] group-hover:text-primary">add</span> macOS
+                                </button>
+<button class="px-2 py-1 rounded-full border border-outline bg-background dark:bg-on-background text-on-surface dark:text-inverse-on-surface font-mono text-[11px] hover:border-primary hover:text-primary transition-colors flex items-center gap-1 group">
+<span class="material-symbols-outlined text-[14px] group-hover:text-primary">add</span> Error 503
+                                </button>
+</div>
+<div class="mt-2 p-3 bg-surface-container-low dark:bg-surface-container-lowest rounded border border-outline-variant text-body-sm font-body-sm text-on-surface-variant dark:text-outline italic">
+                                "Want me to draft a quick summary for the meta description based on this text?"
+                            </div>
+<button class="w-full py-1.5 rounded text-primary dark:text-primary-fixed-dim font-label-md text-label-md border border-primary/30 hover:bg-primary/5 transition-colors">
+                                Generate Summary
+                            </button>
+</div>
+</div>
+<!-- Article Settings -->
+<div class="border border-outline-variant dark:border-outline rounded-lg bg-surface dark:bg-surface-dim overflow-hidden flex flex-col">
+<div class="px-4 py-3 border-b border-outline">
+<span class="font-label-md text-label-md font-semibold text-on-surface dark:text-inverse-on-surface">Article Settings</span>
+</div>
+<div class="p-4 flex flex-col gap-4">
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant dark:text-outline block mb-1">Visibility</label>
+<select class="w-full h-8 px-2 rounded border border-outline bg-surface-container-lowest dark:bg-on-background text-on-surface dark:text-inverse-on-surface font-body-sm text-body-sm focus:outline-none focus:border-primary transition-all">
+<option>Internal (Agents Only)</option>
+<option>Public (Help Center)</option>
+<option>Draft</option>
+</select>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant dark:text-outline block mb-1">Category</label>
+<select class="w-full h-8 px-2 rounded border border-outline bg-surface-container-lowest dark:bg-on-background text-on-surface dark:text-inverse-on-surface font-body-sm text-body-sm focus:outline-none focus:border-primary transition-all">
+<option>Network Connectivity</option>
+<option>Software Installation</option>
+<option>Hardware Issues</option>
+</select>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</main>
+<style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</body></html>

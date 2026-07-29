@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KMS - Quick Ticket Entry</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts for Geist/JetBrains Mono (Assuming they are available, defining fallbacks in tailwind just in case) -->
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        /* Mapping Geist to Inter as a safe fallback if actual font files aren't loaded */
+        :root {
+            --font-geist: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+    </style>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#d3e4fe",
+                        "on-primary-fixed": "#00174b",
+                        "on-surface-variant": "#434655",
+                        "background": "#faf8ff",
+                        "tertiary-fixed": "#e0e3e5",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#dae2fd",
+                        "surface-container-highest": "#dae2fd",
+                        "secondary-container": "#d0e1fb",
+                        "surface-container": "#eaedff",
+                        "surface-bright": "#faf8ff",
+                        "outline-variant": "#c3c6d7",
+                        "surface-container-high": "#e2e7ff",
+                        "tertiary": "#525657",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "tertiary-container": "#6b6e70",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "surface-tint": "#0053db",
+                        "inverse-on-surface": "#eef0ff",
+                        "outline": "#737686",
+                        "on-secondary-container": "#54647a",
+                        "surface-container-low": "#f2f3ff",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "on-surface": "#131b2e",
+                        "on-primary-container": "#eeefff",
+                        "inverse-surface": "#283044",
+                        "error": "#ba1a1a",
+                        "primary": "#004ac6",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#2563eb",
+                        "on-tertiary-container": "#eff1f3",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "surface": "#faf8ff",
+                        "secondary": "#505f76",
+                        "on-background": "#131b2e",
+                        "surface-dim": "#d2d9f4",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-secondary-fixed": "#0b1c30",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "primary-fixed-dim": "#b4c5ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "3xl": "64px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "2xl": "48px",
+                        "sidebar-width": "260px",
+                        "md": "16px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "mono": ["var(--font-mono)", "monospace"],
+                        "body-lg": ["var(--font-geist)", "sans-serif"],
+                        "body-sm": ["var(--font-geist)", "sans-serif"],
+                        "label-md": ["var(--font-geist)", "sans-serif"],
+                        "h2": ["var(--font-geist)", "sans-serif"],
+                        "h3": ["var(--font-geist)", "sans-serif"],
+                        "h1": ["var(--font-geist)", "sans-serif"],
+                        "body-md": ["var(--font-geist)", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "h2": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "h3": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "h1": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-[#1e1e1e] text-on-surface dark:bg-[#121212] min-h-screen flex selection:bg-primary selection:text-on-primary">
+<!-- SideNavBar Component -->
+<!-- Using exact string properties from JSON and inferring Dark Mode hexes based on style guide intent (surface-container-lowest mapped to dark hex) -->
+<nav class="fixed left-0 top-0 h-screen w-sidebar-width bg-surface-container-low dark:bg-[#1a1a1a] border-r border-outline-variant dark:border-[#2e2e2e] flex flex-col py-lg px-md z-50">
+<!-- Header -->
+<div class="flex items-center gap-sm mb-xl px-sm">
+<div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-on-primary font-bold">K</div>
+<div>
+<h1 class="font-h2 text-h2 font-bold text-primary dark:text-primary-fixed-dim leading-none">KMS</h1>
+<p class="font-label-md text-label-md text-on-surface-variant dark:text-outline mt-xs">Enterprise Support</p>
+</div>
+</div>
+<!-- Main Tabs -->
+<div class="flex-1 overflow-y-auto">
+<ul class="space-y-1">
+<!-- Inactive -->
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-[#2e2e2e] transition-all duration-200 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface dark:group-hover:text-on-surface">dashboard</span>
+<span class="font-body-md text-body-md group-hover:text-on-surface dark:group-hover:text-on-surface">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-[#2e2e2e] transition-all duration-200 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface dark:group-hover:text-on-surface">auto_stories</span>
+<span class="font-body-md text-body-md group-hover:text-on-surface dark:group-hover:text-on-surface">Knowledge Base</span>
+</a>
+</li>
+<!-- Active Navigation Logically Applied to 'Tickets' as we are in Quick Ticket Entry -->
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-md bg-secondary-container dark:bg-[#2d3a4f] text-on-secondary-container dark:text-[#b4c5ff] border-l-2 border-primary transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">confirmation_number</span>
+<span class="font-body-md text-body-md font-medium">Tickets</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-[#2e2e2e] transition-all duration-200 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface dark:group-hover:text-on-surface">apps</span>
+<span class="font-body-md text-body-md group-hover:text-on-surface dark:group-hover:text-on-surface">Applications</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-[#2e2e2e] transition-all duration-200 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface dark:group-hover:text-on-surface">track_changes</span>
+<span class="font-body-md text-body-md group-hover:text-on-surface dark:group-hover:text-on-surface">Internal Tracker</span>
+</a>
+</li>
+</ul>
+<div class="my-lg border-t border-outline-variant dark:border-[#2e2e2e]"></div>
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-[#2e2e2e] transition-all duration-200 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface dark:group-hover:text-on-surface">analytics</span>
+<span class="font-body-md text-body-md group-hover:text-on-surface dark:group-hover:text-on-surface">Analytics</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-[#2e2e2e] transition-all duration-200 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface dark:group-hover:text-on-surface">description</span>
+<span class="font-body-md text-body-md group-hover:text-on-surface dark:group-hover:text-on-surface">Documents</span>
+</a>
+</li>
+</ul>
+</div>
+<!-- CTA & Settings at bottom -->
+<div class="mt-auto pt-lg">
+<button class="w-full flex items-center justify-center gap-sm bg-primary text-on-primary py-sm rounded-md mb-md font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[16px]">add</span>
+                Quick Add
+            </button>
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-md text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-[#2e2e2e] transition-all duration-200 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface dark:group-hover:text-on-surface">settings</span>
+<span class="font-body-md text-body-md group-hover:text-on-surface dark:group-hover:text-on-surface">Settings</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Wrapper (offset by sidebar width) -->
+<div class="ml-[260px] flex-1 flex flex-col min-w-0 bg-[#121212]">
+<!-- TopNavBar Component -->
+<header class="sticky top-0 z-40 w-full h-14 bg-surface dark:bg-[#1a1a1a] border-b border-outline-variant dark:border-[#2e2e2e] flex justify-between items-center px-lg shadow-sm">
+<!-- Left: Search (from JSON config search_bar: on_left) -->
+<div class="flex-1 max-w-md">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+<input class="w-full bg-surface-container-low dark:bg-[#242424] border border-outline-variant dark:border-transparent text-on-surface dark:text-[#e0e0e0] font-body-sm text-body-sm rounded-md pl-10 pr-4 py-1.5 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline" placeholder="Search knowledge base, tickets..." type="text"/>
+<div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+<kbd class="hidden sm:inline-block font-mono text-mono px-1.5 py-0.5 rounded bg-surface dark:bg-[#333] border border-outline-variant dark:border-[#444] text-outline text-[10px]">Cmd+K</kbd>
+</div>
+</div>
+</div>
+<!-- Right: Actions & Profile -->
+<div class="flex items-center gap-md ml-auto">
+<div class="flex items-center gap-xs text-on-surface-variant dark:text-outline">
+<button class="p-1.5 rounded hover:bg-surface-container-high dark:hover:bg-[#2e2e2e] hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-150">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container-high dark:hover:bg-[#2e2e2e] hover:text-primary dark:hover:text-primary-fixed-dim transition-colors duration-150">
+<span class="material-symbols-outlined text-[20px]">contrast</span>
+</button>
+</div>
+<div class="h-6 w-px bg-outline-variant dark:bg-[#333] mx-xs"></div>
+<button class="w-8 h-8 rounded-full bg-secondary-container dark:bg-[#2d3a4f] flex items-center justify-center border border-outline-variant dark:border-[#444] overflow-hidden">
+<span class="material-symbols-outlined text-primary dark:text-[#b4c5ff] text-[18px]">person</span>
+</button>
+</div>
+</header>
+<!-- Canvas / Page Content -->
+<main class="flex-1 overflow-y-auto p-lg lg:p-xl flex justify-center">
+<div class="w-full max-w-[720px]">
+<!-- Page Header -->
+<div class="mb-xl flex items-center justify-between">
+<div>
+<h2 class="font-h1 text-h1 text-on-surface dark:text-[#f0f0f0]">Log Incident</h2>
+<p class="font-body-md text-body-md text-outline mt-1">Quick entry optimized flow. Step 1 of 3.</p>
+</div>
+<div class="font-mono text-mono text-outline bg-[#242424] px-3 py-1 rounded border border-[#333]">
+                        TKT-89402
+                    </div>
+</div>
+<!-- Progressive Stepper (Visual Only) -->
+<div class="flex items-center gap-2 mb-xl">
+<div class="h-1 flex-1 bg-primary rounded-full"></div>
+<div class="h-1 w-8 bg-[#333] rounded-full"></div>
+<div class="h-1 w-8 bg-[#333] rounded-full"></div>
+</div>
+<!-- Bento-style Form Card -->
+<div class="bg-[#1a1a1a] border border-[#2e2e2e] rounded-xl shadow-sm p-lg relative overflow-hidden">
+<!-- Decorative subtle gradient in bg -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+<h3 class="font-h3 text-h3 text-on-surface dark:text-[#e0e0e0] mb-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">info</span>
+                        Core Information
+                    </h3>
+<form class="space-y-xl relative z-10">
+<!-- Row 1: App & Urgency -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-outline block">Application / Service</label>
+<div class="relative">
+<select class="w-full appearance-none bg-[#242424] border border-[#333] text-[#e0e0e0] font-body-md text-body-md rounded-md pl-3 pr-10 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all">
+<option disabled="" selected="" value="">Select affected service...</option>
+<option value="auth">Authentication Gateway</option>
+<option value="db">Main Database Cluster</option>
+<option value="api">External API Wrapper</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-outline block">Reported Urgency</label>
+<div class="flex gap-2">
+<!-- Chips acting as radio buttons for speed -->
+<button class="flex-1 py-1.5 px-3 rounded-md border border-[#333] bg-[#242424] text-outline font-body-sm text-body-sm hover:border-[#555] transition-colors focus:ring-2 focus:ring-primary focus:border-transparent outline-none" type="button">Low</button>
+<button class="flex-1 py-1.5 px-3 rounded-md border border-primary/50 bg-primary/10 text-primary-fixed-dim font-body-sm text-body-sm transition-colors focus:ring-2 focus:ring-primary focus:border-transparent outline-none ring-1 ring-primary" type="button">Medium</button>
+<button class="flex-1 py-1.5 px-3 rounded-md border border-[#333] bg-[#242424] text-outline font-body-sm text-body-sm hover:border-[#555] transition-colors focus:ring-2 focus:ring-primary focus:border-transparent outline-none" type="button">High</button>
+</div>
+</div>
+</div>
+<!-- Row 2: Title -->
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-outline block">Incident Title</label>
+<input class="w-full bg-[#242424] border border-[#333] text-[#e0e0e0] font-body-md text-body-md rounded-md px-3 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-[#555]" placeholder="Brief, actionable summary..." type="text"/>
+<!-- AI Suggestion Placeholder -->
+<div class="mt-2 p-2 rounded bg-primary/10 border border-primary/20 flex gap-2 items-start">
+<span class="material-symbols-outlined text-primary text-[16px] mt-0.5">smart_toy</span>
+<div class="font-body-sm text-body-sm text-[#b4c5ff]">
+<span class="opacity-70">AI Suggestion based on recent logs:</span>
+<button class="hover:underline focus:outline-none" type="button">"Auth Gateway Timeout Errors spike on Node B"</button>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="pt-md mt-xl border-t border-[#2e2e2e] flex items-center justify-between">
+<button class="font-label-md text-label-md text-outline hover:text-[#e0e0e0] px-4 py-2 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-[#555]" type="button">
+                                Cancel
+                            </button>
+<button class="font-label-md text-label-md bg-primary text-on-primary hover:bg-primary-container px-6 py-2 rounded flex items-center gap-2 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-fixed" type="button">
+                                Continue to Details
+                                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</form>
+</div>
+<!-- Helper text bottom -->
+<p class="font-body-sm text-body-sm text-[#555] mt-lg text-center">
+                    Press <kbd class="font-mono bg-[#242424] border border-[#333] px-1 rounded mx-1">Cmd + Enter</kbd> to quickly advance to the next step.
+                </p>
+</div>
+</main>
+</div>
+</body></html>

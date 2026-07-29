@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Enterprise Login - KMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#dae2fd",
+                        "outline": "#737686",
+                        "on-surface-variant": "#434655",
+                        "on-primary-container": "#eeefff",
+                        "secondary-fixed": "#d3e4fe",
+                        "primary-container": "#2563eb",
+                        "on-secondary-fixed": "#0b1c30",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "background": "#faf8ff",
+                        "primary-fixed": "#dbe1ff",
+                        "outline-variant": "#c3c6d7",
+                        "on-primary-fixed": "#00174b",
+                        "inverse-primary": "#b4c5ff",
+                        "on-secondary-container": "#54647a",
+                        "primary": "#004ac6",
+                        "tertiary": "#525657",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#0053db",
+                        "surface-bright": "#faf8ff",
+                        "on-tertiary-container": "#eff1f3",
+                        "tertiary-fixed": "#e0e3e5",
+                        "surface-container-low": "#f2f3ff",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "inverse-on-surface": "#eef0ff",
+                        "tertiary-container": "#6b6e70",
+                        "error": "#ba1a1a",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e2e7ff",
+                        "on-background": "#131b2e",
+                        "secondary-container": "#d0e1fb",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#505f76",
+                        "on-surface": "#131b2e",
+                        "surface-variant": "#dae2fd",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "surface": "#faf8ff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#283044",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "surface-container": "#eaedff",
+                        "surface-dim": "#d2d9f4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "2xl": "48px",
+                        "sidebar-width": "260px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "3xl": "64px",
+                        "base": "4px",
+                        "container-max": "1440px",
+                        "md": "16px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Geist"],
+                        "h1": ["Geist"],
+                        "mono": ["jetbrainsMono"],
+                        "h3": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "body-md": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "h2": ["Geist"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "h1": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "h3": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "h2": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface-dim text-on-surface h-screen flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
+<!-- Main Content Area -->
+<main class="flex-grow flex flex-col md:flex-row relative">
+<!-- Left Side: Login Form -->
+<div class="w-full md:w-1/2 lg:w-[480px] xl:w-[560px] flex flex-col justify-between px-lg py-xl bg-surface-dim md:bg-surface-dim z-10 h-full overflow-y-auto">
+<!-- Header/Logo -->
+<div class="mb-2xl flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-[32px] font-variation-settings: 'FILL' 1;" data-icon="auto_awesome_mosaic">auto_awesome_mosaic</span>
+<span class="font-h2 text-h2 text-primary font-bold tracking-tight">KMS</span>
+<span class="font-body-md text-body-md text-on-surface-variant ml-xs mt-1">Enterprise Support</span>
+</div>
+<!-- Login Form Container -->
+<div class="w-full max-w-[400px] mx-auto flex-grow flex flex-col justify-center">
+<div class="mb-lg">
+<h1 class="font-h1 text-h1 text-on-surface mb-sm">Welcome back</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Sign in to access the enterprise knowledge base and support ticketing system.</p>
+</div>
+<!-- SSO Login -->
+<button class="w-full h-[40px] flex items-center justify-center gap-sm border border-outline-variant rounded bg-surface hover:bg-surface-container-high transition-colors duration-150 mb-lg group">
+<svg class="w-5 h-5 text-[#00a4ef]" viewbox="0 0 21 21" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h10v10H0zM11 0h10v10H11zM0 11h10v10H0zM11 11h10v10H11z" fill="currentColor"></path></svg>
+<span class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors">Sign in with Microsoft</span>
+</button>
+<!-- Divider -->
+<div class="flex items-center mb-lg">
+<div class="flex-grow h-[1px] bg-outline-variant"></div>
+<span class="px-sm font-body-sm text-body-sm text-on-surface-variant">or continue with email</span>
+<div class="flex-grow h-[1px] bg-outline-variant"></div>
+</div>
+<!-- Email/Password Form -->
+<form action="#" class="flex flex-col gap-md" method="POST">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="email">Email Address</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline text-[18px]">mail</span>
+<input class="w-full h-[40px] bg-surface border border-outline-variant rounded pl-xl pr-sm font-body-md text-body-md text-on-surface focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-shadow" id="email" name="email" placeholder="name@company.com" required="" type="email"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-label-md text-on-surface" for="password">Password</label>
+<a class="font-body-sm text-body-sm text-primary hover:text-primary-fixed-dim transition-colors" href="#">Forgot Password?</a>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline text-[18px]">lock</span>
+<input class="w-full h-[40px] bg-surface border border-outline-variant rounded pl-xl pr-sm font-body-md text-body-md text-on-surface focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-shadow" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+</div>
+</div>
+<div class="flex items-center gap-sm mt-xs">
+<input class="w-4 h-4 rounded border-outline-variant bg-surface text-primary focus:ring-primary cursor-pointer" id="remember" name="remember" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none" for="remember">Remember this device</label>
+</div>
+<button class="w-full h-[40px] mt-sm bg-primary text-on-primary font-label-md text-label-md rounded hover:bg-primary-fixed-variant transition-colors duration-150 flex items-center justify-center gap-xs" type="submit">
+                        Sign In
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</form>
+</div>
+<!-- Footer Links -->
+<div class="mt-2xl flex flex-col sm:flex-row justify-between items-center sm:items-end gap-sm border-t border-outline-variant pt-md">
+<span class="font-mono text-mono text-on-surface-variant">v2.4.1 (Nexus)</span>
+<div class="flex gap-md">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Terms</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Support</a>
+</div>
+</div>
+</div>
+<!-- Right Side: Illustration / Abstract Background -->
+<div class="hidden md:flex flex-grow relative bg-surface-container-lowest items-center justify-center overflow-hidden border-l border-outline-variant">
+<!-- Abstract Background Shapes mimicking an enterprise network or data flow -->
+<div class="absolute inset-0 w-full h-full opacity-30 z-0">
+<div class="absolute top-1/4 left-1/4 w-[40vw] h-[40vw] bg-primary-container rounded-full mix-blend-screen filter blur-[100px] animate-pulse" style="animation-duration: 8s;"></div>
+<div class="absolute bottom-1/4 right-1/4 w-[30vw] h-[30vw] bg-tertiary rounded-full mix-blend-screen filter blur-[80px] animate-pulse" style="animation-duration: 12s; animation-delay: 2s;"></div>
+</div>
+<!-- Image Container -->
+<div class="relative z-10 w-full max-w-[800px] h-[80%] px-2xl flex flex-col justify-center items-center">
+<img class="w-full h-auto object-contain rounded-xl shadow-[0_4px_6px_-1px_rgb(0,0,0,0.5),_0_2px_4px_-2px_rgb(0,0,0,0.5)] border border-outline-variant" data-alt="A sophisticated, abstract 3D digital illustration representing a secure enterprise data network in a sleek dark mode aesthetic. Glowing neon blue and subtle indigo light trails flow through a complex matrix of translucent glass-like server nodes and geometric data blocks. The lighting is dramatic and low-key, with crisp highlights emphasizing the high-tech, reliable, and secure nature of an enterprise support system. The overall mood is modern, professional, and silently powerful." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXgN1NbEibPDCcxzNGedR20R_k4q7AJBqaTFt2HV1eBUAKNuqiNKfifpcWxJK4cBL4w08AcNWjPd0QgxQEpswQ0XTQ3Oi3ktg8bqbSFDnLRB-_YzBrx7xlgKhEibs2Ebj-FNvKRFPygcMSzb343E9VBtMjhv9BhUjHLh1Q5vpAhJ8_kMy8yBYMFThVSFmhurQkYgFx5Xlp6gYegtHD38WILERWixDgfnQWH7jRoNZh3Qm99wYY_c5xEPWkttmpfZocX48qrMU5t3nn"/>
+</div>
+<!-- Overlay subtle grid pattern -->
+<div class="absolute inset-0 z-20 pointer-events-none" style="background-image: radial-gradient(var(--tw-colors-outline-variant) 1px, transparent 1px); background-size: 24px 24px; opacity: 0.1;"></div>
+</div>
+</main>
+</body></html>

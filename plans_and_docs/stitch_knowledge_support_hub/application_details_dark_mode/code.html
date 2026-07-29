@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Application Details - KMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#0053db",
+                        "on-primary-fixed": "#00174b",
+                        "surface-variant": "#dae2fd",
+                        "surface-container-low": "#f2f3ff",
+                        "outline": "#737686",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#e0e3e5",
+                        "surface-container": "#eaedff",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#eeefff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "on-tertiary-container": "#eff1f3",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "surface-container-highest": "#dae2fd",
+                        "surface": "#faf8ff",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#0b1c30",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#131b2e",
+                        "surface-dim": "#d2d9f4",
+                        "primary-container": "#2563eb",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "secondary-fixed": "#d3e4fe",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "secondary-container": "#d0e1fb",
+                        "inverse-primary": "#b4c5ff",
+                        "surface-container-high": "#e2e7ff",
+                        "on-background": "#131b2e",
+                        "tertiary-container": "#6b6e70",
+                        "inverse-on-surface": "#eef0ff",
+                        "inverse-surface": "#283044",
+                        "error": "#ba1a1a",
+                        "outline-variant": "#c3c6d7",
+                        "surface-bright": "#faf8ff",
+                        "secondary": "#505f76",
+                        "primary": "#004ac6",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "tertiary": "#525657",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-secondary-container": "#54647a",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#434655",
+                        "background": "#faf8ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "3xl": "64px",
+                        "container-max": "1440px",
+                        "xl": "32px",
+                        "sidebar-width": "260px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "2xl": "48px",
+                        "base": "4px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Geist"],
+                        "body-md": ["Geist"],
+                        "h2": ["Geist"],
+                        "h3": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "h1": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "mono": ["jetbrainsMono"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "h2": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "h3": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "h1": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #131b2e; /* Manually forcing dark bg to match on-surface/on-background inverted for dark mode */
+            color: #ffffff; /* on-surface text for dark mode */
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #434655; /* on-surface-variant */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #737686; /* outline */
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased h-screen overflow-hidden flex flex-col md:flex-row">
+<!-- Mobile Top Navigation (Visible only on mobile md:hidden) - Using BottomNavBar pattern as per instructions but adapted for details page suppression -->
+<!-- Suppressed navigation shell on mobile for this specific task-focused 'Details' screen to prioritize Canvas -->
+<!-- Desktop Side Navigation -->
+<aside class="hidden md:flex flex-col h-full py-lg px-md bg-surface-container-lowest border-r border-outline transition-all duration-200 ease-in-out fixed left-0 top-0 h-screen w-sidebar-width z-30">
+<!-- Header -->
+<div class="flex items-center gap-sm mb-xl">
+<div class="w-8 h-8 rounded bg-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary text-[20px]" data-icon="hub">hub</span>
+</div>
+<div>
+<h1 class="font-h2 text-h2 font-bold text-primary-fixed-dim">KMS</h1>
+<p class="font-label-md text-label-md text-outline">Enterprise Support</p>
+</div>
+</div>
+<!-- CTA -->
+<button class="w-full flex items-center justify-center gap-xs py-2 px-4 bg-primary text-on-primary rounded font-label-md text-label-md font-semibold hover:bg-primary-fixed-dim hover:text-on-primary-fixed transition-colors mb-xl shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+            Quick Add
+        </button>
+<!-- Main Nav -->
+<nav class="flex-1 overflow-y-auto">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-on-surface-variant hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>
+                        Dashboard
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-on-surface-variant hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="auto_stories">auto_stories</span>
+                        Knowledge Base
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-on-surface-variant hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="confirmation_number">confirmation_number</span>
+                        Tickets
+                    </a>
+</li>
+<!-- Active Item -->
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded bg-secondary-container text-on-secondary-container border-l-2 border-primary transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="apps" style="font-variation-settings: 'FILL' 1;">apps</span>
+                        Applications
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-on-surface-variant hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="track_changes">track_changes</span>
+                        Internal Tracker
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-on-surface-variant hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="analytics">analytics</span>
+                        Analytics
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-on-surface-variant hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="description">description</span>
+                        Documents
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-on-surface-variant hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+                        Notifications
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-on-surface-variant hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="group">group</span>
+                        Users
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-on-surface-variant hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+                        Settings
+                    </a>
+</li>
+</ul>
+<div class="mt-lg pt-lg border-t border-outline">
+<p class="font-label-md text-label-md text-outline px-3 mb-sm uppercase">Quick Links</p>
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-on-surface-variant hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="widgets">widgets</span>
+                            Applications
+                        </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-on-surface-variant hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="star">star</span>
+                            Favourite Articles
+                        </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-on-surface-variant hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="drafts">drafts</span>
+                            Drafts
+                        </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-3 py-2 rounded text-on-surface-variant hover:bg-on-surface-variant transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="history">history</span>
+                            Recent Entries
+                        </a>
+</li>
+</ul>
+</div>
+</nav>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col md:ml-[260px] h-full overflow-hidden relative bg-[#131b2e]">
+<!-- Top App Bar -->
+<header class="flex justify-between items-center px-lg w-full sticky top-0 z-20 w-full h-14 bg-surface-dim border-b border-outline transition-colors duration-150 shrink-0 shadow-sm">
+<div class="flex items-center gap-md">
+<!-- Breadcrumb / Back -->
+<button class="md:hidden text-outline hover:text-primary-fixed-dim p-1 rounded-full hover:bg-on-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="hidden md:flex items-center text-outline font-body-sm text-body-sm">
+<a class="hover:text-primary-fixed-dim transition-colors" href="#">Applications</a>
+<span class="material-symbols-outlined text-[16px] mx-1" data-icon="chevron_right">chevron_right</span>
+<span class="text-on-surface">Finance Sync</span>
+</div>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-md">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-2 top-1.5 text-[16px] text-outline" data-icon="search">search</span>
+<input class="bg-[#283044] border border-outline rounded text-body-sm text-on-surface pl-8 pr-2 py-1 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-64 placeholder-outline" placeholder="Search Finance Sync..." type="text"/>
+<div class="absolute right-2 top-1.5 flex items-center gap-1">
+<kbd class="font-mono text-[10px] text-outline bg-[#131b2e] px-1 rounded border border-outline border-opacity-50">Cmd+K</kbd>
+</div>
+</div>
+<div class="flex items-center gap-sm border-l border-outline pl-md ml-sm">
+<button class="text-outline hover:text-primary-fixed-dim p-1 rounded hover:bg-on-surface-variant transition-colors relative">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-outline hover:text-primary-fixed-dim p-1 rounded hover:bg-on-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="contrast">contrast</span>
+</button>
+<button class="text-outline hover:text-primary-fixed-dim p-1 rounded hover:bg-on-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-tertiary-container overflow-hidden ml-sm border border-outline cursor-pointer shrink-0">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXksvzncrGP1eTOgnqPR2Hz9XXmD7LXgNDvgBTn5aKJi90czC1zATVSvWk7z_a2tCJ_0e7o2lt8p7tPqfMRaYU-uirOwid_rj74OL3emN9n1k1bXWzw_FE0-AEXRIMdz2QroVVVYing-dyjcFHKi3twbmcAlm7zXnEPLBQMDXWbjeSxnqTeIAEOTihu6FdWLS5IiZlnExpklG_-HGAgo3PocjLqWAxVPefsNz1xgT5PHhpO2k7E2RvoaSDV-O6HSFZCXn-Upo0ooWR"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Scrollable Area -->
+<main class="flex-1 overflow-y-auto p-md lg:p-lg">
+<div class="max-w-[1200px] mx-auto w-full grid grid-cols-1 xl:grid-cols-12 gap-lg">
+<!-- Center Canvas (Details) -->
+<div class="xl:col-span-8 flex flex-col gap-lg">
+<!-- App Header Card -->
+<div class="bg-[#1c253c] border border-outline-variant rounded-lg p-lg shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-md">
+<div class="flex items-start gap-lg">
+<div class="w-16 h-16 rounded-xl bg-primary-container bg-opacity-20 flex items-center justify-center shrink-0 border border-primary border-opacity-30">
+<span class="material-symbols-outlined text-[32px] text-inverse-primary" data-icon="sync_alt">sync_alt</span>
+</div>
+<div>
+<div class="flex items-center gap-sm mb-1">
+<h1 class="font-h1 text-h1 text-[#ffffff]">Finance Sync</h1>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold tracking-wide uppercase bg-emerald-900 text-emerald-200 border border-emerald-700">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Healthy
+                                        </span>
+</div>
+<p class="font-body-md text-body-md text-tertiary-fixed-dim max-w-xl">
+                                        Core microservice responsible for real-time synchronization of ledger entries between regional ERP systems and the central data warehouse.
+                                    </p>
+</div>
+</div>
+<div class="flex sm:flex-col gap-sm sm:items-end shrink-0">
+<button class="flex items-center gap-xs px-3 py-1.5 bg-[#283044] hover:bg-[#38485d] border border-outline rounded text-on-surface font-label-md text-label-md transition-colors">
+<span class="material-symbols-outlined text-[16px]" data-icon="edit">edit</span>
+                                    Edit Details
+                                </button>
+<button class="flex items-center gap-xs px-3 py-1.5 bg-[#283044] hover:bg-[#38485d] border border-outline rounded text-on-surface font-label-md text-label-md transition-colors">
+<span class="material-symbols-outlined text-[16px]" data-icon="open_in_new">open_in_new</span>
+                                    View Logs
+                                </button>
+</div>
+</div>
+<div class="mt-lg grid grid-cols-2 sm:grid-cols-4 gap-md pt-md border-t border-outline-variant">
+<div>
+<p class="font-label-md text-label-md text-outline mb-1">App ID</p>
+<p class="font-mono text-mono text-[#ffffff]">APP-9283</p>
+</div>
+<div>
+<p class="font-label-md text-label-md text-outline mb-1">Owner Team</p>
+<div class="flex items-center gap-xs text-[#ffffff]">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="group">group</span>
+<span class="font-body-sm text-body-sm">FinEng Alpha</span>
+</div>
+</div>
+<div>
+<p class="font-label-md text-label-md text-outline mb-1">Tier</p>
+<p class="font-body-sm text-body-sm text-[#ffffff]">Tier 1 (Mission Critical)</p>
+</div>
+<div>
+<p class="font-label-md text-label-md text-outline mb-1">Last Deployed</p>
+<p class="font-body-sm text-body-sm text-[#ffffff]">2 hours ago (v4.2.1)</p>
+</div>
+</div>
+</div>
+<!-- Tabs -->
+<div class="border-b border-outline">
+<nav aria-label="Tabs" class="flex gap-lg">
+<a class="border-b-2 border-primary text-primary-fixed-dim font-label-md text-label-md py-3 px-1 whitespace-nowrap" href="#">
+                                Overview
+                            </a>
+<a class="border-b-2 border-transparent text-outline hover:text-tertiary-fixed-dim hover:border-outline-variant font-label-md text-label-md py-3 px-1 whitespace-nowrap transition-colors" href="#">
+                                Knowledge Base
+                            </a>
+<a class="border-b-2 border-transparent text-outline hover:text-tertiary-fixed-dim hover:border-outline-variant font-label-md text-label-md py-3 px-1 whitespace-nowrap transition-colors flex items-center gap-2" href="#">
+                                Known Issues <span class="bg-[#283044] text-outline px-1.5 py-0.5 rounded text-[10px]">3</span>
+</a>
+<a class="border-b-2 border-transparent text-outline hover:text-tertiary-fixed-dim hover:border-outline-variant font-label-md text-label-md py-3 px-1 whitespace-nowrap transition-colors" href="#">
+                                Servers
+                            </a>
+</nav>
+</div>
+<!-- Tab Content: Overview -->
+<div class="grid grid-cols-1 gap-lg">
+<!-- Bento Grid style metrics -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-md">
+<div class="bg-[#1c253c] border border-outline-variant rounded-lg p-md shadow-sm relative overflow-hidden">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary rounded-full opacity-5 blur-xl"></div>
+<p class="font-label-md text-label-md text-outline mb-2 flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="speed">speed</span> Avg Latency
+                                </p>
+<p class="font-h2 text-h2 text-[#ffffff]">42<span class="text-body-sm font-normal text-outline ml-1">ms</span></p>
+<div class="mt-2 h-1 w-full bg-[#283044] rounded-full overflow-hidden">
+<div class="h-full bg-emerald-500 w-1/4 rounded-full"></div>
+</div>
+</div>
+<div class="bg-[#1c253c] border border-outline-variant rounded-lg p-md shadow-sm relative overflow-hidden">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-error rounded-full opacity-5 blur-xl"></div>
+<p class="font-label-md text-label-md text-outline mb-2 flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="error">error</span> Error Rate
+                                </p>
+<p class="font-h2 text-h2 text-[#ffffff]">0.02<span class="text-body-sm font-normal text-outline ml-1">%</span></p>
+<p class="font-body-sm text-[11px] text-outline mt-1">+0.01% from yesterday</p>
+</div>
+<div class="bg-[#1c253c] border border-outline-variant rounded-lg p-md shadow-sm relative overflow-hidden">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-tertiary-fixed rounded-full opacity-5 blur-xl"></div>
+<p class="font-label-md text-label-md text-outline mb-2 flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="memory">memory</span> CPU Utilization
+                                </p>
+<p class="font-h2 text-h2 text-[#ffffff]">68<span class="text-body-sm font-normal text-outline ml-1">%</span></p>
+<div class="mt-2 h-1 w-full bg-[#283044] rounded-full overflow-hidden">
+<div class="h-full bg-amber-500 w-[68%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Architecture & Dependencies -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-md">
+<!-- Architecture Summary -->
+<div class="bg-[#1c253c] border border-outline-variant rounded-lg p-md shadow-sm flex flex-col">
+<h3 class="font-h3 text-h3 text-[#ffffff] mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline" data-icon="account_tree">account_tree</span>
+                                    Architecture Summary
+                                </h3>
+<div class="prose prose-invert prose-sm max-w-none font-body-sm text-tertiary-fixed-dim">
+<p>Finance Sync is built on a containerized Node.js runtime, orchestrating message queues via RabbitMQ. It utilizes Redis for caching frequently accessed ledger hashes and persists state in a partitioned PostgreSQL cluster.</p>
+<ul class="list-disc pl-4 mt-2 space-y-1">
+<li><strong>Framework:</strong> Express.js / TypeScript</li>
+<li><strong>Messaging:</strong> RabbitMQ (Topic Exchange)</li>
+<li><strong>Data Store:</strong> PostgreSQL 14, Redis 7</li>
+</ul>
+</div>
+<div class="mt-auto pt-md text-right">
+<a class="text-primary-fixed-dim hover:text-inverse-primary font-label-md text-label-md text-[11px] uppercase tracking-wider inline-flex items-center gap-xs" href="#">
+                                        View Full Topology <span class="material-symbols-outlined text-[14px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Dependencies (Glassmorphism inspired list) -->
+<div class="bg-[#1c253c] border border-outline-variant rounded-lg p-md shadow-sm">
+<h3 class="font-h3 text-h3 text-[#ffffff] mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline" data-icon="link">link</span>
+                                    Key Dependencies
+                                </h3>
+<div class="space-y-2">
+<div class="flex items-center justify-between p-2 rounded bg-[#283044] bg-opacity-50 border border-outline-variant border-opacity-30 hover:bg-opacity-80 transition-colors">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed" data-icon="database">database</span>
+<div>
+<p class="font-body-sm text-[13px] text-[#ffffff] font-medium">Core Ledger DB</p>
+<p class="text-[11px] text-outline">PostgreSQL</p>
+</div>
+</div>
+<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-[#283044] bg-opacity-50 border border-outline-variant border-opacity-30 hover:bg-opacity-80 transition-colors">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed" data-icon="api">api</span>
+<div>
+<p class="font-body-sm text-[13px] text-[#ffffff] font-medium">Auth Gateway v2</p>
+<p class="text-[11px] text-outline">Internal API</p>
+</div>
+</div>
+<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+</div>
+<div class="flex items-center justify-between p-2 rounded bg-[#283044] bg-opacity-50 border border-outline-variant border-opacity-30 hover:bg-opacity-80 transition-colors">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed" data-icon="sync">sync</span>
+<div>
+<p class="font-body-sm text-[13px] text-[#ffffff] font-medium">EU Region Sync</p>
+<p class="text-[11px] text-outline">Upstream Service</p>
+</div>
+</div>
+<span class="w-2 h-2 rounded-full bg-amber-400" title="Degraded Performance"></span>
+</div>
+</div>
+</div>
+</div>
+<!-- Active Server Instances (Table Card) -->
+<div class="bg-[#1c253c] border border-outline-variant rounded-lg shadow-sm overflow-hidden">
+<div class="p-md border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-h3 text-h3 text-[#ffffff] flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline" data-icon="dns">dns</span>
+                                    Active Server Instances
+                                </h3>
+<button class="text-outline hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-[#283044] bg-opacity-30 font-label-md text-label-md text-outline">
+<th class="px-md py-3 font-medium border-b border-outline-variant">Instance Name</th>
+<th class="px-md py-3 font-medium border-b border-outline-variant">Environment</th>
+<th class="px-md py-3 font-medium border-b border-outline-variant">IP Address</th>
+<th class="px-md py-3 font-medium border-b border-outline-variant">Status</th>
+<th class="px-md py-3 font-medium border-b border-outline-variant text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="font-mono text-mono text-tertiary-fixed-dim">
+<tr class="border-b border-outline-variant border-opacity-50 hover:bg-[#283044] hover:bg-opacity-20 transition-colors">
+<td class="px-md py-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="terminal">terminal</span>
+                                                fin-sync-prod-us-e-1
+                                            </td>
+<td class="px-md py-3"><span class="bg-[#283044] text-outline px-2 py-0.5 rounded text-[10px] uppercase font-sans">Production</span></td>
+<td class="px-md py-3">10.42.101.5</td>
+<td class="px-md py-3"><span class="text-emerald-400 flex items-center gap-1 text-[11px] font-sans"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Up</span></td>
+<td class="px-md py-3 text-right">
+<button class="text-outline hover:text-[#ffffff] transition-colors"><span class="material-symbols-outlined text-[16px]" data-icon="terminal">terminal</span></button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant border-opacity-50 hover:bg-[#283044] hover:bg-opacity-20 transition-colors">
+<td class="px-md py-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="terminal">terminal</span>
+                                                fin-sync-prod-us-e-2
+                                            </td>
+<td class="px-md py-3"><span class="bg-[#283044] text-outline px-2 py-0.5 rounded text-[10px] uppercase font-sans">Production</span></td>
+<td class="px-md py-3">10.42.101.6</td>
+<td class="px-md py-3"><span class="text-emerald-400 flex items-center gap-1 text-[11px] font-sans"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Up</span></td>
+<td class="px-md py-3 text-right">
+<button class="text-outline hover:text-[#ffffff] transition-colors"><span class="material-symbols-outlined text-[16px]" data-icon="terminal">terminal</span></button>
+</td>
+</tr>
+<tr class="hover:bg-[#283044] hover:bg-opacity-20 transition-colors">
+<td class="px-md py-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="terminal">terminal</span>
+                                                fin-sync-stg-us-w-1
+                                            </td>
+<td class="px-md py-3"><span class="bg-[#283044] text-outline px-2 py-0.5 rounded text-[10px] uppercase font-sans">Staging</span></td>
+<td class="px-md py-3">10.45.22.10</td>
+<td class="px-md py-3"><span class="text-amber-400 flex items-center gap-1 text-[11px] font-sans"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Restarting</span></td>
+<td class="px-md py-3 text-right">
+<button class="text-outline hover:text-[#ffffff] transition-colors"><span class="material-symbols-outlined text-[16px]" data-icon="terminal">terminal</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar (Metadata & Activity) -->
+<div class="xl:col-span-4 flex flex-col gap-lg">
+<!-- Escalation Contacts Card -->
+<div class="bg-[#1c253c] border border-outline-variant rounded-lg p-md shadow-sm">
+<h3 class="font-h3 text-h3 text-[#ffffff] mb-md flex items-center gap-sm pb-sm border-b border-outline-variant">
+<span class="material-symbols-outlined text-outline" data-icon="contact_support">contact_support</span>
+                            Escalation Contacts
+                        </h3>
+<div class="space-y-4 mt-sm">
+<div class="flex items-start justify-between">
+<div class="flex gap-3">
+<img class="w-10 h-10 rounded-full object-cover border border-outline" data-alt="A professional headshot of a female software engineer in a modern office with dark lighting, styled for a corporate directory." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrt_Zfa1oXR68q1jRU6ffLu-FZYR6LKBsscFoB7-NCfBQh95-0VFoRo_uB9CNnOliJltmyPoDCfRvjooR6wJm3DxxLomoXn7fnj8ac2lUKLJg31Bef30Kh_DaypH_tlJLun0xQApAdCZct_BVzQJiQdwRqr8UA__49FZzWYpwPagn07PzBm2vtz6bTj-exkBrriZnoLQKbwqLqgJLyMC8RUp9sxArgB2zmMTLsO2pb462CGD8c6FCiYeIbb8ugGhTZl2yoMzF29z07"/>
+<div>
+<p class="font-body-sm text-[14px] text-[#ffffff] font-medium">Sarah Jenkins</p>
+<p class="text-[11px] text-outline">Primary Lead (L3)</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="w-7 h-7 rounded bg-[#283044] hover:bg-[#38485d] flex items-center justify-center text-outline hover:text-[#ffffff] transition-colors border border-outline-variant border-opacity-50"><span class="material-symbols-outlined text-[14px]" data-icon="chat">chat</span></button>
+<button class="w-7 h-7 rounded bg-[#283044] hover:bg-[#38485d] flex items-center justify-center text-outline hover:text-[#ffffff] transition-colors border border-outline-variant border-opacity-50"><span class="material-symbols-outlined text-[14px]" data-icon="call">call</span></button>
+</div>
+</div>
+<div class="flex items-start justify-between">
+<div class="flex gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-[14px] border border-secondary">
+                                        MR
+                                    </div>
+<div>
+<p class="font-body-sm text-[14px] text-[#ffffff] font-medium">Marcus Reed</p>
+<p class="text-[11px] text-outline">Secondary / On-Call</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="w-7 h-7 rounded bg-[#283044] hover:bg-[#38485d] flex items-center justify-center text-outline hover:text-[#ffffff] transition-colors border border-outline-variant border-opacity-50"><span class="material-symbols-outlined text-[14px]" data-icon="chat">chat</span></button>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant border-opacity-50">
+<p class="font-label-md text-label-md text-outline mb-2">PagerDuty Rotation</p>
+<div class="flex items-center gap-2 p-2 bg-[#283044] bg-opacity-50 rounded border border-outline-variant border-opacity-30">
+<span class="material-symbols-outlined text-[16px] text-amber-400" data-icon="campaign">campaign</span>
+<span class="font-body-sm text-[12px] text-tertiary-fixed-dim">Currently paging: <strong class="text-[#ffffff]">FinEng-Alpha-OnCall</strong></span>
+</div>
+</div>
+</div>
+</div>
+<!-- Activity Feed (Vertical Stepper style) -->
+<div class="bg-[#1c253c] border border-outline-variant rounded-lg p-md shadow-sm flex-1">
+<h3 class="font-h3 text-h3 text-[#ffffff] mb-md flex items-center gap-sm pb-sm border-b border-outline-variant">
+<span class="material-symbols-outlined text-outline" data-icon="history">history</span>
+                            Recent Activity
+                        </h3>
+<div class="relative mt-md ml-2 border-l-2 border-[#283044] space-y-6 pb-4">
+<!-- Item 1 -->
+<div class="relative pl-6">
+<div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-emerald-900 border-2 border-emerald-400 z-10"></div>
+<div class="flex justify-between items-start mb-1">
+<p class="font-body-sm text-[13px] text-[#ffffff] font-medium">Deployment Successful</p>
+<span class="text-[10px] text-outline">2h ago</span>
+</div>
+<p class="text-[12px] text-tertiary-fixed-dim font-mono">v4.2.1 deployed to Production via Jenkins.</p>
+</div>
+<!-- Item 2 -->
+<div class="relative pl-6">
+<div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-[#1c253c] border-2 border-amber-400 z-10"></div>
+<div class="flex justify-between items-start mb-1">
+<p class="font-body-sm text-[13px] text-[#ffffff] font-medium">Alert: High Memory Usage</p>
+<span class="text-[10px] text-outline">5h ago</span>
+</div>
+<p class="text-[12px] text-tertiary-fixed-dim">Instance <span class="font-mono text-[10px] bg-[#283044] px-1 rounded">fin-sync-prod-us-e-1</span> exceeded 85% memory threshold. Auto-scaled.</p>
+</div>
+<!-- Item 3 -->
+<div class="relative pl-6">
+<div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-[#1c253c] border-2 border-outline z-10"></div>
+<div class="flex justify-between items-start mb-1">
+<p class="font-body-sm text-[13px] text-[#ffffff] font-medium">Config Updated</p>
+<span class="text-[10px] text-outline">Yesterday</span>
+</div>
+<p class="text-[12px] text-tertiary-fixed-dim">S. Jenkins updated Redis timeout parameters in Vault.</p>
+</div>
+<!-- Item 4 -->
+<div class="relative pl-6">
+<div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-[#1c253c] border-2 border-outline z-10"></div>
+<div class="flex justify-between items-start mb-1">
+<p class="font-body-sm text-[13px] text-[#ffffff] font-medium">KB Article Linked</p>
+<span class="text-[10px] text-outline">Oct 12</span>
+</div>
+<p class="text-[12px] text-primary-fixed-dim hover:underline cursor-pointer">Runbook: Resyncing failed regional batches</p>
+</div>
+</div>
+<button class="w-full mt-2 py-2 text-center text-[12px] text-outline hover:text-[#ffffff] transition-colors border border-transparent hover:border-outline-variant rounded">View All Logs</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

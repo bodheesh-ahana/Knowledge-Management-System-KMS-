@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KMS - User Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-tint": "#0053db",
+                      "on-primary-fixed": "#00174b",
+                      "surface-variant": "#dae2fd",
+                      "surface-container-low": "#f2f3ff",
+                      "outline": "#737686",
+                      "on-error-container": "#93000a",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed": "#e0e3e5",
+                      "surface-container": "#eaedff",
+                      "on-error": "#ffffff",
+                      "on-primary-container": "#eeefff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "on-tertiary-container": "#eff1f3",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "surface-container-highest": "#dae2fd",
+                      "surface": "#faf8ff",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-fixed": "#0b1c30",
+                      "on-primary": "#ffffff",
+                      "on-surface": "#131b2e",
+                      "surface-dim": "#d2d9f4",
+                      "primary-container": "#2563eb",
+                      "secondary-fixed-dim": "#b7c8e1",
+                      "secondary-fixed": "#d3e4fe",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "secondary-container": "#d0e1fb",
+                      "inverse-primary": "#b4c5ff",
+                      "surface-container-high": "#e2e7ff",
+                      "on-background": "#131b2e",
+                      "tertiary-container": "#6b6e70",
+                      "inverse-on-surface": "#eef0ff",
+                      "inverse-surface": "#283044",
+                      "error": "#ba1a1a",
+                      "outline-variant": "#c3c6d7",
+                      "surface-bright": "#faf8ff",
+                      "secondary": "#505f76",
+                      "primary": "#004ac6",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed": "#dbe1ff",
+                      "tertiary": "#525657",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "on-secondary-container": "#54647a",
+                      "on-secondary-fixed-variant": "#38485d",
+                      "on-tertiary": "#ffffff",
+                      "on-surface-variant": "#434655",
+                      "background": "#faf8ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "sm": "8px",
+                      "3xl": "64px",
+                      "container-max": "1440px",
+                      "xl": "32px",
+                      "sidebar-width": "260px",
+                      "md": "16px",
+                      "lg": "24px",
+                      "2xl": "48px",
+                      "base": "4px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "label-md": [
+                              "Geist"
+                      ],
+                      "body-md": [
+                              "Geist"
+                      ],
+                      "h2": [
+                              "Geist"
+                      ],
+                      "h3": [
+                              "Geist"
+                      ],
+                      "body-sm": [
+                              "Geist"
+                      ],
+                      "h1": [
+                              "Geist"
+                      ],
+                      "body-lg": [
+                              "Geist"
+                      ],
+                      "mono": [
+                              "jetbrainsMono"
+                      ]
+              },
+              "fontSize": {
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h3": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "mono": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        /* Base typography settings */
+        body {
+            font-family: 'Geist', sans-serif;
+            background-color: #faf8ff;
+            color: #131b2e;
+        }
+
+        /* GitHub style contribution graph colors */
+        .contrib-0 { background-color: #f2f3ff; } /* surface-container-low */
+        .contrib-1 { background-color: #dbe1ff; } /* primary-fixed */
+        .contrib-2 { background-color: #b4c5ff; } /* primary-fixed-dim */
+        .contrib-3 { background-color: #0053db; } /* surface-tint */
+        .contrib-4 { background-color: #004ac6; } /* primary */
+      </style>
+</head>
+<body class="flex h-screen overflow-hidden text-on-surface bg-background">
+<!-- SideNavBar (from JSON) -->
+<nav class="hidden md:flex fixed left-0 top-0 h-screen w-sidebar-width border-r border-outline-variant bg-surface-container-low flex-col py-lg px-md z-50">
+<div class="flex items-center gap-md mb-xl px-sm">
+<img alt="KMS Enterprise Logo" class="w-8 h-8 rounded-lg object-cover" data-alt="A small, professional enterprise logo for KMS. It features a stylized 'K' and 'M' in dark corporate blue on a light background, emphasizing reliability and knowledge management." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCopq7fE4txCAeE_W3OTL7rAt7UQUiqNLNZ75OPnnjt0TFaxkRhCtUTFUXciZvuBj3M7Kzqmm9Zfb0cncaQCiRJq1Q6xh001JIlBCtzTi-f8b4cIpOpPMy3StwiYKVsPNLzre4pty1hKj17QyIxCwLchq6huUmhpcCLfCW5jPs1VE4DLphPabw5yqsFr9FzTxFPg0QigXxHC42CQSaAR9q_qmxRCFjVRmcKodaAwjUwUcPW1a0eLEVwmZq7MVsMFWoffRZRrNRe3TNR"/>
+<div>
+<h2 class="font-h2 text-h2 font-bold text-primary">KMS</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Enterprise Support</p>
+</div>
+</div>
+<button class="w-full flex items-center justify-center gap-sm bg-primary text-on-primary font-label-md text-label-md py-2 px-4 rounded-lg mb-xl hover:bg-on-primary-fixed-variant transition-colors">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+            Quick Add
+        </button>
+<div class="flex-1 overflow-y-auto space-y-1 pr-2">
+<!-- Inactive -->
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">auto_stories</span>
+                Knowledge Base
+            </a>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">confirmation_number</span>
+                Tickets
+            </a>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">apps</span>
+                Applications
+            </a>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">track_changes</span>
+                Internal Tracker
+            </a>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">description</span>
+                Documents
+            </a>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">notifications</span>
+                Notifications
+            </a>
+<!-- Active Profile/Users Intent -->
+<a class="flex items-center gap-md px-sm py-2 rounded-lg bg-secondary-container text-on-secondary-container border-l-2 border-primary transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">group</span>
+                Users
+            </a>
+<a class="flex items-center gap-md px-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined" style="font-size: 20px;">settings</span>
+                Settings
+            </a>
+</div>
+<div class="mt-auto pt-lg border-t border-outline-variant space-y-1">
+<p class="px-sm mb-2 font-label-md text-label-md text-outline">QUICK LINKS</p>
+<a class="flex items-center gap-md px-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined" style="font-size: 16px;">widgets</span>
+                Applications
+            </a>
+<a class="flex items-center gap-md px-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined" style="font-size: 16px;">star</span>
+                Favourite Articles
+            </a>
+<a class="flex items-center gap-md px-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined" style="font-size: 16px;">drafts</span>
+                Drafts
+            </a>
+<a class="flex items-center gap-md px-sm py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined" style="font-size: 16px;">history</span>
+                Recent Entries
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-sidebar-width flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar (from JSON) -->
+<header class="sticky top-0 z-40 w-full h-14 bg-surface border-b border-outline-variant flex justify-between items-center px-lg shrink-0">
+<div class="flex items-center gap-md">
+<!-- Mobile menu trigger -->
+<button class="md:hidden text-on-surface-variant hover:text-primary transition-colors duration-150">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Search -->
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" style="font-size: 18px;">search</span>
+<input class="pl-9 pr-4 py-1.5 bg-surface-container-low border border-outline-variant rounded-md text-body-sm font-body-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent w-64 transition-all" placeholder="Search..." type="text"/>
+<div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+<span class="px-1.5 py-0.5 rounded border border-outline-variant text-outline text-[10px] font-mono font-medium">Cmd+K</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-2">
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-150 p-1.5 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined" style="font-size: 20px;">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-150 p-1.5 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined" style="font-size: 20px;">contrast</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-150 p-1.5 rounded-full hover:bg-surface-container-high">
+<span class="material-symbols-outlined" style="font-size: 20px;">settings</span>
+</button>
+</div>
+<div class="w-px h-6 bg-outline-variant"></div>
+<button class="hidden sm:block font-label-md text-label-md bg-secondary-container text-on-secondary-container px-3 py-1.5 rounded hover:bg-surface-container-highest transition-colors">
+                    Quick Add
+                </button>
+<img alt="User Profile" class="w-8 h-8 rounded-full object-cover border border-outline-variant cursor-pointer" data-alt="A professional headshot of a young male software engineer of Asian descent, smiling subtly, wearing a neat casual shirt. Bright, clean lighting, light mode aesthetic, corporate environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBf6o79QpEFSl1PM41Ulgdve1_aiJs_HCNzzBGQk-BzBk0ZdO9x3X5mR01P-l-4xzO2Ufh15KAsWVHp46bNUBjms1hQc8RHjw1q_gcT4vJvyGn668hYk_DjEGq2AnWOjNLKRrle9nLtb_YtEKCbwxHCABxcivTSHwxlaYbMM2NDuaME_ZPKhJDdD9-Z9Zy0f18S9ApXXiaU06zrxnRe5tdOAytaHsy2EIuualHuryBCtQwUKY7vgvGn2JeKauwN1QdaA0CtZ16pEuyl"/>
+</div>
+</header>
+<!-- Page Canvas -->
+<div class="flex-1 overflow-y-auto p-md md:p-lg bg-surface">
+<div class="max-w-container-max mx-auto w-full max-w-[1024px] space-y-xl pb-2xl">
+<!-- Profile Header -->
+<div class="flex flex-col md:flex-row gap-lg items-start md:items-center bg-surface-container-lowest border border-outline-variant rounded-xl p-lg relative overflow-hidden">
+<!-- Subtle background decoration -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary-fixed-dim rounded-full blur-3xl opacity-20 -mr-20 -mt-20 pointer-events-none"></div>
+<div class="relative">
+<img alt="Alex Chen Profile Photo" class="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-surface shadow-sm z-10 relative" data-alt="A high-quality, professional portrait of Alex Chen, a Senior Support Engineer. He looks approachable and sharp, wearing smart casual attire. Bright, evenly lit studio lighting on a pristine white background. Corporate modern aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcHcgs6doN88rqFuzsQUM14lkxNZ_jW6jya7fgiYweoEOrzyWVy1oXJe9FeO4mzFf3Lj1VYF0rMNy5zj_8za48SxQqC8nULZgKc0Raowv9FW6BT3JemrO8d2sXmAO8fU0Zar50-0y6Aq5ZS8MdJoHy7Sm560ZL4ncqBbUf4l1qAyD3QsnYmbcB988sPGaWpioMI7-P4n68PXXCNFhY0rnLpADPq7LoFIiAkB2DgbOYK3yLVGEygx0jRsexUiESaveymFmw2uyl4Gxa"/>
+<div class="absolute bottom-1 right-1 bg-primary text-on-primary w-8 h-8 rounded-full flex items-center justify-center border-2 border-surface z-20" title="Online">
+<span class="material-symbols-outlined" style="font-size: 16px;">check_circle</span>
+</div>
+</div>
+<div class="flex-1 z-10">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div>
+<h1 class="font-h1 text-h1 text-on-surface mb-1">Alex Chen</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant flex items-center gap-2">
+                                    Senior Support Engineer
+                                    <span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+                                    Cloud Infrastructure Team
+                                </p>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg hover:bg-on-primary-fixed-variant transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 18px;">mail</span>
+                                    Message
+                                </button>
+<button class="px-3 py-2 bg-surface-container-low text-on-surface font-label-md text-label-md rounded-lg border border-outline-variant hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined" style="font-size: 18px;">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="mt-6 flex flex-wrap gap-4 items-center">
+<div class="flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-full border border-outline-variant">
+<span class="material-symbols-outlined text-primary" style="font-size: 18px;">workspace_premium</span>
+<span class="font-label-md text-label-md text-on-surface">Expertise Score: <strong class="text-primary">94/100</strong></span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined" style="font-size: 16px;">location_on</span>
+                                San Francisco, CA
+                            </div>
+<div class="flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined" style="font-size: 16px;">schedule</span>
+                                Local time: 10:42 AM (PST)
+                            </div>
+</div>
+</div>
+</div>
+<!-- Bento Grid Layout for Metrics & Skills -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- Metrics Column (Takes 2 columns on desktop) -->
+<div class="md:col-span-2 space-y-lg">
+<!-- Key Metrics Row -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-md">
+<!-- Metric 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:border-primary-fixed-dim transition-colors">
+<div class="flex items-center gap-2 text-on-surface-variant mb-4">
+<span class="material-symbols-outlined text-secondary" style="font-size: 20px;">auto_stories</span>
+<h3 class="font-label-md text-label-md">Knowledge Articles</h3>
+</div>
+<div>
+<p class="font-h1 text-h1 text-on-surface">128</p>
+<p class="font-body-sm text-body-sm text-primary flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined" style="font-size: 14px;">trending_up</span>
+                                        +12 this month
+                                    </p>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:border-primary-fixed-dim transition-colors">
+<div class="flex items-center gap-2 text-on-surface-variant mb-4">
+<span class="material-symbols-outlined text-secondary" style="font-size: 20px;">confirmation_number</span>
+<h3 class="font-label-md text-label-md">Tickets Resolved</h3>
+</div>
+<div>
+<p class="font-h1 text-h1 text-on-surface">1,402</p>
+<p class="font-body-sm text-body-sm text-primary flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined" style="font-size: 14px;">trending_up</span>
+                                        Top 5% performer
+                                    </p>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col justify-between hover:border-primary-fixed-dim transition-colors">
+<div class="flex items-center gap-2 text-on-surface-variant mb-4">
+<span class="material-symbols-outlined text-secondary" style="font-size: 20px;">timer</span>
+<h3 class="font-label-md text-label-md">Hours Logged (YTD)</h3>
+</div>
+<div>
+<p class="font-h1 text-h1 text-on-surface">1,240</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined" style="font-size: 14px;">horizontal_rule</span>
+                                        On track
+                                    </p>
+</div>
+</div>
+</div>
+<!-- Contribution Graph -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+<div class="flex items-center justify-between mb-6">
+<h2 class="font-h3 text-h3 text-on-surface">Activity Map</h2>
+<div class="flex items-center gap-4 font-body-sm text-body-sm text-on-surface-variant">
+<span>Less</span>
+<div class="flex gap-1">
+<div class="w-3 h-3 rounded-sm contrib-0 border border-outline-variant"></div>
+<div class="w-3 h-3 rounded-sm contrib-1 border border-primary-fixed-dim border-opacity-50"></div>
+<div class="w-3 h-3 rounded-sm contrib-2 border border-primary-fixed-dim border-opacity-50"></div>
+<div class="w-3 h-3 rounded-sm contrib-3"></div>
+<div class="w-3 h-3 rounded-sm contrib-4"></div>
+</div>
+<span>More</span>
+</div>
+</div>
+<!-- Graph Container (Simulated GitHub style) -->
+<div class="overflow-x-auto">
+<div class="flex gap-1 min-w-max pb-2" id="contribution-graph">
+<!-- Populated by JS -->
+</div>
+</div>
+</div>
+</div>
+<!-- Skills & Expertise Column (Takes 1 column on desktop) -->
+<div class="space-y-lg">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg h-full">
+<div class="flex items-center justify-between mb-6">
+<h2 class="font-h3 text-h3 text-on-surface">Technical Skills</h2>
+<button class="text-primary hover:text-on-primary-fixed-variant transition-colors p-1 rounded hover:bg-surface-container-low">
+<span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+</button>
+</div>
+<div class="space-y-6">
+<!-- Skill 1 -->
+<div>
+<div class="flex justify-between items-center mb-1">
+<span class="font-label-md text-label-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-size: 16px;">cloud</span>
+                                            AWS Infrastructure
+                                        </span>
+<span class="font-mono text-mono text-primary">Advanced</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 85%"></div>
+</div>
+</div>
+<!-- Skill 2 -->
+<div>
+<div class="flex justify-between items-center mb-1">
+<span class="font-label-md text-label-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-size: 16px;">database</span>
+                                            PostgreSQL
+                                        </span>
+<span class="font-mono text-mono text-primary">Expert</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 95%"></div>
+</div>
+</div>
+<!-- Skill 3 -->
+<div>
+<div class="flex justify-between items-center mb-1">
+<span class="font-label-md text-label-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-size: 16px;">terminal</span>
+                                            Bash/Shell Scripting
+                                        </span>
+<span class="font-mono text-mono text-on-surface-variant">Intermediate</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-secondary-fixed h-full rounded-full" style="width: 60%"></div>
+</div>
+</div>
+<!-- Skill 4 -->
+<div>
+<div class="flex justify-between items-center mb-1">
+<span class="font-label-md text-label-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-size: 16px;">memory</span>
+                                            Kubernetes
+                                        </span>
+<span class="font-mono text-mono text-primary">Advanced</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 80%"></div>
+</div>
+</div>
+</div>
+<div class="mt-8">
+<h3 class="font-label-md text-label-md text-outline mb-3 uppercase tracking-wider">Product Expertise</h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-surface-container-high text-on-surface font-body-sm text-body-sm rounded-md border border-outline-variant">KMS Core</span>
+<span class="px-3 py-1 bg-surface-container-high text-on-surface font-body-sm text-body-sm rounded-md border border-outline-variant">Auth Service</span>
+<span class="px-3 py-1 bg-surface-container-high text-on-surface font-body-sm text-body-sm rounded-md border border-outline-variant">API Gateway</span>
+<span class="px-3 py-1 bg-surface-container-low text-on-surface-variant font-body-sm text-body-sm rounded-md border border-outline-variant border-dashed">+3 more</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Activity Feed -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
+<h2 class="font-h3 text-h3 text-on-surface mb-6">Recent Activity</h2>
+<div class="relative before:absolute before:inset-0 before:ml-4 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-outline-variant before:to-transparent">
+<!-- Activity Item 1 -->
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active pb-8">
+<div class="flex items-center justify-center w-8 h-8 rounded-full border border-surface bg-primary text-on-primary shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 ml-0 md:ml-0 z-10 relative">
+<span class="material-symbols-outlined" style="font-size: 16px;">edit_document</span>
+</div>
+<div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-outline-variant bg-surface-container-low shadow-sm">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-md text-label-md text-primary">Article Updated</span>
+<time class="font-body-sm text-body-sm text-outline">2 hours ago</time>
+</div>
+<div class="text-on-surface font-body-md text-body-md font-medium mb-1">Updated 'Troubleshooting AWS RDS Connections'</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm">Added section covering IAM authentication errors and updated connection string examples for production environments.</div>
+</div>
+</div>
+<!-- Activity Item 2 -->
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group pb-8">
+<div class="flex items-center justify-center w-8 h-8 rounded-full border border-surface bg-surface-container-highest text-secondary shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 ml-0 md:ml-0 z-10 relative">
+<span class="material-symbols-outlined" style="font-size: 16px;">check_circle</span>
+</div>
+<div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-outline-variant bg-surface hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-md text-label-md text-secondary">Ticket Resolved</span>
+<time class="font-body-sm text-body-sm text-outline">Yesterday</time>
+</div>
+<div class="text-on-surface font-body-md text-body-md font-medium mb-1">TKT-8942: High latency on API Gateway</div>
+<div class="flex gap-2 mt-2">
+<span class="px-2 py-0.5 bg-error-container text-on-error-container font-label-md text-label-md rounded text-[10px]">P1 - Critical</span>
+</div>
+</div>
+</div>
+<!-- Activity Item 3 -->
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+<div class="flex items-center justify-center w-8 h-8 rounded-full border border-surface bg-surface-container-highest text-secondary shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 ml-0 md:ml-0 z-10 relative">
+<span class="material-symbols-outlined" style="font-size: 16px;">forum</span>
+</div>
+<div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-outline-variant bg-surface hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-md text-label-md text-secondary">Commented</span>
+<time class="font-body-sm text-body-sm text-outline">Oct 24</time>
+</div>
+<div class="text-on-surface font-body-md text-body-md font-medium mb-1">On 'Proposed changes to caching strategy'</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm border-l-2 border-outline-variant pl-3 mt-2 italic">
+                                    "I recommend we stagger the invalidation process during off-peak hours to avoid the thundering herd problem we saw last quarter."
+                                </div>
+</div>
+</div>
+</div>
+<div class="mt-6 text-center">
+<button class="text-primary font-label-md text-label-md hover:underline">View all activity</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Generate a mock contribution graph
+        document.addEventListener("DOMContentLoaded", () => {
+            const graphContainer = document.getElementById('contribution-graph');
+            const cols = 52; // roughly a year of weeks
+            const rows = 7; // days in a week
+            
+            for (let c = 0; c < cols; c++) {
+                const colDiv = document.createElement('div');
+                colDiv.className = 'flex flex-col gap-1';
+                
+                for (let r = 0; r < rows; r++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'w-3 h-3 rounded-sm border transition-colors hover:border-on-surface';
+                    
+                    // Randomize intensity heavily weighted towards lower activity to look realistic
+                    const rand = Math.random();
+                    let intensity = 0;
+                    if (rand > 0.95) intensity = 4;
+                    else if (rand > 0.85) intensity = 3;
+                    else if (rand > 0.6) intensity = 2;
+                    else if (rand > 0.4) intensity = 1;
+
+                    cell.classList.add(`contrib-${intensity}`);
+                    
+                    if (intensity === 0) {
+                        cell.classList.add('border-outline-variant', 'border-opacity-30');
+                    } else if (intensity === 1 || intensity === 2) {
+                        cell.classList.add('border-primary-fixed-dim', 'border-opacity-50');
+                    } else {
+                        cell.classList.add('border-transparent');
+                    }
+
+                    // Optional: Add tooltip logic here if needed
+                    colDiv.appendChild(cell);
+                }
+                graphContainer.appendChild(colDiv);
+            }
+        });
+    </script>
+</body></html>

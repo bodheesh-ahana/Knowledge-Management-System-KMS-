@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KMS - Ticket Workspace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#d3e4fe",
+                        "on-primary-fixed": "#00174b",
+                        "on-surface-variant": "#434655",
+                        "background": "#faf8ff",
+                        "tertiary-fixed": "#e0e3e5",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#dae2fd",
+                        "surface-container-highest": "#dae2fd",
+                        "secondary-container": "#d0e1fb",
+                        "surface-container": "#eaedff",
+                        "surface-bright": "#faf8ff",
+                        "outline-variant": "#c3c6d7",
+                        "surface-container-high": "#e2e7ff",
+                        "tertiary": "#525657",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "tertiary-container": "#6b6e70",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "surface-tint": "#0053db",
+                        "inverse-on-surface": "#eef0ff",
+                        "outline": "#737686",
+                        "on-secondary-container": "#54647a",
+                        "surface-container-low": "#f2f3ff",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "on-surface": "#131b2e",
+                        "on-primary-container": "#eeefff",
+                        "inverse-surface": "#283044",
+                        "error": "#ba1a1a",
+                        "primary": "#004ac6",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#2563eb",
+                        "on-tertiary-container": "#eff1f3",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "surface": "#faf8ff",
+                        "secondary": "#505f76",
+                        "on-background": "#131b2e",
+                        "surface-dim": "#d2d9f4",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-secondary-fixed": "#0b1c30",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "primary-fixed-dim": "#b4c5ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "3xl": "64px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "2xl": "48px",
+                        "sidebar-width": "260px",
+                        "md": "16px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "mono": ["jetbrainsMono", "monospace"],
+                        "body-lg": ["Geist", "sans-serif"],
+                        "body-sm": ["Geist", "sans-serif"],
+                        "label-md": ["Geist", "sans-serif"],
+                        "h2": ["Geist", "sans-serif"],
+                        "h3": ["Geist", "sans-serif"],
+                        "h1": ["Geist", "sans-serif"],
+                        "body-md": ["Geist", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "h2": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "h3": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "h1": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Geist', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20; }
+        .timeline-line::before { content: ''; position: absolute; left: 16px; top: 32px; bottom: 0; width: 2px; background: theme('colors.outline-variant'); z-index: 0; }
+        .dark .timeline-line::before { background: theme('colors.outline'); }
+    </style>
+</head>
+<body class="bg-surface dark:bg-surface-dim text-on-surface flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav class="hidden md:flex bg-surface-container-low dark:bg-surface-container-lowest fixed left-0 top-0 h-screen w-sidebar-width border-r border-outline-variant dark:border-outline flex-col h-full py-lg px-md transition-all duration-200 ease-in-out z-50">
+<div class="flex items-center gap-sm mb-xl px-sm">
+<img alt="KMS Enterprise Logo" class="w-8 h-8 rounded" data-alt="Abstract enterprise software logo featuring a sharp geometric cube in cool indigo and crisp white tones, modern corporate aesthetic, dark mode compatible." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAy8qA9xyuLojDrpTqeEDSoolC4oOQM__rZEQdiYaH4ZZXp1h-Y-VyACta10-QrjC0oPHfOUg_trht2LWygx6N09H4vu-J8n5QIenSIbsaRjleIFiXzcO2oZLB42jScHn7Xffch1jSDEhj-V1zH_3HwnVZQ5COWweDkoMqGf1bLVMSN8lbZ3ix4Z44PyK3gcddPenFo0yRbG34PkKu14cm9rovMgXiqa4Gr0nCrshLBrGcEDW3rWTB5Pn7WmkATAechDs6CzN63GUVe"/>
+<div>
+<h1 class="font-h2 text-h2 font-bold text-primary dark:text-primary-fixed-dim">KMS</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Enterprise Support</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto">
+<ul class="space-y-xs">
+<li>
+<a class="flex items-center gap-md px-sm py-xs rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high font-body-md text-body-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                        Dashboard
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-xs rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high font-body-md text-body-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+                        Knowledge Base
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-xs rounded bg-secondary-container dark:bg-secondary-container text-on-secondary-container dark:text-on-secondary-container border-l-2 border-primary font-body-md text-body-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">confirmation_number</span>
+                        Tickets
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-xs rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high font-body-md text-body-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">apps</span>
+                        Applications
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-xs rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high font-body-md text-body-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">track_changes</span>
+                        Internal Tracker
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-xs rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high font-body-md text-body-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                        Analytics
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-xs rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high font-body-md text-body-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">description</span>
+                        Documents
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-xs rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high font-body-md text-body-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">notifications</span>
+                        Notifications
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-xs rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high font-body-md text-body-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">group</span>
+                        Users
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-xs rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high font-body-md text-body-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">settings</span>
+                        Settings
+                    </a>
+</li>
+</ul>
+</div>
+<div class="mt-auto pt-lg border-t border-outline-variant dark:border-outline">
+<button class="w-full flex items-center justify-center gap-sm bg-primary text-on-primary py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined">add</span>
+                Quick Add
+            </button>
+<ul class="space-y-xs mt-md">
+<li>
+<a class="flex items-center gap-md px-sm py-xs rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined text-[16px]">widgets</span>
+                        Applications
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-xs rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined text-[16px]">star</span>
+                        Favourite Articles
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-xs rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined text-[16px]">drafts</span>
+                        Drafts
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-sm py-xs rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined text-[16px]">history</span>
+                        Recent Entries
+                    </a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-sidebar-width w-full transition-all duration-200">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-dim sticky top-0 z-40 w-full h-[56px] border-b border-outline-variant dark:border-outline flex justify-between items-center px-lg transition-colors duration-150">
+<div class="flex items-center gap-md">
+<!-- Mobile Menu Button -->
+<button class="md:hidden text-on-surface-variant hover:text-primary p-xs rounded-full hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="hidden md:flex items-center bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-lg px-sm py-xs w-64 focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all">
+<span class="material-symbols-outlined text-outline text-[18px]">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-full ml-xs text-on-surface placeholder:text-outline-variant outline-none" placeholder="Search..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="hidden md:flex items-center gap-xs px-sm py-xs text-outline font-mono text-mono border border-outline-variant rounded hover:bg-surface-container-high transition-colors">
+                    Cmd+K
+                </button>
+<button class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim p-xs rounded-full hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim p-xs rounded-full hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">contrast</span>
+</button>
+<button class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim p-xs rounded-full hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-outline-variant cursor-pointer" data-alt="A small, professional headshot of an IT support agent, male, wearing a casual dark blue collared shirt, neutral grey background, high quality lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNrDNAqhEiMx1JIviur-LDdd3HCCtCpQWW7o0JQrSkOnTD5tIPi-2PepvIZxH-RdnfJ-JZnauEmHQkDdyio7w52ajOfjj4R4ehUYke5t5q1q6m6vv05u9TFsw-iRFZIJ2ni4yrr0Ub5ZdNjMemew5FN0srhqEQnaABs5823Y7k9uDmeip6Dl9tAVTwslUG9lz3dWdONY8fi9fIaACCwGzrrjzgB-kzPJKR8fS6e7PMDblctNL23BQPtinzNXFIKS7WAwTjAFkhg3re"/>
+</div>
+</header>
+<!-- Ticket Workspace Canvas -->
+<main class="flex-1 overflow-y-auto bg-background dark:bg-surface p-md lg:p-lg flex justify-center">
+<div class="w-full max-w-container-max flex flex-col lg:flex-row gap-lg">
+<!-- Left Column: Main Ticket Content -->
+<div class="flex-1 flex flex-col gap-md lg:w-2/3">
+<!-- Ticket Header -->
+<div class="bg-surface-container-lowest dark:bg-surface-container-low rounded-xl border border-outline-variant dark:border-outline p-lg shadow-sm">
+<div class="flex justify-between items-start mb-md">
+<div>
+<div class="flex items-center gap-sm mb-xs">
+<span class="font-mono text-mono text-primary dark:text-primary-fixed-dim">#TKT-8924</span>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-md text-label-md">High Priority</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant font-label-md text-label-md">Open</span>
+</div>
+<h1 class="font-h1 text-h1 text-on-surface">SSO Authentication Failure in Production</h1>
+</div>
+<div class="flex gap-sm">
+<button class="px-md py-xs bg-surface text-on-surface border border-outline-variant rounded-lg font-label-md text-label-md hover:bg-surface-container-highest transition-colors">Assign to me</button>
+<button class="px-md py-xs bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors">Resolve</button>
+</div>
+</div>
+<!-- Owner & Meta -->
+<div class="flex items-center gap-lg border-t border-outline-variant dark:border-outline pt-md mt-md">
+<div class="flex items-center gap-sm">
+<img alt="Reporter Avatar" class="w-6 h-6 rounded-full" data-alt="Small avatar of a female software engineer with glasses, smiling slightly, professional corporate style, dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCElm3N1HxaBjHSt2yXgjGbmRwc9QI4tRIJdObIDPrC9QhPszu7f-GzeQNwEld_6I0NUSZ4dY5iH4hTTw8dhmoZEskpe5HYYwD-UrLUjTj3QEdxLqTIaJkL37lak7v0ZW46fYXdWqsd2skRLdy2FOrrtvRob5EXI1UWuDffud_taAiWVbMJCBMBGtKc4TQHltb_xbxdQgVUIlf49A_eTqRZjS9Za1DtBPGHmnJhtoPXCqsMrzlNECYD31HBOs3xX49JuhuIbwa47ueJ"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-outline">Reporter</span>
+<span class="font-body-sm text-body-sm text-on-surface">Sarah Jenkins</span>
+</div>
+</div>
+<div class="w-px h-8 bg-outline-variant dark:bg-outline hidden md:block"></div>
+<div class="flex items-center gap-sm">
+<img alt="Assignee Avatar" class="w-6 h-6 rounded-full" data-alt="Small avatar of a male IT support lead, neutral expression, modern corporate style, light grey background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvoPIbRWLP_szTTcBBVzvTeQrQeih-tx49UQbrHemzY4qoHz9Jh0tfmEHBZqNCu7A873VW40HehWEkz_iZUkCiKl4SQayXnbpta7AW_355_TEhBiigq_ryH-aWUB3XKAxT3wp94Qv_hLaopc3kZ7R05CHgOId8BWzX09y87zI3eKKGzxAH_6sAnAJtW6U-vFQ4zNeR00aKIuqyP5xMMbuy2Z3qKCZZGu0ZxcV1QMMlQTMMqyiDWiDZGou6yhUrmY0PUGAQwI7iO0Vy"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-outline">Assignee</span>
+<span class="font-body-sm text-body-sm text-on-surface">Marcus Vance</span>
+</div>
+</div>
+<div class="w-px h-8 bg-outline-variant dark:bg-outline hidden md:block"></div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-outline">Created</span>
+<span class="font-body-sm text-body-sm text-on-surface">2 hours ago</span>
+</div>
+</div>
+</div>
+<!-- Issue Description -->
+<div class="bg-surface-container-lowest dark:bg-surface-container-low rounded-xl border border-outline-variant dark:border-outline p-lg">
+<h3 class="font-h3 text-h3 text-on-surface mb-md">Description</h3>
+<div class="font-body-lg text-body-lg text-on-surface-variant space-y-md">
+<p>Users are reporting inability to log in via Okta SSO into the main production dashboard. The error returned is a generic 500 Internal Server Error. This started approximately at 09:00 AM EST following the scheduled maintenance window.</p>
+<pre class="bg-surface-container dark:bg-inverse-surface text-on-surface dark:text-inverse-on-surface p-md rounded-lg font-mono text-mono overflow-x-auto border border-outline-variant dark:border-outline">Error: Okta.Core.Clients.ApiClientException: Internal Server Error
+   at Okta.Core.Clients.ApiClient.Execute(RestRequest request)
+   at Okta.Core.Clients.AuthClient.Authenticate(String username, String password)</pre>
+</div>
+</div>
+<!-- Conversation Timeline -->
+<div class="bg-surface-container-lowest dark:bg-surface-container-low rounded-xl border border-outline-variant dark:border-outline p-lg">
+<h3 class="font-h3 text-h3 text-on-surface mb-lg">Activity Timeline</h3>
+<div class="relative timeline-line space-y-lg pl-xl">
+<!-- Comment 1 -->
+<div class="relative z-10">
+<div class="absolute -left-xl bg-surface-container-highest dark:bg-surface-variant w-8 h-8 rounded-full flex items-center justify-center border-2 border-surface dark:border-surface-dim">
+<span class="material-symbols-outlined text-[16px] text-primary">chat</span>
+</div>
+<div class="bg-surface dark:bg-surface-dim border border-outline-variant dark:border-outline rounded-lg p-md">
+<div class="flex justify-between items-center mb-xs">
+<div class="flex items-center gap-sm">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">System Admin</span>
+<span class="px-2 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-label-md text-[10px]">Internal Note</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">1 hr ago</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">I've verified the Okta certs on the auth server. They appear to have expired during the maintenance window. Requesting new certs from NetOps now.</p>
+</div>
+</div>
+<!-- System Event -->
+<div class="relative z-10">
+<div class="absolute -left-xl bg-surface-container-highest dark:bg-surface-variant w-8 h-8 rounded-full flex items-center justify-center border-2 border-surface dark:border-surface-dim">
+<span class="material-symbols-outlined text-[16px] text-tertiary">swap_horiz</span>
+</div>
+<div class="py-sm">
+<p class="font-body-sm text-body-sm text-outline">
+<span class="font-semibold text-on-surface">Marcus Vance</span> changed priority from <span class="line-through">Medium</span> to <span class="text-error">High</span>
+</p>
+</div>
+</div>
+<!-- Comment 2 -->
+<div class="relative z-10">
+<div class="absolute -left-xl bg-surface-container-highest dark:bg-surface-variant w-8 h-8 rounded-full flex items-center justify-center border-2 border-surface dark:border-surface-dim">
+<img alt="Marcus Avatar" class="w-full h-full rounded-full" data-alt="Small avatar of a male IT support lead, neutral expression, modern corporate style, light grey background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwtiPcIHrSEfMzTtadtj6nMur-Pk2ELj0vP0UDa26THiaC-ra0RkHIs25V1NN-3sZSJifet-XbcajHiOjO5sNHCSWqmcKTBk13c1f0mYIep87SyUXLY-KWjXpyPRIgTfYQ_WAnv6fyQj9TCQqO09vUynltqXRE3bP5cJmuaatEh520F8tuC0KIbYPZzThQ2mr2sHdGvExEGePMWFCDqzFfwgthztbKJ0Pt4Efg-d6N606mhvt4lezYpvh1LFjktO2d8KqcQUw8QxDo"/>
+</div>
+<div class="bg-surface dark:bg-surface-dim border border-outline-variant dark:border-outline rounded-lg p-md">
+<div class="flex justify-between items-center mb-xs">
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">Marcus Vance</span>
+<span class="font-body-sm text-body-sm text-outline">10 mins ago</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Waiting on NetOps. Have alerted the client that we are working on a fix. ETA 30 mins.</p>
+</div>
+</div>
+</div>
+<!-- Add Comment Input -->
+<div class="mt-xl pt-lg border-t border-outline-variant dark:border-outline flex gap-md">
+<img alt="Current User" class="w-8 h-8 rounded-full" data-alt="A small, professional headshot of an IT support agent, male, wearing a casual dark blue collared shirt, neutral grey background, high quality lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoXirEQp1b8MLrkiVAF0ZH2SOxQzlB08JmQTl1y_1AtrxOSx1wPFEY2l3N_Dx3iOlBU0KSikwqAuMn0I4pcTrfQsGwsZ9NzQfkL-kMJOcWg91gTGlGF8LvBWjnaS8JwFV3HRC8GEi9QL15mMmf0-nh5vCo_GtM6awpepzM7zZGfRJyZ4VO6wCX49V6by0wQTvohroUMi_wms_sulLOsq9K7mHzgasXiS7nOdK12gdOFNY4b0HHdDW9KJiVlQ6Z9apEEaUV_qSpUoas"/>
+<div class="flex-1 bg-surface dark:bg-surface-dim border border-outline-variant dark:border-outline rounded-lg focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all">
+<textarea class="w-full bg-transparent border-none focus:ring-0 p-md text-body-md text-on-surface placeholder:text-outline resize-none outline-none" placeholder="Add a comment or internal note..." rows="3"></textarea>
+<div class="bg-surface-container-lowest dark:bg-surface-container-low border-t border-outline-variant dark:border-outline p-xs px-md flex justify-between items-center rounded-b-lg">
+<div class="flex gap-xs">
+<button class="p-xs text-outline hover:text-on-surface rounded hover:bg-surface-container-highest transition-colors"><span class="material-symbols-outlined text-[18px]">format_bold</span></button>
+<button class="p-xs text-outline hover:text-on-surface rounded hover:bg-surface-container-highest transition-colors"><span class="material-symbols-outlined text-[18px]">format_italic</span></button>
+<button class="p-xs text-outline hover:text-on-surface rounded hover:bg-surface-container-highest transition-colors"><span class="material-symbols-outlined text-[18px]">link</span></button>
+</div>
+<div class="flex gap-sm">
+<label class="flex items-center gap-xs cursor-pointer">
+<input class="rounded border-outline text-primary focus:ring-primary form-checkbox h-4 w-4 bg-transparent" type="checkbox"/>
+<span class="font-label-md text-label-md text-outline">Internal Note</span>
+</label>
+<button class="px-md py-xs bg-primary text-on-primary rounded font-label-md text-label-md hover:bg-primary-container transition-colors">Comment</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar: Context & Metadata -->
+<div class="lg:w-1/3 flex flex-col gap-md">
+<!-- Application Info Bento -->
+<div class="bg-surface-container-lowest dark:bg-surface-container-low rounded-xl border border-outline-variant dark:border-outline p-md shadow-sm flex flex-col gap-sm">
+<h3 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-xs">Application Context</h3>
+<div class="grid grid-cols-2 gap-sm">
+<div class="bg-surface-container dark:bg-surface-variant p-sm rounded-lg">
+<span class="block font-label-md text-label-md text-outline mb-xs">Service</span>
+<span class="font-body-sm text-body-sm text-on-surface font-semibold flex items-center gap-xs"><span class="material-symbols-outlined text-[16px] text-primary">cloud</span> Prod-Auth</span>
+</div>
+<div class="bg-surface-container dark:bg-surface-variant p-sm rounded-lg">
+<span class="block font-label-md text-label-md text-outline mb-xs">Version</span>
+<span class="font-mono text-mono text-on-surface font-semibold">v4.2.1-stable</span>
+</div>
+<div class="bg-surface-container dark:bg-surface-variant p-sm rounded-lg col-span-2 flex justify-between items-center">
+<div>
+<span class="block font-label-md text-label-md text-outline mb-xs">Uptime (30d)</span>
+<span class="font-body-sm text-body-sm text-on-surface font-semibold">99.98%</span>
+</div>
+<span class="px-2 py-1 rounded bg-error-container text-on-error-container font-label-md text-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">warning</span> Alerting
+                                </span>
+</div>
+</div>
+</div>
+<!-- Related KB Articles -->
+<div class="bg-surface-container-lowest dark:bg-surface-container-low rounded-xl border border-outline-variant dark:border-outline p-md shadow-sm">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-label-md text-label-md text-outline uppercase tracking-wider">Suggested KB Articles</h3>
+<button class="text-primary hover:text-primary-container transition-colors"><span class="material-symbols-outlined text-[18px]">refresh</span></button>
+</div>
+<ul class="space-y-sm">
+<li class="group cursor-pointer">
+<div class="p-sm bg-surface dark:bg-surface-dim border border-outline-variant dark:border-outline rounded-lg hover:border-primary transition-colors flex gap-sm items-start">
+<span class="material-symbols-outlined text-outline mt-xs text-[18px]">auto_stories</span>
+<div>
+<h4 class="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">Updating Okta Certificates in Production</h4>
+<p class="font-label-md text-label-md text-outline mt-1 line-clamp-1">Step-by-step guide for rotating SAML/SSO certs safely.</p>
+</div>
+</div>
+</li>
+<li class="group cursor-pointer">
+<div class="p-sm bg-surface dark:bg-surface-dim border border-outline-variant dark:border-outline rounded-lg hover:border-primary transition-colors flex gap-sm items-start">
+<span class="material-symbols-outlined text-outline mt-xs text-[18px]">auto_stories</span>
+<div>
+<h4 class="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">Troubleshooting 500 Internal Errors on Auth API</h4>
+<p class="font-label-md text-label-md text-outline mt-1 line-clamp-1">Common causes for auth gateway failures.</p>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<!-- Similar Tickets -->
+<div class="bg-surface-container-lowest dark:bg-surface-container-low rounded-xl border border-outline-variant dark:border-outline p-md shadow-sm">
+<h3 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-md">Similar Tickets</h3>
+<div class="space-y-0">
+<a class="block py-sm border-b border-outline-variant dark:border-outline hover:bg-surface-container-high transition-colors -mx-md px-md" href="#">
+<div class="flex justify-between items-center mb-1">
+<span class="font-mono text-mono text-primary">#TKT-8210</span>
+<span class="font-label-md text-[10px] bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded">Closed</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface truncate">SSO Login timeout during peak hours</p>
+</a>
+<a class="block py-sm border-b border-outline-variant dark:border-outline hover:bg-surface-container-high transition-colors -mx-md px-md" href="#">
+<div class="flex justify-between items-center mb-1">
+<span class="font-mono text-mono text-primary">#TKT-7902</span>
+<span class="font-label-md text-[10px] bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded">Closed</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface truncate">Certificate expiration warning Okta</p>
+</a>
+<a class="block py-sm hover:bg-surface-container-high transition-colors -mx-md px-md" href="#">
+<div class="flex justify-between items-center mb-1">
+<span class="font-mono text-mono text-primary">#TKT-6541</span>
+<span class="font-label-md text-[10px] bg-secondary-container text-on-secondary-container px-1.5 py-0.5 rounded">Resolved</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface truncate">Auth server returning 500 intermittently</p>
+</a>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,59 @@
+'use client';
+
+import { ReactNode } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Button } from '@/components';
+
+const queryClient = new QueryClient();
+
+export default function DashboardLayout({ children }: { children: ReactNode }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <div className="flex h-screen bg-gray-100">
+        {/* Sidebar */}
+        <aside className="w-64 bg-white shadow">
+          <div className="p-6">
+            <h1 className="text-2xl font-bold text-blue-600">KMS</h1>
+          </div>
+
+          <nav className="space-y-1 px-3">
+            <NavLink href="/dashboard">Dashboard</NavLink>
+            <NavLink href="/knowledge">Knowledge Base</NavLink>
+            <NavLink href="/tickets">Tickets</NavLink>
+            <NavLink href="/tracker">Tracker</NavLink>
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-auto">
+          <header className="bg-white shadow">
+            <div className="px-8 py-4 flex justify-between items-center">
+              <div></div>
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" size="sm">
+                  Profile
+                </Button>
+                <Button variant="ghost" size="sm">
+                  Logout
+                </Button>
+              </div>
+            </div>
+          </header>
+
+          <div className="p-8">{children}</div>
+        </main>
+      </div>
+    </QueryClientProvider>
+  );
+}
+
+function NavLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <a
+      href={href}
+      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md text-sm font-medium"
+    >
+      {children}
+    </a>
+  );
+}

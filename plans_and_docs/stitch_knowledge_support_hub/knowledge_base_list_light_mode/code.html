@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KMS - Knowledge Base</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#dae2fd",
+                    "outline": "#737686",
+                    "on-surface-variant": "#434655",
+                    "on-primary-container": "#eeefff",
+                    "secondary-fixed": "#d3e4fe",
+                    "primary-container": "#2563eb",
+                    "on-secondary-fixed": "#0b1c30",
+                    "on-secondary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "background": "#faf8ff",
+                    "primary-fixed": "#dbe1ff",
+                    "outline-variant": "#c3c6d7",
+                    "on-primary-fixed": "#00174b",
+                    "inverse-primary": "#b4c5ff",
+                    "on-secondary-container": "#54647a",
+                    "primary": "#004ac6",
+                    "tertiary": "#525657",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-tint": "#0053db",
+                    "surface-bright": "#faf8ff",
+                    "on-tertiary-container": "#eff1f3",
+                    "tertiary-fixed": "#e0e3e5",
+                    "surface-container-low": "#f2f3ff",
+                    "on-secondary-fixed-variant": "#38485d",
+                    "inverse-on-surface": "#eef0ff",
+                    "tertiary-container": "#6b6e70",
+                    "error": "#ba1a1a",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#e2e7ff",
+                    "on-background": "#131b2e",
+                    "secondary-container": "#d0e1fb",
+                    "on-tertiary": "#ffffff",
+                    "secondary": "#505f76",
+                    "on-surface": "#131b2e",
+                    "surface-variant": "#dae2fd",
+                    "secondary-fixed-dim": "#b7c8e1",
+                    "surface": "#faf8ff",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-tertiary-fixed": "#191c1e",
+                    "on-tertiary-fixed-variant": "#444749",
+                    "on-error-container": "#93000a",
+                    "inverse-surface": "#283044",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed-dim": "#c4c7c9",
+                    "surface-container": "#eaedff",
+                    "surface-dim": "#d2d9f4"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "2xl": "48px",
+                    "sidebar-width": "260px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "lg": "24px",
+                    "3xl": "64px",
+                    "base": "4px",
+                    "container-max": "1440px",
+                    "md": "16px",
+                    "xl": "32px"
+            },
+            "fontFamily": {
+                    "label-md": ["Geist"],
+                    "h1": ["Geist"],
+                    "mono": ["jetbrainsMono"],
+                    "h3": ["Geist"],
+                    "body-lg": ["Geist"],
+                    "body-md": ["Geist"],
+                    "body-sm": ["Geist"],
+                    "h2": ["Geist"]
+            },
+            "fontSize": {
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "h1": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "mono": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "h3": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                    "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        body {
+            font-family: 'Geist', sans-serif;
+        }
+        
+        /* Custom Scrollbar for sleekness */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #434655; /* on-surface-variant approximation for dark mode */
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="bg-background dark:bg-[#0b1c30] text-on-background dark:text-on-secondary flex min-h-screen selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar (from JSON) -->
+<nav class="hidden md:flex flex-col h-screen py-lg px-md w-sidebar-width fixed left-0 top-0 bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline z-50">
+<!-- Header -->
+<div class="flex items-center gap-sm mb-xl px-sm">
+<div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-on-primary font-bold">K</div>
+<div>
+<h1 class="font-h2 text-h2 font-bold text-primary dark:text-primary-fixed-dim">KMS</h1>
+<p class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant">Enterprise Support</p>
+</div>
+</div>
+<!-- Primary Tabs -->
+<div class="flex-1 overflow-y-auto pr-sm space-y-xs">
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+                Dashboard
+            </a>
+<!-- Active Tab -->
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-body-md text-body-md bg-secondary-container dark:bg-secondary-container text-on-secondary-container dark:text-on-secondary-container border-l-2 border-primary transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+                Knowledge Base
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">confirmation_number</span>
+                Tickets
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">apps</span>
+                Applications
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">track_changes</span>
+                Internal Tracker
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">description</span>
+                Documents
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+                Notifications
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">group</span>
+                Users
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+                Settings
+            </a>
+</div>
+<!-- Footer / Secondary -->
+<div class="pt-md mt-md border-t border-outline-variant dark:border-outline space-y-xs">
+<p class="px-md font-label-md text-label-md text-on-surface-variant dark:text-outline mb-sm uppercase">Quick Links</p>
+<a class="flex items-center gap-sm px-md py-xs rounded-lg font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[18px]">widgets</span> Applications
+            </a>
+<a class="flex items-center gap-sm px-md py-xs rounded-lg font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[18px]">star</span> Favourite Articles
+            </a>
+<a class="flex items-center gap-sm px-md py-xs rounded-lg font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[18px]">drafts</span> Drafts
+            </a>
+<a class="flex items-center gap-sm px-md py-xs rounded-lg font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[18px]">history</span> Recent Entries
+            </a>
+</div>
+<div class="mt-lg px-sm">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-sm rounded-lg hover:bg-primary-container transition-colors shadow-sm flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">add</span> Quick Add
+             </button>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="flex-1 md:ml-sidebar-width flex flex-col min-h-screen relative w-full overflow-hidden">
+<!-- TopNavBar (from JSON) -->
+<header class="sticky top-0 z-40 w-full h-14 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline flex justify-between items-center px-lg transition-colors duration-150">
+<!-- Mobile Menu Toggle (hidden on desktop) -->
+<button class="md:hidden text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Search Area (Left aligned as per JSON) -->
+<div class="flex-1 max-w-md hidden md:flex items-center bg-surface-container dark:bg-[#1a2b42] rounded-full px-sm py-xs border border-transparent focus-within:border-primary transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant dark:text-outline ml-sm mr-xs text-[20px]">search</span>
+<input class="w-full bg-transparent border-none focus:ring-0 font-body-md text-body-md text-on-surface dark:text-on-secondary placeholder-on-surface-variant dark:placeholder-outline" placeholder="Search Knowledge Base (Cmd+K)..." type="text"/>
+<div class="px-2 py-0.5 rounded bg-surface-variant dark:bg-inverse-surface border border-outline-variant dark:border-outline text-on-surface-variant dark:text-outline font-mono text-[10px] uppercase ml-sm">Cmd+K</div>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined">contrast</span>
+</button>
+<button class="text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-px h-6 bg-outline-variant dark:bg-outline mx-xs"></div>
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-outline-variant object-cover" data-alt="A small, professional headshot avatar of a corporate user with a neutral, well-lit expression, suitable for a dark-mode enterprise UI profile picture, showing only the head and shoulders against a very dark, subtle gradient background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6UG-Z1RU4msxemxidZQUUPFnYAeE2-Cr5e9hQCAMSVkJaiNPpxof4tTiHm7gGLVAk-vwRHc8rUp0yrJTHYooLO9vQJvFNNnjXVQJT_GiCGeZE7jsOTAz6E_pt7rYWe8P40rQDzaNb4EnT2lbd_GYylOvD7I2WzavXL9nHyAwr3tgvXZ-TXz2jDt4pgCeFZoArLYneFullmtHP57LVF3Tbce9J-a-Fi_uyCtabW07TCao9YtDnNOTPoiQqX4V9G1MIrRhT-hYQfc2p"/>
+</div>
+</header>
+<!-- Page Content -->
+<div class="flex-1 p-lg md:p-xl max-w-container-max mx-auto w-full flex flex-col gap-lg">
+<!-- Header & Robust Filters -->
+<section class="flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
+<div class="space-y-xs">
+<h2 class="font-h1 text-h1 text-on-surface dark:text-on-secondary">Knowledge Base</h2>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-outline">Browse, search, and manage enterprise documentation.</p>
+</div>
+<!-- View Controls -->
+<div class="flex items-center bg-surface-container-low dark:bg-[#152336] rounded-lg p-xs border border-outline-variant dark:border-outline">
+<button class="p-xs rounded bg-surface dark:bg-[#283b54] text-primary dark:text-primary-fixed-dim shadow-sm transition-colors" title="Card View">
+<span class="material-symbols-outlined text-[20px]">grid_view</span>
+</button>
+<button class="p-xs rounded text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-[#1a2b42] transition-colors" title="Table View">
+<span class="material-symbols-outlined text-[20px]">table_rows</span>
+</button>
+<button class="p-xs rounded text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-[#1a2b42] transition-colors" title="Compact View">
+<span class="material-symbols-outlined text-[20px]">view_list</span>
+</button>
+</div>
+</section>
+<!-- Filter Bar (Bento-ish horizontal scroll or wrap) -->
+<section class="flex flex-wrap items-center gap-sm">
+<button class="flex items-center gap-xs px-sm py-xs rounded-full border border-outline-variant dark:border-outline bg-surface dark:bg-[#0b1c30] text-on-surface dark:text-on-secondary font-label-md text-label-md hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]">apps</span> App: All
+                    <span class="material-symbols-outlined text-[14px]">arrow_drop_down</span>
+</button>
+<button class="flex items-center gap-xs px-sm py-xs rounded-full border border-outline-variant dark:border-outline bg-surface dark:bg-[#0b1c30] text-on-surface dark:text-on-secondary font-label-md text-label-md hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]">category</span> Category
+                    <span class="material-symbols-outlined text-[14px]">arrow_drop_down</span>
+</button>
+<button class="flex items-center gap-xs px-sm py-xs rounded-full border border-outline-variant dark:border-outline bg-surface dark:bg-[#0b1c30] text-on-surface dark:text-on-secondary font-label-md text-label-md hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]">person</span> Owner
+                    <span class="material-symbols-outlined text-[14px]">arrow_drop_down</span>
+</button>
+<button class="flex items-center gap-xs px-sm py-xs rounded-full border border-outline-variant dark:border-outline bg-surface dark:bg-[#0b1c30] text-on-surface dark:text-on-secondary font-label-md text-label-md hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]">sell</span> Tags
+                    <span class="material-symbols-outlined text-[14px]">arrow_drop_down</span>
+</button>
+<button class="flex items-center gap-xs px-sm py-xs rounded-full border border-outline-variant dark:border-outline bg-surface dark:bg-[#0b1c30] text-on-surface dark:text-on-secondary font-label-md text-label-md hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]">published_with_changes</span> Status
+                    <span class="material-symbols-outlined text-[14px]">arrow_drop_down</span>
+</button>
+<div class="flex-1"></div>
+<button class="text-primary dark:text-primary-fixed-dim font-label-md text-label-md hover:underline flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">filter_list_off</span> Clear Filters
+                </button>
+</section>
+<!-- Knowledge Grid (Glassmorphism/Card style) -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<!-- Card 1 -->
+<div class="group flex flex-col bg-surface-container-lowest dark:bg-[#112136] rounded-xl border border-outline-variant dark:border-outline overflow-hidden hover:border-primary dark:hover:border-primary-fixed-dim transition-all duration-300 relative">
+<!-- Top Accent Line -->
+<div class="h-1 w-full bg-primary absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="p-md flex flex-col flex-1 gap-sm">
+<div class="flex justify-between items-start">
+<span class="inline-flex items-center gap-xs px-2 py-1 rounded bg-secondary-container text-on-secondary-container font-mono text-[11px] uppercase">
+<span class="material-symbols-outlined text-[14px]">terminal</span> Core API
+                            </span>
+<span class="inline-flex items-center gap-xs px-2 py-1 rounded-full border border-outline-variant dark:border-outline text-on-surface-variant font-label-md text-[11px]">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Published
+                            </span>
+</div>
+<div>
+<h3 class="font-h3 text-h3 text-on-surface dark:text-on-secondary group-hover:text-primary dark:group-hover:text-primary-fixed-dim transition-colors line-clamp-2">Authentication Flow &amp; Token Lifecycle Management</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-outline mt-xs line-clamp-2">Detailed architectural overview of the OAuth2 implementation, JWT handling, and refresh token rotation policies for internal microservices.</p>
+</div>
+<div class="mt-auto pt-md flex items-center justify-between border-t border-outline-variant dark:border-[#21344f]">
+<div class="flex items-center gap-xs">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A tiny 24x24 pixel profile picture of a software engineer, wearing glasses and a dark tech-company t-shirt, looking directly at the camera with a subtle smile, highly detailed and optimized for a dark mode enterprise application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjUivKdOUFNEs6bJwpaSm-JzCL-Lnm2VcUMhmXPQcdrJS-S0mMKvspAzs11OECclW_TwN6Sl42TiQXQZJVbK3kZRhRAqF2ujO9ZdFtXtxTLNkiA-2RJLcSayZ8_Qj0a2Fn-EFBKlQgaRbeBho0quw62Ap535OQR-BqF8Ot4uidQdYnhbjJkNmjkDVwRZ_mXFEiHoK_KZRb_7etcB9BgwODkch13oHnBe-0yA697G62eDzUSoc6FJPGZa7HLhdxhXNM2QyfcwuX6Hgc"/>
+<span class="font-label-md text-[12px] text-on-surface-variant dark:text-outline">Sarah J.</span>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant dark:text-outline font-mono text-[11px]">
+<span class="flex items-center gap-[2px]" title="Difficulty: Advanced"><span class="material-symbols-outlined text-[14px] text-orange-400">signal_cellular_alt</span> Adv</span>
+<span class="flex items-center gap-[2px]"><span class="material-symbols-outlined text-[14px]">visibility</span> 1.2k</span>
+<span>Oct 24</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group flex flex-col bg-surface-container-lowest dark:bg-[#112136] rounded-xl border border-outline-variant dark:border-outline overflow-hidden hover:border-primary dark:hover:border-primary-fixed-dim transition-all duration-300 relative">
+<div class="h-1 w-full bg-primary absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="p-md flex flex-col flex-1 gap-sm">
+<div class="flex justify-between items-start">
+<span class="inline-flex items-center gap-xs px-2 py-1 rounded bg-secondary-container text-on-secondary-container font-mono text-[11px] uppercase">
+<span class="material-symbols-outlined text-[14px]">database</span> Data Eng
+                            </span>
+<span class="inline-flex items-center gap-xs px-2 py-1 rounded-full border border-outline-variant dark:border-outline text-on-surface-variant font-label-md text-[11px]">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span> In Review
+                            </span>
+</div>
+<div>
+<h3 class="font-h3 text-h3 text-on-surface dark:text-on-secondary group-hover:text-primary dark:group-hover:text-primary-fixed-dim transition-colors line-clamp-2">PostgreSQL Migration Runbook (v12 to v15)</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-outline mt-xs line-clamp-2">Step-by-step procedures for zero-downtime logical replication upgrades, including fallback strategies and pgBouncer config updates.</p>
+</div>
+<div class="mt-auto pt-md flex items-center justify-between border-t border-outline-variant dark:border-[#21344f]">
+<div class="flex items-center gap-xs">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A small avatar image for a database administrator, featuring a diverse professional in a dark studio setting with subtle blue rim lighting, perfectly cropped to a circle for a dark-themed UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaMzpso_fw0JRyXbYTPwbeSO9BuAYePnua042tT9NOcsU-_a8pGEGg30TW0kDaR7YmB9YlnFpkSmhgFZlJP7MHNKouTtfluDHduk79H7EdW_ocyWYuR77Yo1ghxC1pFMRFSnafgikhHe6Y6V895nLIUGlRNyLcFi9EmpkS_hG5y5u6e09yP7V2mOVPbwHgY6W_JV9W59qJyZhZeXuGCRXTONkz9Ij3Li_c7EbLIwwSqkGsVHwiCVHrEM3JPe1FYBAAz6b574Cd_0hf"/>
+<span class="font-label-md text-[12px] text-on-surface-variant dark:text-outline">Marcus T.</span>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant dark:text-outline font-mono text-[11px]">
+<span class="flex items-center gap-[2px]" title="Difficulty: Intermediate"><span class="material-symbols-outlined text-[14px] text-yellow-400">signal_cellular_alt_2_bar</span> Int</span>
+<span class="flex items-center gap-[2px]"><span class="material-symbols-outlined text-[14px]">visibility</span> 845</span>
+<span>Nov 02</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group flex flex-col bg-surface-container-lowest dark:bg-[#112136] rounded-xl border border-outline-variant dark:border-outline overflow-hidden hover:border-primary dark:hover:border-primary-fixed-dim transition-all duration-300 relative">
+<div class="h-1 w-full bg-primary absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="p-md flex flex-col flex-1 gap-sm">
+<div class="flex justify-between items-start">
+<span class="inline-flex items-center gap-xs px-2 py-1 rounded bg-secondary-container text-on-secondary-container font-mono text-[11px] uppercase">
+<span class="material-symbols-outlined text-[14px]">design_services</span> UX/UI
+                            </span>
+<span class="inline-flex items-center gap-xs px-2 py-1 rounded-full border border-outline-variant dark:border-outline text-on-surface-variant font-label-md text-[11px]">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Published
+                            </span>
+</div>
+<div>
+<h3 class="font-h3 text-h3 text-on-surface dark:text-on-secondary group-hover:text-primary dark:group-hover:text-primary-fixed-dim transition-colors line-clamp-2">Component Library: Accessible Forms &amp; Validation</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-outline mt-xs line-clamp-2">Guidelines on ARIA attributes, error state announcements, and color contrast requirements for all standard input components.</p>
+</div>
+<div class="mt-auto pt-md flex items-center justify-between border-t border-outline-variant dark:border-[#21344f]">
+<div class="flex items-center gap-xs">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="Avatar of a UI/UX designer, an artistic individual with modern glasses against a dark, moody background, designed to look sleek and fit seamlessly into a premium dark-mode dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA34a324CWDKesexV5nA3xV-kPgmh2t6BPrQzCAsr2NivtIjbMyVwgnkvEP7II98jeIRXjIw3B96NBkJljDimOfB9psf4rRAzBWE9o3y3zvvRCbD_dcdEcpMwn1N2k21cR9Q2efFgqfLxsS5Kp-_ptQDMcfuVBqE9mkRdyXkOeT9N_5smTW9BKLZEKT-ctqd5LNqLxlQW1v4YpiftwODAbUm6T7cFH-NbnXXeP2NfhSCh644deVCvZX9SY3I3TlOpp_AjiZGPdmT4ei"/>
+<span class="font-label-md text-[12px] text-on-surface-variant dark:text-outline">Elena R.</span>
+</div>
+<div class="flex items-center gap-sm text-on-surface-variant dark:text-outline font-mono text-[11px]">
+<span class="flex items-center gap-[2px]" title="Difficulty: Beginner"><span class="material-symbols-outlined text-[14px] text-green-400">signal_cellular_alt_1_bar</span> Beg</span>
+<span class="flex items-center gap-[2px]"><span class="material-symbols-outlined text-[14px]">visibility</span> 2.4k</span>
+<span>Sep 18</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Floating Action Button (CTA) -->
+<button class="fixed bottom-lg right-lg w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:bg-primary-container hover:scale-105 transition-all duration-200 z-50 group" title="Create Knowledge Article">
+<span class="material-symbols-outlined text-[28px]">edit_document</span>
+<!-- Tooltip -->
+<span class="absolute right-full mr-sm top-1/2 -translate-y-1/2 bg-inverse-surface text-inverse-on-surface font-label-md text-[12px] px-sm py-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                Create Article
+            </span>
+</button>
+</main>
+</body></html>

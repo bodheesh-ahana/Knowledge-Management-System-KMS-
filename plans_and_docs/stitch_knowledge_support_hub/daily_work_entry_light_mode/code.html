@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Daily Work Entry</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#d3e4fe",
+                        "on-primary-fixed": "#00174b",
+                        "on-surface-variant": "#434655",
+                        "background": "#faf8ff",
+                        "tertiary-fixed": "#e0e3e5",
+                        "on-primary": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#dae2fd",
+                        "surface-container-highest": "#dae2fd",
+                        "secondary-container": "#d0e1fb",
+                        "surface-container": "#eaedff",
+                        "surface-bright": "#faf8ff",
+                        "outline-variant": "#c3c6d7",
+                        "surface-container-high": "#e2e7ff",
+                        "tertiary": "#525657",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "tertiary-container": "#6b6e70",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "surface-tint": "#0053db",
+                        "inverse-on-surface": "#eef0ff",
+                        "outline": "#737686",
+                        "on-secondary-container": "#54647a",
+                        "surface-container-low": "#f2f3ff",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "on-surface": "#131b2e",
+                        "on-primary-container": "#eeefff",
+                        "inverse-surface": "#283044",
+                        "error": "#ba1a1a",
+                        "primary": "#004ac6",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#2563eb",
+                        "on-tertiary-container": "#eff1f3",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "surface": "#faf8ff",
+                        "secondary": "#505f76",
+                        "on-background": "#131b2e",
+                        "surface-dim": "#d2d9f4",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-secondary-fixed": "#0b1c30",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "primary-fixed-dim": "#b4c5ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "3xl": "64px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "2xl": "48px",
+                        "sidebar-width": "260px",
+                        "md": "16px",
+                        "container-max": "1440px"
+                    },
+                    "fontFamily": {
+                        "mono": ["jetbrainsMono"],
+                        "body-lg": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "h2": ["Geist"],
+                        "h3": ["Geist"],
+                        "h1": ["Geist"],
+                        "body-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "mono": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "h2": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "h3": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "h1": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen py-lg w-sidebar-width border-r border-outline-variant dark:border-outline-variant bg-surface dark:bg-surface font-body-md text-body-md">
+<div class="px-lg mb-xl">
+<h1 class="font-h3 text-h3 font-bold text-on-surface dark:text-on-surface">KMS Engine</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant mt-xs">Enterprise Support</p>
+</div>
+<div class="px-lg mb-lg">
+<button class="w-full bg-primary text-on-primary h-10 rounded flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">add</span>
+                New Entry
+            </button>
+</div>
+<ul class="flex-1 px-sm space-y-1 overflow-y-auto">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu_book</span>
+                    Knowledge Base
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">confirmation_number</span>
+                    Tickets
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">apps</span>
+                    Applications
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded bg-surface-container-high dark:bg-surface-container-high text-primary dark:text-inverse-primary border-l-2 border-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">analytics</span>
+                    Internal Tracker
+                </a>
+</li>
+</ul>
+<div class="px-sm mt-auto pt-lg border-t border-outline-variant/50">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+                        Settings
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-low transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">description</span>
+                        Documentation
+                    </a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-background">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-lg w-full h-[56px] border-b border-outline-variant dark:border-outline-variant bg-surface dark:bg-surface font-body-md text-body-md">
+<div class="flex items-center gap-lg">
+<span class="md:hidden font-h3 text-h3 font-black text-on-surface dark:text-on-surface">KMS Engine</span>
+<nav class="hidden md:flex items-center gap-md">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-lowest px-2 py-1 rounded transition-all duration-150" href="#">Docs</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-lowest px-2 py-1 rounded transition-all duration-150" href="#">Support</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 20px;">search</span>
+<input class="pl-8 pr-3 py-1 bg-surface-container-low border-none rounded focus:ring-2 focus:ring-primary text-body-sm w-64" placeholder="Search..." type="text"/>
+</div>
+<div class="flex items-center gap-xs">
+<button class="p-2 rounded text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+<button class="p-2 rounded text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">help_outline</span>
+</button>
+</div>
+<button class="hidden sm:block px-3 py-1.5 bg-primary-container text-on-primary-container rounded font-label-md hover:bg-primary-container/90 transition-colors">
+                    Quick Add
+                </button>
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-outline-variant object-cover ml-sm" data-alt="A small circular avatar placeholder image showing a highly stylized, minimalist corporate headshot in a bright studio setting, light mode aesthetic, soft shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC55kwNtbo6uL72NwX2BSQDxgFOSNFx3C6QANNLz7t6dTE47vkgyHhtv23wP1t6Cx5__OkICVzzZyMx4RKU3qR8MTa4rBsWjUauJ8dJUSyGsdqkdncMQJ3T49ER11EIT1z5eOxwq3hgs9sN9ggOmt417Zs8-wrTFHEjjPzF6YddijMabXDwVMPVVzABwPh2n6DDbesxf84IJPI779XpTyrRoee--ZBKDIU8MrO4JWugFDmgdU7omAE6_-IvabCkUH79WIO455zwdSoP"/>
+</div>
+</header>
+<!-- Page Content -->
+<div class="flex-1 overflow-y-auto p-md lg:p-lg">
+<div class="max-w-[1000px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-lg">
+<!-- Entry Form Column -->
+<div class="lg:col-span-2 space-y-lg">
+<div class="bg-surface rounded-lg border border-outline-variant p-lg shadow-sm">
+<h2 class="font-h2 text-h2 text-on-surface mb-md">Log Daily Effort</h2>
+<form class="space-y-md">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+<div class="space-y-xs relative">
+<label class="font-label-md text-label-md text-on-surface-variant">Project / Task</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 18px;">assignment</span>
+<input class="w-full pl-8 pr-3 py-2 bg-surface border border-outline-variant rounded focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-on-surface" placeholder="Start typing..." type="text"/>
+</div>
+<!-- Fake Autocomplete Dropdown -->
+<div class="absolute top-full left-0 w-full mt-1 bg-surface border border-outline-variant rounded shadow-lg z-10 hidden">
+<ul class="py-1 font-body-sm text-body-sm">
+<li class="px-3 py-2 hover:bg-surface-container cursor-pointer flex justify-between items-center">
+<span>PRJ-4092: UI Redesign</span>
+<span class="text-on-surface-variant">Active</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Category</label>
+<select class="w-full px-3 py-2 bg-surface border border-outline-variant rounded focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-on-surface">
+<option>Development</option>
+<option>Design</option>
+<option>Meetings</option>
+<option>Documentation</option>
+</select>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Description</label>
+<textarea class="w-full px-3 py-2 bg-surface border border-outline-variant rounded focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-on-surface resize-none" placeholder="What did you work on?" rows="3"></textarea>
+</div>
+<div class="flex items-center gap-md">
+<div class="space-y-xs w-32">
+<label class="font-label-md text-label-md text-on-surface-variant">Hours</label>
+<input class="w-full px-3 py-2 bg-surface border border-outline-variant rounded focus:ring-2 focus:ring-primary focus:border-primary font-mono text-mono text-on-surface" placeholder="0.00" step="0.25" type="number"/>
+</div>
+<div class="flex-1 space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant">Tags</label>
+<div class="flex flex-wrap gap-2 items-center min-h-[38px] px-2 border border-outline-variant rounded bg-surface">
+<span class="inline-flex items-center gap-1 bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded text-xs font-medium">
+                                            frontend <span class="material-symbols-outlined cursor-pointer text-[14px]">close</span>
+</span>
+<input class="border-none bg-transparent focus:ring-0 p-0 text-sm w-24" placeholder="Add tag..." type="text"/>
+</div>
+</div>
+</div>
+<div class="pt-sm flex justify-end gap-3">
+<button class="px-4 py-2 bg-transparent text-primary hover:bg-surface-container rounded font-label-md transition-colors" type="button">
+                                    Clear
+                                </button>
+<button class="px-6 py-2 bg-primary text-on-primary rounded font-label-md hover:bg-primary/90 transition-colors shadow-sm" type="button">
+                                    Save Entry
+                                </button>
+</div>
+</form>
+</div>
+</div>
+<!-- Recent Entries Side Column -->
+<div class="space-y-md">
+<div class="flex items-center justify-between mb-sm">
+<h3 class="font-h3 text-h3 text-on-surface">Today's Log</h3>
+<span class="font-mono text-mono text-on-surface-variant">Total: 5.5h</span>
+</div>
+<div class="space-y-3">
+<!-- Entry Card -->
+<div class="bg-surface rounded border border-outline-variant p-3 hover:bg-surface-container-lowest transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label-md text-label-md font-bold text-on-surface">PRJ-4092: UI Redesign</span>
+<span class="font-mono text-mono font-medium text-primary">3.5h</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-2">Implemented responsive layout for the dashboard. Refactored the side navigation component to use the new token system.</p>
+<div class="flex gap-2">
+<span class="text-[10px] uppercase tracking-wider font-semibold text-secondary bg-surface-dim px-1.5 py-0.5 rounded">Development</span>
+</div>
+</div>
+<!-- Entry Card -->
+<div class="bg-surface rounded border border-outline-variant p-3 hover:bg-surface-container-lowest transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label-md text-label-md font-bold text-on-surface">Daily Standup</span>
+<span class="font-mono text-mono font-medium text-primary">0.5h</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-2">Sync with team on current sprint progress and blockers.</p>
+<div class="flex gap-2">
+<span class="text-[10px] uppercase tracking-wider font-semibold text-secondary bg-surface-dim px-1.5 py-0.5 rounded">Meetings</span>
+</div>
+</div>
+<!-- Entry Card -->
+<div class="bg-surface rounded border border-outline-variant p-3 hover:bg-surface-container-lowest transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label-md text-label-md font-bold text-on-surface">DOC-110: API Spec</span>
+<span class="font-mono text-mono font-medium text-primary">1.5h</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-2">Drafted initial endpoints for the new user management service.</p>
+<div class="flex gap-2">
+<span class="text-[10px] uppercase tracking-wider font-semibold text-secondary bg-surface-dim px-1.5 py-0.5 rounded">Documentation</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

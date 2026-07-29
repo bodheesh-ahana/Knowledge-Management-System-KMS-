@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Knowledge Article Details</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-highest": "#dae2fd",
+                      "outline": "#737686",
+                      "on-surface-variant": "#434655",
+                      "on-primary-container": "#eeefff",
+                      "secondary-fixed": "#d3e4fe",
+                      "primary-container": "#2563eb",
+                      "on-secondary-fixed": "#0b1c30",
+                      "on-secondary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "background": "#faf8ff",
+                      "primary-fixed": "#dbe1ff",
+                      "outline-variant": "#c3c6d7",
+                      "on-primary-fixed": "#00174b",
+                      "inverse-primary": "#b4c5ff",
+                      "on-secondary-container": "#54647a",
+                      "primary": "#004ac6",
+                      "tertiary": "#525657",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-tint": "#0053db",
+                      "surface-bright": "#faf8ff",
+                      "on-tertiary-container": "#eff1f3",
+                      "tertiary-fixed": "#e0e3e5",
+                      "surface-container-low": "#f2f3ff",
+                      "on-secondary-fixed-variant": "#38485d",
+                      "inverse-on-surface": "#eef0ff",
+                      "tertiary-container": "#6b6e70",
+                      "error": "#ba1a1a",
+                      "on-primary": "#ffffff",
+                      "surface-container-high": "#e2e7ff",
+                      "on-background": "#131b2e",
+                      "secondary-container": "#d0e1fb",
+                      "on-tertiary": "#ffffff",
+                      "secondary": "#505f76",
+                      "on-surface": "#131b2e",
+                      "surface-variant": "#dae2fd",
+                      "secondary-fixed-dim": "#b7c8e1",
+                      "surface": "#faf8ff",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "on-tertiary-fixed": "#191c1e",
+                      "on-tertiary-fixed-variant": "#444749",
+                      "on-error-container": "#93000a",
+                      "inverse-surface": "#283044",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "surface-container": "#eaedff",
+                      "surface-dim": "#d2d9f4"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "2xl": "48px",
+                      "sidebar-width": "260px",
+                      "xs": "4px",
+                      "sm": "8px",
+                      "lg": "24px",
+                      "3xl": "64px",
+                      "base": "4px",
+                      "container-max": "1440px",
+                      "md": "16px",
+                      "xl": "32px"
+              },
+              "fontFamily": {
+                      "label-md": [
+                              "Geist"
+                      ],
+                      "h1": [
+                              "Geist"
+                      ],
+                      "mono": [
+                              "JetBrains Mono"
+                      ],
+                      "h3": [
+                              "Geist"
+                      ],
+                      "body-lg": [
+                              "Geist"
+                      ],
+                      "body-md": [
+                              "Geist"
+                      ],
+                      "body-sm": [
+                              "Geist"
+                      ],
+                      "h2": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "h1": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "mono": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h3": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h2": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #131b2e; /* Manually setting dark mode bg as fallback */
+        }
+        .dark body {
+            background-color: #131b2e; /* dark mode background equivalent */
+            color: #ffffff;
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #434655;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #737686;
+        }
+    </style>
+</head>
+<body class="bg-on-background text-on-surface antialiased font-body-md overflow-hidden flex h-screen">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-sidebar-width border-r border-outline dark:border-outline bg-surface-container-low dark:bg-surface-container-lowest flex flex-col py-lg px-md transition-all duration-200 ease-in-out z-50 hidden md:flex">
+<!-- Header -->
+<div class="flex items-center gap-sm mb-lg px-sm">
+<div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-on-primary font-bold">
+<span class="material-symbols-outlined text-[20px]" data-icon="auto_stories">auto_stories</span>
+</div>
+<div>
+<h1 class="font-h2 text-h2 font-bold text-primary dark:text-primary-fixed-dim tracking-tight">KMS</h1>
+<p class="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant">Enterprise Support</p>
+</div>
+</div>
+<!-- Main Navigation -->
+<nav class="flex-1 overflow-y-auto space-y-[4px]">
+<!-- Inactive -->
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<!-- Active -->
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-lg bg-secondary-container dark:bg-secondary-container text-on-secondary-container dark:text-on-secondary-container border-l-2 border-primary transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="auto_stories">auto_stories</span>
+<span class="font-body-md text-body-md font-medium">Knowledge Base</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="confirmation_number">confirmation_number</span>
+<span class="font-body-md text-body-md">Tickets</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="apps">apps</span>
+<span class="font-body-md text-body-md">Applications</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="track_changes">track_changes</span>
+<span class="font-body-md text-body-md">Internal Tracker</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="analytics">analytics</span>
+<span class="font-body-md text-body-md">Analytics</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="description">description</span>
+<span class="font-body-md text-body-md">Documents</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+<span class="font-body-md text-body-md">Notifications</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="group">group</span>
+<span class="font-body-md text-body-md">Users</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</nav>
+<!-- Footer / Workspace -->
+<div class="mt-auto pt-sm border-t border-outline-variant dark:border-outline space-y-[4px]">
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="widgets">widgets</span>
+<span class="font-body-sm text-body-sm">Applications</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="star">star</span>
+<span class="font-body-sm text-body-sm">Favourite Articles</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="drafts">drafts</span>
+<span class="font-body-sm text-body-sm">Drafts</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-[8px] rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="history">history</span>
+<span class="font-body-sm text-body-sm">Recent Entries</span>
+</a>
+</div>
+<!-- CTA -->
+<div class="mt-lg">
+<button class="w-full h-10 bg-primary text-on-primary rounded font-body-md text-body-md font-medium hover:bg-primary/90 transition-colors flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+                Quick Add
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col md:ml-sidebar-width bg-background h-screen overflow-hidden">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-40 w-full h-14 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline flex justify-between items-center px-lg transition-colors duration-150">
+<!-- Left: Mobile Menu & Breadcrumbs / Search -->
+<div class="flex items-center gap-sm flex-1">
+<button class="md:hidden text-on-surface-variant dark:text-outline p-xs rounded hover:bg-surface-container-high dark:hover:bg-on-surface-variant">
+<span class="material-symbols-outlined text-[24px]" data-icon="menu">menu</span>
+</button>
+<!-- Search Bar (on_left configuration) -->
+<div class="relative w-64 hidden sm:block">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant dark:text-outline">search</span>
+<input class="w-full h-8 pl-8 pr-3 bg-surface-container dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded text-body-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-on-surface dark:text-on-surface placeholder:text-on-surface-variant/50" placeholder="Search knowledge base..." type="text"/>
+</div>
+</div>
+<!-- Right: Actions -->
+<div class="flex items-center gap-md">
+<button class="hidden sm:flex items-center gap-xs px-3 h-8 bg-surface-container dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded text-label-md font-label-md text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim transition-colors">
+                    Cmd+K
+                </button>
+<div class="flex items-center gap-xs">
+<button class="p-xs text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim transition-colors rounded hover:bg-surface-container-high dark:hover:bg-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+</button>
+<button class="p-xs text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim transition-colors rounded hover:bg-surface-container-high dark:hover:bg-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]" data-icon="contrast">contrast</span>
+</button>
+<button class="p-xs text-on-surface-variant dark:text-outline hover:text-primary dark:hover:text-primary-fixed-dim transition-colors rounded hover:bg-surface-container-high dark:hover:bg-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="w-8 h-8 rounded-full bg-secondary-container dark:bg-secondary-container border border-outline-variant dark:border-outline overflow-hidden flex-shrink-0 cursor-pointer">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A small, professional portrait photo of a user profile avatar. Close up on the face, neutral background, sharp focus, modern corporate lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxpYkcW09O0borDNWD3PxflKhcTmmWHpOQXoqet7dDf0leqy9CE_5fKUrY_uPNeL80L6-0QS_OhvnKEItgY-wv1ttaEY6_vXa5tutBRJwz8sFZlKVpFyBvwwBtflm39IIbzDuEaQnI06S3RX9HwxRtBHA1EdcNIiy15YEaIljyy0ffo468k36dnZDTuHlNNAtNEtbKhmkhsufNZ9IW_2Yki4HAY4YwRQ2gukymw9S9fPQZ2SQk-C-2mb2S207YR-46wg1el4zqL8vH"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Content Canvas -->
+<div class="flex-1 overflow-y-auto w-full p-lg pb-3xl flex justify-center">
+<!-- Notion-inspired Grid Layout -->
+<div class="w-full max-w-container-max flex gap-xl flex-col lg:flex-row relative">
+<!-- Center Column: Article Content (Max width 720px for readability) -->
+<div class="flex-1 max-w-[720px] w-full mx-auto">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-xs text-label-md font-label-md text-on-surface-variant dark:text-on-surface-variant mb-lg">
+<a class="hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Knowledge Base</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<a class="hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Infrastructure</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<a class="hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Database</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<span class="text-on-surface dark:text-on-surface">Connection Timeout Troubleshooting</span>
+</nav>
+<!-- Article Header -->
+<header class="mb-xl border-b border-outline-variant dark:border-outline pb-lg">
+<h1 class="font-h1 text-h1 text-on-surface dark:text-on-surface mb-sm">Database Connection Timeout Troubleshooting</h1>
+<div class="flex flex-wrap items-center gap-md text-body-sm font-body-sm text-on-surface-variant dark:text-on-surface-variant">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span>
+<span>Last updated: 2 hours ago by</span>
+<span class="font-medium text-on-surface dark:text-on-surface">Sarah Jenkins</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]" data-icon="visibility">visibility</span>
+<span>1.2k views</span>
+</div>
+<div class="flex gap-xs ml-auto">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-label-md font-label-md bg-error-container text-on-error-container">High Priority</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-label-md font-label-md bg-surface-container-high text-on-surface-variant">PostgreSQL</span>
+</div>
+</div>
+</header>
+<!-- Article Body (Structured Sections) -->
+<article class="space-y-xl text-body-lg font-body-lg text-on-surface dark:text-on-surface leading-relaxed">
+<!-- Issue Summary -->
+<section class="scroll-mt-24" id="issue-summary">
+<h2 class="font-h2 text-h2 mb-md text-on-surface dark:text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" data-icon="info">info</span>
+                                Issue Summary
+                            </h2>
+<p class="mb-md">
+                                Applications fail to connect to the primary PostgreSQL cluster during peak load hours (typically 09:00 - 11:00 UTC). The issue manifests as `ETIMEDOUT` errors in the application logs and increased latency in downstream services dependent on database queries.
+                            </p>
+</section>
+<!-- Symptoms -->
+<section class="scroll-mt-24" id="symptoms">
+<h2 class="font-h2 text-h2 mb-md text-on-surface dark:text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-error" data-icon="warning">warning</span>
+                                Symptoms
+                            </h2>
+<ul class="space-y-sm list-disc list-outside pl-lg text-on-surface-variant dark:text-on-surface-variant">
+<li>Application logs show repeated <code class="font-mono text-mono bg-surface-container dark:bg-surface-container-highest px-1 rounded text-error">connection refused</code> or <code class="font-mono text-mono bg-surface-container dark:bg-surface-container-highest px-1 rounded text-error">timeout</code> errors.</li>
+<li>Datadog dashboards show connection pool utilization hitting 100% capacity.</li>
+<li>End-users experience 504 Gateway Timeout errors on read-heavy endpoints.</li>
+</ul>
+</section>
+<!-- Environment -->
+<section class="scroll-mt-24" id="environment">
+<h2 class="font-h2 text-h2 mb-md text-on-surface dark:text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="dns">dns</span>
+                                Environment
+                            </h2>
+<div class="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-lg p-md">
+<div class="grid grid-cols-2 gap-y-sm text-body-md font-body-md">
+<div class="text-on-surface-variant dark:text-outline">Database Engine:</div>
+<div class="font-medium text-on-surface dark:text-on-surface">PostgreSQL 14.8</div>
+<div class="text-on-surface-variant dark:text-outline">Hosting:</div>
+<div class="font-medium text-on-surface dark:text-on-surface">AWS RDS (Multi-AZ)</div>
+<div class="text-on-surface-variant dark:text-outline">Instance Type:</div>
+<div class="font-medium text-on-surface dark:text-on-surface">db.r6g.4xlarge</div>
+<div class="text-on-surface-variant dark:text-outline">Connection Pooler:</div>
+<div class="font-medium text-on-surface dark:text-on-surface">PgBouncer 1.18</div>
+</div>
+</div>
+</section>
+<!-- Root Cause -->
+<section class="scroll-mt-24" id="root-cause">
+<h2 class="font-h2 text-h2 mb-md text-on-surface dark:text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-tertiary" data-icon="search">search</span>
+                                Root Cause
+                            </h2>
+<p class="mb-md">
+                                The `max_connections` parameter on the RDS instance is misaligned with the PgBouncer configuration. During traffic spikes, PgBouncer attempts to open more connections to the backend database than RDS allows, leading to immediate connection rejection and cascading timeouts in the application layer.
+                            </p>
+</section>
+<!-- Troubleshooting Steps -->
+<section class="scroll-mt-24" id="troubleshooting">
+<h2 class="font-h2 text-h2 mb-md text-on-surface dark:text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary-container" data-icon="build">build</span>
+                                Troubleshooting Steps
+                            </h2>
+<div class="space-y-lg">
+<!-- Step 1 -->
+<div class="flex gap-md">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-surface-container-high dark:bg-on-surface-variant flex items-center justify-center font-bold text-on-surface dark:text-on-surface">1</div>
+<div>
+<h3 class="font-h3 text-h3 mb-xs text-on-surface dark:text-on-surface">Verify current connection limits</h3>
+<p class="text-on-surface-variant dark:text-on-surface-variant mb-sm">Run the following query on the primary database to check the configured maximum limits versus active connections.</p>
+<div class="bg-[#1e1e1e] rounded-lg p-sm font-mono text-mono overflow-x-auto text-[#d4d4d4] border border-[#333]">
+<pre><code>SELECT max_conn,used,res_for_super,max_conn-used-res_for_super res_for_normal 
+FROM 
+  (select count(*) used from pg_stat_activity) t1,
+  (select setting::int res_for_super from pg_settings where name=$$superuser_reserved_connections$$) t2,
+  (select setting::int max_conn from pg_settings where name=$$max_connections$$) t3;</code></pre>
+</div>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="flex gap-md">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-surface-container-high dark:bg-on-surface-variant flex items-center justify-center font-bold text-on-surface dark:text-on-surface">2</div>
+<div>
+<h3 class="font-h3 text-h3 mb-xs text-on-surface dark:text-on-surface">Check PgBouncer logs</h3>
+<p class="text-on-surface-variant dark:text-on-surface-variant">Access the bastion host and tail the PgBouncer logs looking for `server login failed: FATAL: sorry, too many clients already`.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Resolution -->
+<section class="scroll-mt-24 bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-lg relative overflow-hidden" id="resolution">
+<!-- Subtle highlight strip -->
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<h2 class="font-h2 text-h2 mb-md text-on-surface dark:text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="check_circle">check_circle</span>
+                                Resolution
+                            </h2>
+<p class="mb-sm">To resolve the issue permanently:</p>
+<ol class="space-y-sm list-decimal list-outside pl-lg text-on-surface-variant dark:text-on-surface-variant mb-md">
+<li>Update the RDS Parameter Group to increase `max_connections` (e.g., to 2000).</li>
+<li>Adjust PgBouncer `max_client_conn` and `default_pool_size` in `pgbouncer.ini` to align with the new database limits, ensuring a 10% buffer.</li>
+<li>Restart PgBouncer service to apply configurations gracefully.</li>
+</ol>
+<div class="mt-md flex gap-sm">
+<button class="h-10 px-4 bg-primary text-on-primary rounded font-body-md text-body-md font-medium hover:bg-primary/90 transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="terminal">terminal</span>
+                                    Run Runbook
+                                </button>
+<button class="h-10 px-4 bg-surface-container-high dark:bg-on-surface-variant text-on-surface dark:text-on-surface rounded font-body-md text-body-md font-medium hover:bg-surface-variant dark:hover:bg-outline/20 transition-colors border border-outline-variant dark:border-outline">
+                                    Copy Configuration
+                                </button>
+</div>
+</section>
+<!-- Feedback Footer -->
+<footer class="pt-xl mt-2xl border-t border-outline-variant dark:border-outline flex flex-col items-center justify-center gap-md">
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-on-surface-variant">Was this article helpful?</p>
+<div class="flex gap-sm">
+<button class="w-10 h-10 rounded-full border border-outline-variant dark:border-outline flex items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim hover:border-primary transition-colors hover:bg-surface-container-low dark:hover:bg-surface-container-lowest">
+<span class="material-symbols-outlined text-[20px]" data-icon="thumb_up">thumb_up</span>
+</button>
+<button class="w-10 h-10 rounded-full border border-outline-variant dark:border-outline flex items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-error hover:border-error transition-colors hover:bg-error-container/10">
+<span class="material-symbols-outlined text-[20px]" data-icon="thumb_down">thumb_down</span>
+</button>
+</div>
+</footer>
+</article>
+</div>
+<!-- Right Sidebar (Sticky ToC & Related) -->
+<div class="hidden xl:block w-64 flex-shrink-0">
+<div class="sticky top-24 space-y-lg">
+<!-- Table of Contents -->
+<div class="bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-lg p-md shadow-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant dark:text-outline uppercase tracking-wider mb-md">On this page</h3>
+<nav class="space-y-sm font-body-md text-body-md flex flex-col">
+<a class="text-primary font-medium border-l-2 border-primary pl-2 py-1 transition-colors" href="#issue-summary">Issue Summary</a>
+<a class="text-on-surface-variant hover:text-on-surface dark:text-on-surface-variant dark:hover:text-on-surface border-l-2 border-transparent pl-2 py-1 transition-colors" href="#symptoms">Symptoms</a>
+<a class="text-on-surface-variant hover:text-on-surface dark:text-on-surface-variant dark:hover:text-on-surface border-l-2 border-transparent pl-2 py-1 transition-colors" href="#environment">Environment</a>
+<a class="text-on-surface-variant hover:text-on-surface dark:text-on-surface-variant dark:hover:text-on-surface border-l-2 border-transparent pl-2 py-1 transition-colors" href="#root-cause">Root Cause</a>
+<a class="text-on-surface-variant hover:text-on-surface dark:text-on-surface-variant dark:hover:text-on-surface border-l-2 border-transparent pl-2 py-1 transition-colors" href="#troubleshooting">Troubleshooting Steps</a>
+<a class="text-on-surface-variant hover:text-on-surface dark:text-on-surface-variant dark:hover:text-on-surface border-l-2 border-transparent pl-2 py-1 transition-colors" href="#resolution">Resolution</a>
+</nav>
+</div>
+<!-- Related Articles -->
+<div class="bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-lg p-md shadow-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant dark:text-outline uppercase tracking-wider mb-md">Related Articles</h3>
+<ul class="space-y-md font-body-sm text-body-sm">
+<li>
+<a class="group flex gap-xs" href="#">
+<span class="material-symbols-outlined text-[16px] text-outline mt-0.5" data-icon="article">article</span>
+<span class="text-on-surface group-hover:text-primary transition-colors line-clamp-2 leading-tight">Configuring PgBouncer for High Availability</span>
+</a>
+</li>
+<li>
+<a class="group flex gap-xs" href="#">
+<span class="material-symbols-outlined text-[16px] text-outline mt-0.5" data-icon="article">article</span>
+<span class="text-on-surface group-hover:text-primary transition-colors line-clamp-2 leading-tight">RDS Parameter Group Best Practices</span>
+</a>
+</li>
+<li>
+<a class="group flex gap-xs" href="#">
+<span class="material-symbols-outlined text-[16px] text-outline mt-0.5" data-icon="article">article</span>
+<span class="text-on-surface group-hover:text-primary transition-colors line-clamp-2 leading-tight">Understanding 504 Gateway Timeouts in Microservices</span>
+</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple active state highlighting for ToC based on scroll position (mock logic)
+        document.querySelector('.flex-1.overflow-y-auto').addEventListener('scroll', function(e) {
+            // In a real implementation, this would observe intersecting sections
+            // and update the classes on the ToC links accordingly.
+        });
+    </script>
+</body></html>
