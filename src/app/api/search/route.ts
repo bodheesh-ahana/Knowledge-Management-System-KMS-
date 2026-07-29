@@ -1,9 +1,11 @@
 import { NextRequest } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
-import { KnowledgeArticle, Ticket, Application, User } from '@/models';
+import { KnowledgeArticle, Ticket, TrackerEntry, Application, User } from '@/models';
 import { getAuthenticatedUser } from '@/lib/auth';
 import { SearchHistory } from '@/models';
 import { errorResponse, successResponse } from '@/lib/errors';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 export async function GET(req: NextRequest) {
   try {
@@ -72,6 +74,50 @@ export async function GET(req: NextRequest) {
           meta: 'Application',
         }))
       );
+    }
+
+    if (type === 'all' || type === 'tracker') {
+      const tracker = await TrackerEntry.find({
+        $or: [
+          { ticketId: regex },
+          { title: regex },
+          { workDescription: regex },
+          { application: regex },
+          { teamMembers: regex },
+        ],
+      })
+        .limit(10)
+        .lean();
+      results.push(
+        ...tracker.map((t: any) => ({
+          id: t._id,
+          type: 'tracker',
+          title: t.title || t.workDescription || t.ticketId,
+          description: `${t.ticketId}${t.application ? ` · ${t.application}` : ''}`,
+          url: `/tracker`,
+          meta: 'Tracker',
+        }))
+      );
+    }
+
+    if (type === 'all' || type === 'documents') {
+      try {
+        const docsDir = path.join(process.cwd(), 'public', 'official_documents');
+        const files = await fs.readdir(docsDir);
+        const matched = files.filter((f) => f.toLowerCase().includes(q.toLowerCase())).slice(0, 10);
+        results.push(
+          ...matched.map((f) => ({
+            id: f,
+            type: 'document',
+            title: f.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+            description: 'Official document',
+            url: `/documents`,
+            meta: 'Documents',
+          }))
+        );
+      } catch {
+        // documents directory may not exist
+      }
     }
 
     if (type === 'all' || type === 'users') {

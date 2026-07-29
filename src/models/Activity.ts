@@ -19,6 +19,7 @@ const activitySchema = new Schema<IActivity>(
         'TicketCreated',
         'TicketResolved',
         'HoursLogged',
+        'StatusUpdated',
         'UserLoggedIn',
       ],
       required: true,

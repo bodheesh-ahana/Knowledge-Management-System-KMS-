@@ -71,6 +71,11 @@ const knowledgeArticleSchema = new Schema<IKnowledgeArticle>(
         ref: 'Ticket',
       },
     ],
+    ticketId: {
+      type: String,
+      trim: true,
+      index: true,
+    },
     tags: [String],
     // Featured image for article (stored locally in public/uploads)
     featuredImage: String,

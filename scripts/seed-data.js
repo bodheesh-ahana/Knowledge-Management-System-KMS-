@@ -8,12 +8,24 @@ const mongoose = require('mongoose');
 require('dotenv').config({ path: '.env.local' });
 
 const APPLICATIONS = [
-  { name: 'SAP ERP', description: 'Enterprise resource planning system', icon: 'dns', color: '#0ea5e9' },
-  { name: 'Salesforce CRM', description: 'Customer relationship management platform', icon: 'cloud', color: '#3b82f6' },
-  { name: 'ServiceNow', description: 'IT service management platform', icon: 'support_agent', color: '#22c55e' },
-  { name: 'JIRA', description: 'Issue and project tracking tool', icon: 'bug_report', color: '#f97316' },
-  { name: 'Confluence', description: 'Team collaboration and documentation wiki', icon: 'description', color: '#8b5cf6' },
-  { name: 'Workday HCM', description: 'Human capital management system', icon: 'badge', color: '#ec4899' },
+  { name: 'Drake', description: 'Professional tax preparation software used for individual and business tax filings.', icon: 'receipt_long', color: '#2563eb' },
+  { name: 'Lacerte', description: "Intuit's professional tax software for complex individual and business returns.", icon: 'calculate', color: '#7c3aed' },
+  { name: 'QuickBooks', description: 'Accounting and bookkeeping platform used for client financial management.', icon: 'account_balance_wallet', color: '#16a34a' },
+  { name: 'Ultratax', description: 'Thomson Reuters tax compliance and preparation software.', icon: 'summarize', color: '#f97316' },
+  { name: 'Transaction Pro', description: 'Data import/export utility for QuickBooks and accounting transactions.', icon: 'sync_alt', color: '#0ea5e9' },
+  { name: 'CCH Axcess', description: 'Wolters Kluwer cloud-based tax, audit, and accounting workflow platform.', icon: 'gavel', color: '#dc2626' },
+];
+
+// Old placeholder/demo applications from earlier seed versions. Removed on
+// every seed run so the catalogue only reflects the applications we
+// actually support.
+const LEGACY_MOCK_APPLICATIONS = [
+  'SAP ERP',
+  'Salesforce CRM',
+  'ServiceNow',
+  'JIRA',
+  'Confluence',
+  'Workday HCM',
 ];
 
 async function seed() {
@@ -108,6 +120,11 @@ async function seed() {
     for (const app of APPLICATIONS) {
       await Application.updateOne({ name: app.name }, { $setOnInsert: app }, { upsert: true });
       console.log(`  ✅ ${app.name}`);
+    }
+
+    const removedLegacy = await Application.deleteMany({ name: { $in: LEGACY_MOCK_APPLICATIONS } });
+    if (removedLegacy.deletedCount > 0) {
+      console.log(`  🧹 Removed ${removedLegacy.deletedCount} legacy placeholder application(s)`);
     }
 
     // 2. Look up seeded users to attach as owners

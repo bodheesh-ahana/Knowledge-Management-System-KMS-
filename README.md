@@ -52,22 +52,56 @@ npm start
 
 ```
 src/
-├── app/                    # Next.js app router pages
-│   ├── api/               # API routes
-│   ├── auth/              # Auth pages
-│   ├── dashboard/         # Dashboard pages
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Home page
-├── components/            # Reusable React components
-├── hooks/                 # Custom React hooks
-├── lib/                   # Utility functions
-├── middleware.ts          # Next.js middleware
-├── models/                # Mongoose models
-├── services/              # Business logic services
-├── store/                 # Zustand stores
-├── types/                 # TypeScript type definitions
-└── middleware/            # API middleware
+├── app/                    # Next.js App Router (pages + API routes)
+│   ├── (routes)/           # Dashboard, knowledge, tracker, tickets, etc.
+│   ├── api/                # REST API endpoints
+│   ├── auth/               # NextAuth / sign-in pages
+│   ├── layout.tsx          # Root layout with Material theme providers
+│   └── page.tsx            # Home page
+├── components/             # Reusable React components (AppLayout, tables, forms)
+├── config/                 # App-wide configuration
+├── hooks/                  # Custom React hooks
+├── lib/                    # Utilities (auth, db, validation, team, errors)
+├── middleware.ts           # Next.js middleware + route protection
+├── models/                 # Mongoose schemas and model exports
+├── services/               # Business logic services
+├── store/                  # Zustand / global stores
+├── types/                  # Shared TypeScript interfaces
+└── middleware/             # API middleware
 ```
+
+## Architecture
+
+KMS is a full-stack Next.js application with a MongoDB backend and a role-based UI.
+
+### Domains
+
+- **Team Management** — `TeamMember` directory stored in MongoDB, with Team Access credentials managed separately in `User`.
+- **Authentication** — NextAuth session-based auth. Roles: `Engineer`, `TeamLead`, `Manager`, `Admin`.
+- **Tracker** — Daily work entries linked to tickets, applications and team members.
+- **Knowledge Base** — Articles with approval workflow, owner tracking, views and related tickets.
+- **Documents & Applications** — Catalogs used across tickets and tracker entries.
+- **Analytics & Search** — Activity, search history, ranking and notification data.
+
+### Role-Based Features
+
+- **Engineers** — add tracker entries and knowledge articles, view documents and team members.
+- **TeamLeads / Managers / Admins** — manage team members, user credentials, and access levels.
+
+### Key API Endpoints
+
+| Endpoint | Purpose |
+| --- | --- |
+| `/api/team-members` | CRUD for the team directory; auto-seeds from `lib/team.ts` on first load |
+| `/api/team-access` | Create / update / toggle user logins (lead-only) |
+| `/api/tracker` | Daily tracker entries; populates `user` for audit columns |
+| `/api/knowledge` | Knowledge articles; populates `owner` and `createdAt` |
+| `/api/clear-dev-data?confirm=yes` | Lead-only utility to wipe non-essential dev data while keeping `users`, `teammembers`, `applications` and `documentrecords` |
+
+### Database Collections
+
+- **Preserved** — `users`, `teammembers`, `applications`, `documentrecords`
+- **Clearable / development** — `trackerentries`, `knowledgearticles`, `tickets`, `comments`, `activities`, `searchhistories`, `notifications`, `auditlogs`, `projects`
 
 ## Technology Stack
 

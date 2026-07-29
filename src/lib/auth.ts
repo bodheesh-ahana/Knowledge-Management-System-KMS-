@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { User } from '@/models';
+import { connectDB } from '@/lib/mongodb';
 import { ApiError, ApiErrorCodes } from './errors';
 
 export async function getAuthenticatedUser() {
@@ -13,6 +14,12 @@ export async function getAuthenticatedUser() {
       ApiErrorCodes.AUTHENTICATION_REQUIRED
     );
   }
+
+  // Ensure the DB connection is established before querying. Without this,
+  // Mongoose buffers the query and it times out after 10s if this is the
+  // first DB call of the process (e.g. GET /api/tracker calls this before
+  // its own connectDB()).
+  await connectDB();
 
   const user = await User.findOne({ email: session.user.email });
 

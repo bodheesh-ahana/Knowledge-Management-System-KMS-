@@ -1,6 +1,18 @@
 // User roles
 export type UserRole = 'Engineer' | 'TeamLead' | 'Manager' | 'Admin';
 
+export interface ITeamMember {
+  _id: string;
+  name: string;
+  role: string;
+  email: string;
+  status: 'Active' | 'Inactive';
+  joinDate?: string;
+  userId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // User types
 export interface IUserPreferences {
   theme: 'light' | 'dark' | 'auto';
@@ -68,6 +80,7 @@ export interface IKnowledgeArticle {
   unhelpful: number;
   relatedArticles: string[]; // Article IDs
   relatedTickets: string[]; // Ticket IDs
+  ticketId?: string; // ManageEngine ticket ID for cross-reference
   tags: string[];
   featuredImage?: string; // URL to featured image stored locally
   attachments: IAttachment[];
@@ -87,7 +100,23 @@ export interface CreateArticleInput {
 }
 
 // Ticket types
-export type TicketStatus = 'Open' | 'InProgress' | 'Resolved' | 'Closed';
+export type TicketStatus =
+  | 'Open'
+  | 'Assigned'
+  | 'In Progress'
+  | 'On Hold'
+  | 'Awaiting User Response'
+  | 'Awaiting Vendor/OEM'
+  | 'Awaiting Spare'
+  | 'Awaiting Approval'
+  | 'Pending with Customer Management'
+  | 'Under Procurement'
+  | 'Under IT Validation'
+  | 'Under Sales Team Review'
+  | 'Outside Business Hours'
+  | 'Resolved'
+  | 'Closed'
+  | 'Cancelled';
 export type TicketSeverity = 'Critical' | 'High' | 'Medium' | 'Low';
 
 export interface ITicket {
@@ -124,6 +153,7 @@ export type ActivityType =
   | 'TicketCreated'
   | 'TicketResolved'
   | 'HoursLogged'
+  | 'StatusUpdated'
   | 'UserLoggedIn';
 
 export interface IActivity {
@@ -153,6 +183,8 @@ export interface ITrackerEntry {
   user: string; // User ID (owner of the entry / logged-in engineer)
   teamMembers: string[]; // Team member name(s), e.g. ["Rajarshi Dasgupta", "Bindushree A C"]
   ticketId: string; // ManageEngine ticket ID, may include suffix e.g. "204811(#1612)"
+  title?: string; // Issue title/summary, used to auto-match Knowledge Base articles
+  linkedArticle?: string; // KnowledgeArticle ID if this entry's issue has a documented solution
   role: 'Owner' | 'Contributor';
   date: Date;
   workDescription: string; // "Work Done"
@@ -164,6 +196,7 @@ export interface ITrackerEntry {
   application?: string;
   ticketsResolved: number;
   articlesCreated: number;
+  ticketStatus?: string; // ManageEngine/team ticket status
   status: 'Draft' | 'Submitted';
   createdAt: Date;
   updatedAt: Date;
@@ -191,7 +224,15 @@ export interface ISearchHistory {
 }
 
 // Notification types
-export type NotificationType = 'ArticleReviewNeeded' | 'TicketAssigned' | 'CommentMention';
+export type NotificationType =
+  | 'ArticleReviewNeeded'
+  | 'TicketAssigned'
+  | 'CommentMention'
+  | 'ArticleCreated'
+  | 'TicketCreated'
+  | 'TrackerEntryCreated'
+  | 'TicketResolved'
+  | 'System';
 
 export interface INotification {
   _id: string;

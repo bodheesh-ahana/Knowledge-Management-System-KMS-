@@ -11,7 +11,16 @@ const notificationSchema = new Schema<INotification>(
     },
     type: {
       type: String,
-      enum: ['ArticleReviewNeeded', 'TicketAssigned', 'CommentMention'],
+      enum: [
+        'ArticleReviewNeeded',
+        'TicketAssigned',
+        'CommentMention',
+        'ArticleCreated',
+        'TicketCreated',
+        'TrackerEntryCreated',
+        'TicketResolved',
+        'System',
+      ],
       required: true,
     },
     title: String,

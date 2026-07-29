@@ -8,6 +8,7 @@ export const createArticleSchema = z.object({
   rootCause: z.string().min(5, 'Root cause must be at least 5 characters'),
   resolution: z.string().min(5, 'Resolution must be at least 5 characters'),
   prevention: z.string().optional(),
+  ticketId: z.string().optional(),
   troubleshootingSteps: z
     .array(
       z.object({
@@ -30,6 +31,8 @@ export const createTicketSchema = z.object({
 export const createTrackerEntrySchema = z.object({
   date: z.coerce.date(),
   ticketId: z.string().min(1, 'Ticket ID is required'),
+  title: z.string().optional(),
+  linkedArticle: z.string().optional(),
   teamMembers: z.array(z.string().min(1)).min(1, 'At least one team member is required'),
   role: z.enum(['Owner', 'Contributor']).default('Contributor'),
   workDescription: z.string().min(1, 'Work done is required'),
@@ -49,6 +52,7 @@ export const createTrackerEntrySchema = z.object({
   slaBreachReason: z.string().optional(),
   escalationStatus: z.enum(['Yes', 'No', 'N/A']).default('No'),
   application: z.string().optional(),
+  ticketStatus: z.string().optional(),
   ticketsResolved: z.number().min(0).optional(),
   articlesCreated: z.number().min(0).optional(),
 });
@@ -104,6 +108,7 @@ export const updateUserSchema = z.object({
   name: z.string().min(2).optional(),
   role: z.enum(['Engineer', 'TeamLead', 'Manager', 'Admin']).optional(),
   active: z.boolean().optional(),
+  password: z.string().min(6).optional(),
   bio: z.string().optional(),
   avatar: z.string().optional(),
 });

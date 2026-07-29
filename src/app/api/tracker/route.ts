@@ -1,15 +1,19 @@
 import { NextRequest } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
-import { TrackerEntry, Activity } from '@/models';
+import { TrackerEntry, Activity, KnowledgeArticle, Ticket } from '@/models';
 import { getAuthenticatedUser } from '@/lib/auth';
 import { createTrackerEntrySchema } from '@/lib/validation';
 import { errorResponse, successResponse } from '@/lib/errors';
 import { ZodError } from 'zod';
+import { notifyAll } from '@/lib/notifications';
 
 export async function GET(req: NextRequest) {
   try {
+    console.log('[tracker:GET] authenticating user...');
     await getAuthenticatedUser();
+    console.log('[tracker:GET] authenticated, connecting to DB...');
     await connectDB();
+    console.log('[tracker:GET] DB connected, querying entries...');
 
     const { searchParams } = new URL(req.url);
     const date = searchParams.get('date');
@@ -62,6 +66,7 @@ export async function GET(req: NextRequest) {
       const regex = { $regex: search, $options: 'i' };
       query.$or = [
         { ticketId: regex },
+        { title: regex },
         { workDescription: regex },
         { application: regex },
         { teamMembers: regex },
@@ -73,13 +78,67 @@ export async function GET(req: NextRequest) {
         .sort({ date: -1, createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
+        .populate('user', 'name')
+        .populate('linkedArticle', 'title status')
         .lean(),
       TrackerEntry.countDocuments(query),
     ]);
 
-    return successResponse({ entries, total, page, limit });
-  } catch (error) {
-    console.error('Error fetching tracker entries:', error);
+    // Auto-match Knowledge Base articles by ticketId for entries that don't
+    // already have an explicitly linked article (e.g. the article was
+    // created afterward via "Create KB Article" rather than picked from the
+    // suggestion dropdown while logging the entry).
+    const unmatchedTicketIds = [
+      ...new Set(
+        entries
+          .filter((e: any) => !e.linkedArticle && e.ticketId)
+          .map((e: any) => e.ticketId)
+      ),
+    ];
+
+    if (unmatchedTicketIds.length > 0) {
+      const matchedArticles = await KnowledgeArticle.find({
+        ticketId: { $in: unmatchedTicketIds },
+      })
+        .select('title status ticketId')
+        .lean();
+
+      const articleByTicketId = new Map(
+        matchedArticles.map((a: any) => [a.ticketId, a])
+      );
+
+      for (const entry of entries as any[]) {
+        if (!entry.linkedArticle && entry.ticketId && articleByTicketId.has(entry.ticketId)) {
+          entry.linkedArticle = articleByTicketId.get(entry.ticketId);
+        }
+      }
+    }
+
+    // Match tracker ticket IDs to the internal Ticket collection to show
+    // which are still open or already closed/resolved.
+    const uniqueTicketNumbers = [
+      ...new Set(
+        (entries as any[])
+          .map((e: any) => e.ticketId?.split('#')[0]?.trim())
+          .filter(Boolean)
+      ),
+    ];
+    const matchedTickets = await Ticket.find({
+      ticketNumber: { $in: uniqueTicketNumbers },
+    })
+      .select('_id ticketNumber status')
+      .lean();
+
+    const ticketStatusMap: Record<string, { _id: string; status: string }> = {};
+    for (const t of matchedTickets as any[]) {
+      ticketStatusMap[t.ticketNumber] = { _id: t._id.toString(), status: t.status };
+    }
+
+    console.log(`[tracker:GET] found ${entries.length} entries (total: ${total})`);
+    return successResponse({ entries, total, page, limit, ticketStatusMap });
+  } catch (error: any) {
+    console.error('[tracker:GET] Error fetching tracker entries:', error?.name, error?.message);
+    console.error(error);
     return errorResponse('Failed to fetch tracker entries', 500);
   }
 }
@@ -107,6 +166,13 @@ export async function POST(req: NextRequest) {
       details: { hoursWorked: entry.hoursWorked, date: entry.date },
     });
 
+    await notifyAll({
+      type: 'TrackerEntryCreated',
+      title: 'Tracker entry logged',
+      message: `${entry.ticketId}${entry.title ? ` — ${entry.title}` : ''}${entry.application ? ` · ${entry.application}` : ''}`,
+      resourceId: entry._id,
+    });
+
     return successResponse(entry, 201);
   } catch (error) {
     if (error instanceof ZodError) {
@@ -114,5 +180,32 @@ export async function POST(req: NextRequest) {
     }
     console.error('Error creating tracker entry:', error);
     return errorResponse('Failed to create tracker entry', 500);
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const user = await getAuthenticatedUser();
+    const body = await req.json();
+    const { ticketId, ticketStatus } = body;
+
+    if (!ticketId || !ticketStatus) {
+      return errorResponse('ticketId and ticketStatus are required', 400);
+    }
+
+    await connectDB();
+    const result = await TrackerEntry.updateMany(
+      { ticketId },
+      { $set: { ticketStatus } },
+    );
+
+    if (result.matchedCount === 0) {
+      return errorResponse('No tracker entries found for this ticket', 404);
+    }
+
+    return successResponse({ ticketId, ticketStatus });
+  } catch (error) {
+    console.error('Error updating ticket status:', error);
+    return errorResponse('Failed to update ticket status', 500);
   }
 }

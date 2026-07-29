@@ -20,7 +20,24 @@ const ticketSchema = new Schema<ITicket>(
     },
     status: {
       type: String,
-      enum: ['Open', 'InProgress', 'Resolved', 'Closed'],
+      enum: [
+        'Open',
+        'Assigned',
+        'In Progress',
+        'On Hold',
+        'Awaiting User Response',
+        'Awaiting Vendor/OEM',
+        'Awaiting Spare',
+        'Awaiting Approval',
+        'Pending with Customer Management',
+        'Under Procurement',
+        'Under IT Validation',
+        'Under Sales Team Review',
+        'Outside Business Hours',
+        'Resolved',
+        'Closed',
+        'Cancelled',
+      ],
       default: 'Open',
       index: true,
     },
@@ -59,4 +76,9 @@ const ticketSchema = new Schema<ITicket>(
 ticketSchema.index({ application: 1, status: 1 });
 ticketSchema.index({ assignee: 1, status: 1 });
 
-export const Ticket = mongoose.models.Ticket || mongoose.model<ITicket>('Ticket', ticketSchema);
+// Force recompilation during hot reload so schema changes are picked up
+if (mongoose.models.Ticket) {
+  delete mongoose.models.Ticket;
+}
+
+export const Ticket = mongoose.model<ITicket>('Ticket', ticketSchema);

@@ -1,13 +1,230 @@
 'use client';
 
+import { useEffect, useMemo, useState, FormEvent } from 'react';
+import Link from 'next/link';
 import AppLayout from '@/components/AppLayout';
 
-const CONTENT_HTML = "<!-- Main Canvas -->\n<main class=\"flex-1 overflow-y-auto p-md md:p-lg flex flex-col md:flex-row gap-lg container-max mx-auto w-full\">\n<!-- Main Content Area -->\n<div class=\"flex-1 flex flex-col gap-lg min-w-0\">\n<!-- Page Header & Filters -->\n<div class=\"flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md\">\n<div>\n<h2 class=\"font-h1 text-h1 text-on-surface\">Application Catalogue</h2>\n<p class=\"font-body-md text-body-md text-on-surface-variant mt-1\">Browse and manage internal software tools.</p>\n</div>\n<div class=\"flex flex-wrap items-center gap-sm w-full sm:w-auto\">\n<div class=\"relative\">\n<select class=\"appearance-none bg-surface border border-outline-variant rounded-DEFAULT py-2 pl-3 pr-8 font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none\">\n<option>Category: All</option>\n<option>Development</option>\n<option>HR & Ops</option>\n<option>Security</option>\n</select>\n<span class=\"material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline pointer-events-none\" style=\"font-size: 16px;\">expand_more</span>\n</div>\n<div class=\"relative\">\n<select class=\"appearance-none bg-surface border border-outline-variant rounded-DEFAULT py-2 pl-3 pr-8 font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none\">\n<option>Vendor: All</option>\n<option>Internal</option>\n<option>Atlassian</option>\n<option>Microsoft</option>\n</select>\n<span class=\"material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline pointer-events-none\" style=\"font-size: 16px;\">expand_more</span>\n</div>\n<div class=\"relative\">\n<select class=\"appearance-none bg-surface border border-outline-variant rounded-DEFAULT py-2 pl-3 pr-8 font-body-sm text-body-sm text-on-surface focus:ring-2 focus:ring-primary focus:border-primary outline-none\">\n<option>Status: All</option>\n<option>Active</option>\n<option>Degraded</option>\n<option>Down</option>\n</select>\n<span class=\"material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline pointer-events-none\" style=\"font-size: 16px;\">expand_more</span>\n</div>\n<button class=\"p-2 border border-outline-variant rounded-DEFAULT text-on-surface hover:bg-surface-container transition-colors\">\n<span class=\"material-symbols-outlined\" style=\"font-size: 20px;\">filter_list</span>\n</button>\n</div>\n</div>\n<!-- Bento Grid for Applications -->\n<div class=\"grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-md\">\n<!-- App Card 1 (Active) -->\n<div class=\"bg-surface border border-outline-variant rounded-lg p-lg hover:border-primary transition-colors group relative flex flex-col h-full\">\n<div class=\"flex justify-between items-start mb-md\">\n<div class=\"flex items-center gap-md\">\n<img class=\"w-12 h-12 rounded-DEFAULT object-cover border border-outline-variant bg-surface-container-low p-1\" data-alt=\"A minimalist tech logo icon representing a data storage application. Blue and silver tones, clean vector graphic style, rounded corners.\" src=\"https://lh3.googleusercontent.com/aida-public/AB6AXuD0sUHnW87G1SGQB7RSo_OZtTysRfB9RwX6pIymXuvMsJEWmRqVc7J2Zce-q-ygRYxyT3rllTHdEQFBjSYl-md1j6Y0YsaTmo-tEOoVyDS06Llchz_fB0AZ0KAySNfdtka7fWXQAW_f4M2o4BKWQlTYe2KnUnYJ81m5C4cQ3aR7I09IRImHG_ljYZP6esN_3rqXKxTt8zjfFrtK1p-BH7tekIp7eNH0YEI7XvcRK08EcYjDGXwSohv_-2B3FUn0fZV1r3Q7zi42fKCE\"/>\n<div>\n<h3 class=\"font-h3 text-h3 text-on-surface group-hover:text-primary transition-colors\">DataStore Pro</h3>\n<p class=\"font-mono text-mono text-on-surface-variant\">v4.2.1</p>\n</div>\n</div>\n<span class=\"inline-flex items-center gap-1 px-2 py-1 rounded-full bg-surface-container-high text-primary font-label-md text-label-md border border-primary/20\">\n<span class=\"w-2 h-2 rounded-full bg-primary animate-pulse\"></span> Active\n                            </span>\n</div>\n<p class=\"font-body-sm text-body-sm text-on-surface-variant mb-md flex-1\">Primary database management interface for internal operations and analytics querying.</p>\n<div class=\"border-t border-outline-variant pt-md mt-auto flex justify-between items-center\">\n<div class=\"flex gap-md\">\n<div class=\"flex items-center gap-xs text-on-surface-variant\" title=\"Knowledge Base Articles\">\n<span class=\"material-symbols-outlined text-outline\" style=\"font-size: 16px;\">auto_stories</span>\n<span class=\"font-label-md text-label-md\">142</span>\n</div>\n<div class=\"flex items-center gap-xs text-on-surface-variant\" title=\"Open Tickets\">\n<span class=\"material-symbols-outlined text-outline\" style=\"font-size: 16px;\">confirmation_number</span>\n<span class=\"font-label-md text-label-md\">5</span>\n</div>\n</div>\n<div class=\"flex items-center gap-2\">\n<img class=\"w-6 h-6 rounded-full border border-outline-variant object-cover\" data-alt=\"Tiny circular avatar photo of a female software engineer with glasses, looking professional, gray background.\" src=\"https://lh3.googleusercontent.com/aida-public/AB6AXuBQoNajGMJPpJEF9EOz2Rk6hrRQmKZFuu4tbLADCnK7N1Y91xKDv82zIviLg1_QuKPLDShKnptWX0z9T4-evwWBOb9CjKdMRNHL6ZXzDfc7wr0-OGtig_k6R2CW-EYZA5apUAC7KNv3ryKwlKmUEPLz18qsJWPQlI129_hm6xpayGgL379Y47299Vcj8WteRhx0AxXoyFGnrw__F1iOQXEvxg-SqTeFWJXaIsx68qM9cTNfq2kyv8ep1lCvnibSEV_a7QLIFXGCxHJ1\"/>\n<span class=\"font-body-sm text-body-sm text-on-surface-variant\">E. Chen</span>\n</div>\n</div>\n</div>\n<!-- App Card 2 (Degraded) -->\n<div class=\"bg-surface border border-outline-variant rounded-lg p-lg hover:border-primary transition-colors group relative flex flex-col h-full\">\n<div class=\"flex justify-between items-start mb-md\">\n<div class=\"flex items-center gap-md\">\n<div class=\"w-12 h-12 rounded-DEFAULT border border-outline-variant bg-surface-container-low flex items-center justify-center text-primary\">\n<span class=\"material-symbols-outlined\" style=\"font-size: 28px;\">lan</span>\n</div>\n<div>\n<h3 class=\"font-h3 text-h3 text-on-surface group-hover:text-primary transition-colors\">NetRouter</h3>\n<p class=\"font-mono text-mono text-on-surface-variant\">v2.0.4</p>\n</div>\n</div>\n<span class=\"inline-flex items-center gap-1 px-2 py-1 rounded-full bg-error-container text-on-error-container font-label-md text-label-md border border-error/20\">\n<span class=\"w-2 h-2 rounded-full bg-error\"></span> Degraded\n                            </span>\n</div>\n<p class=\"font-body-sm text-body-sm text-on-surface-variant mb-md flex-1\">Internal network routing and VPN configuration management tool. Currently experiencing latency.</p>\n<div class=\"border-t border-outline-variant pt-md mt-auto flex justify-between items-center\">\n<div class=\"flex gap-md\">\n<div class=\"flex items-center gap-xs text-on-surface-variant\" title=\"Knowledge Base Articles\">\n<span class=\"material-symbols-outlined text-outline\" style=\"font-size: 16px;\">auto_stories</span>\n<span class=\"font-label-md text-label-md\">87</span>\n</div>\n<div class=\"flex items-center gap-xs text-on-surface-variant\" title=\"Open Tickets\">\n<span class=\"material-symbols-outlined text-error\" style=\"font-size: 16px;\">confirmation_number</span>\n<span class=\"font-label-md text-label-md text-error\">42</span>\n</div>\n</div>\n<div class=\"flex items-center gap-2\">\n<img class=\"w-6 h-6 rounded-full border border-outline-variant object-cover\" data-alt=\"Tiny circular avatar photo of a male IT professional, slight smile, light blue background.\" src=\"https://lh3.googleusercontent.com/aida-public/AB6AXuD3p4dpdlYVTELRhzcxZeh9m4X-HJfCXaRwyXlFnh0xoez8f8lGYqKYyTYuxTuNWy86sapTLB23TUFWfChVj07TnPkPEiSbeG_CUb1vNYRN5zuAJldvwb-XB3kbYunyQwREEvtzFN8NvS1lrgeHyZC8yEeq4caNaap9D_H8BpBZmMEmoHL5A3aHFpliQ3Lkf4g1SMgFm6DxkUA2UbXQoPOAxvmim5wIjct5CRhh04UuwsJHMobrhu6-r5tSets1GBXWoHarxonkzgtL\"/>\n<span class=\"font-body-sm text-body-sm text-on-surface-variant\">M. Ross</span>\n</div>\n</div>\n</div>\n<!-- App Card 3 (Active) -->\n<div class=\"bg-surface border border-outline-variant rounded-lg p-lg hover:border-primary transition-colors group relative flex flex-col h-full\">\n<div class=\"flex justify-between items-start mb-md\">\n<div class=\"flex items-center gap-md\">\n<div class=\"w-12 h-12 rounded-DEFAULT border border-outline-variant bg-surface-container-low flex items-center justify-center text-primary\">\n<span class=\"material-symbols-outlined\" style=\"font-size: 28px;\">badge</span>\n</div>\n<div>\n<h3 class=\"font-h3 text-h3 text-on-surface group-hover:text-primary transition-colors\">IdentityAccess</h3>\n<p class=\"font-mono text-mono text-on-surface-variant\">v1.9.0</p>\n</div>\n</div>\n<span class=\"inline-flex items-center gap-1 px-2 py-1 rounded-full bg-surface-container-high text-primary font-label-md text-label-md border border-primary/20\">\n<span class=\"w-2 h-2 rounded-full bg-primary animate-pulse\"></span> Active\n                            </span>\n</div>\n<p class=\"font-body-sm text-body-sm text-on-surface-variant mb-md flex-1\">SSO and IAM provisioning dashboard for employee onboarding and role management.</p>\n<div class=\"border-t border-outline-variant pt-md mt-auto flex justify-between items-center\">\n<div class=\"flex gap-md\">\n<div class=\"flex items-center gap-xs text-on-surface-variant\" title=\"Knowledge Base Articles\">\n<span class=\"material-symbols-outlined text-outline\" style=\"font-size: 16px;\">auto_stories</span>\n<span class=\"font-label-md text-label-md\">312</span>\n</div>\n<div class=\"flex items-center gap-xs text-on-surface-variant\" title=\"Open Tickets\">\n<span class=\"material-symbols-outlined text-outline\" style=\"font-size: 16px;\">confirmation_number</span>\n<span class=\"font-label-md text-label-md\">12</span>\n</div>\n</div>\n<div class=\"flex items-center gap-2\">\n<span class=\"w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-md text-[10px]\">HR</span>\n<span class=\"font-body-sm text-body-sm text-on-surface-variant\">HR Ops</span>\n</div>\n</div>\n</div>\n<!-- App Card 4 (Down) -->\n<div class=\"bg-surface border border-outline-variant rounded-lg p-lg hover:border-primary transition-colors group relative flex flex-col h-full opacity-75 grayscale hover:grayscale-0 transition-all duration-300\">\n<div class=\"flex justify-between items-start mb-md\">\n<div class=\"flex items-center gap-md\">\n<div class=\"w-12 h-12 rounded-DEFAULT border border-outline-variant bg-surface-container-low flex items-center justify-center text-outline\">\n<span class=\"material-symbols-outlined\" style=\"font-size: 28px;\">receipt_long</span>\n</div>\n<div>\n<h3 class=\"font-h3 text-h3 text-on-surface group-hover:text-primary transition-colors\">LegacyBilling</h3>\n<p class=\"font-mono text-mono text-on-surface-variant\">v0.8.2</p>\n</div>\n</div>\n<span class=\"inline-flex items-center gap-1 px-2 py-1 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md border border-outline-variant\">\n<span class=\"w-2 h-2 rounded-full bg-outline\"></span> Down\n                            </span>\n</div>\n<p class=\"font-body-sm text-body-sm text-on-surface-variant mb-md flex-1\">Deprecated invoicing system. Scheduled for complete decommissioning in Q3.</p>\n<div class=\"border-t border-outline-variant pt-md mt-auto flex justify-between items-center\">\n<div class=\"flex gap-md\">\n<div class=\"flex items-center gap-xs text-on-surface-variant\" title=\"Knowledge Base Articles\">\n<span class=\"material-symbols-outlined text-outline\" style=\"font-size: 16px;\">auto_stories</span>\n<span class=\"font-label-md text-label-md\">24</span>\n</div>\n<div class=\"flex items-center gap-xs text-on-surface-variant\" title=\"Open Tickets\">\n<span class=\"material-symbols-outlined text-outline\" style=\"font-size: 16px;\">confirmation_number</span>\n<span class=\"font-label-md text-label-md\">0</span>\n</div>\n</div>\n<div class=\"flex items-center gap-2\">\n<span class=\"w-6 h-6 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-label-md text-[10px]\">FIN</span>\n<span class=\"font-body-sm text-body-sm text-on-surface-variant\">Finance</span>\n</div>\n</div>\n</div>\n</div>\n</div>\n<!-- Right Sidebar (Contextual) -->\n<aside class=\"w-full md:w-64 flex-shrink-0 flex flex-col gap-lg border-l-0 md:border-l border-outline-variant pl-0 md:pl-lg\">\n<!-- Pinned Applications -->\n<div class=\"bg-surface border border-outline-variant rounded-lg p-md\">\n<h3 class=\"font-h3 text-h3 text-on-surface mb-md flex items-center gap-2\">\n<span class=\"material-symbols-outlined text-primary\" style=\"font-size: 20px;\">push_pin</span> Pinned\n                    </h3>\n<ul class=\"space-y-2\">\n<li>\n<a class=\"flex items-center gap-3 p-2 rounded-DEFAULT hover:bg-surface-container-low transition-colors group\" href=\"#\">\n<div class=\"w-8 h-8 rounded border border-outline-variant bg-surface flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors\">\n<span class=\"material-symbols-outlined\" style=\"font-size: 16px;\">chat</span>\n</div>\n<div class=\"min-w-0\">\n<p class=\"font-label-md text-label-md text-on-surface truncate\">CommHub</p>\n<p class=\"font-body-sm text-body-sm text-on-surface-variant truncate\">Active</p>\n</div>\n</a>\n</li>\n<li>\n<a class=\"flex items-center gap-3 p-2 rounded-DEFAULT hover:bg-surface-container-low transition-colors group\" href=\"#\">\n<div class=\"w-8 h-8 rounded border border-outline-variant bg-surface flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors\">\n<span class=\"material-symbols-outlined\" style=\"font-size: 16px;\">cloud</span>\n</div>\n<div class=\"min-w-0\">\n<p class=\"font-label-md text-label-md text-on-surface truncate\">CloudDeploy</p>\n<p class=\"font-body-sm text-body-sm text-on-surface-variant truncate\">Active</p>\n</div>\n</a>\n</li>\n</ul>\n</div>\n<!-- Recently Viewed -->\n<div class=\"bg-surface border border-outline-variant rounded-lg p-md\">\n<h3 class=\"font-h3 text-h3 text-on-surface mb-md flex items-center gap-2\">\n<span class=\"material-symbols-outlined text-outline\" style=\"font-size: 20px;\">history</span> Recent\n                    </h3>\n<ul class=\"space-y-2\">\n<li>\n<a class=\"flex items-center gap-3 p-2 rounded-DEFAULT hover:bg-surface-container-low transition-colors\" href=\"#\">\n<div class=\"min-w-0 flex-1\">\n<p class=\"font-label-md text-label-md text-on-surface truncate\">HR Portal v2</p>\n<p class=\"font-body-sm text-body-sm text-on-surface-variant truncate\">Viewed 2h ago</p>\n</div>\n<span class=\"material-symbols-outlined text-outline\" style=\"font-size: 16px;\">chevron_right</span>\n</a>\n</li>\n<li>\n<a class=\"flex items-center gap-3 p-2 rounded-DEFAULT hover:bg-surface-container-low transition-colors\" href=\"#\">\n<div class=\"min-w-0 flex-1\">\n<p class=\"font-label-md text-label-md text-on-surface truncate\">LegacyBilling</p>\n<p class=\"font-body-sm text-body-sm text-on-surface-variant truncate\">Viewed 1d ago</p>\n</div>\n<span class=\"material-symbols-outlined text-outline\" style=\"font-size: 16px;\">chevron_right</span>\n</a>\n</li>\n<li>\n<a class=\"flex items-center gap-3 p-2 rounded-DEFAULT hover:bg-surface-container-low transition-colors\" href=\"#\">\n<div class=\"min-w-0 flex-1\">\n<p class=\"font-label-md text-label-md text-on-surface truncate\">IdentityAccess</p>\n<p class=\"font-body-sm text-body-sm text-on-surface-variant truncate\">Viewed 2d ago</p>\n</div>\n<span class=\"material-symbols-outlined text-outline\" style=\"font-size: 16px;\">chevron_right</span>\n</a>\n</li>\n</ul>\n</div>\n</aside>";
+interface AppItem {
+  _id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  color: string;
+  articleCount: number;
+  ticketCount: number;
+}
+
+const EMPTY_FORM = { name: '', description: '', icon: 'apps', color: '#0ea5e9' };
 
 export default function ApplicationsListPage() {
+  const [applications, setApplications] = useState<AppItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
+
+  const fetchApplications = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/applications');
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || 'Failed to load applications');
+      }
+      setApplications(json.data.applications || []);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load applications');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchApplications();
+  }, []);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return applications;
+    const term = search.toLowerCase();
+    return applications.filter(
+      (app) =>
+        app.name.toLowerCase().includes(term) ||
+        (app.description || '').toLowerCase().includes(term)
+    );
+  }, [applications, search]);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || 'Failed to create application');
+      }
+      setForm(EMPTY_FORM);
+      setShowForm(false);
+      fetchApplications();
+    } catch (err: any) {
+      setError(err.message || 'Failed to create application');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <AppLayout>
-      <div dangerouslySetInnerHTML={{ __html: CONTENT_HTML }} />
+      <div className="p-lg md:p-xl max-w-container-max mx-auto w-full flex flex-col gap-lg">
+        {/* Header */}
+        <section className="flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
+          <div className="space-y-xs">
+            <h2 className="font-h1 text-h1 text-on-surface dark:text-on-secondary">
+              Application Catalogue
+            </h2>
+            <p className="font-body-md text-body-md text-on-surface-variant dark:text-outline">
+              Applications we provide support for.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowForm((s) => !s)}
+            className="bg-primary text-on-primary px-lg py-md rounded-lg font-label-md text-label-md shadow hover:bg-primary-fixed-variant transition-colors flex items-center gap-sm"
+          >
+            <span className="material-symbols-outlined text-[18px]">
+              {showForm ? 'close' : 'add'}
+            </span>
+            {showForm ? 'Cancel' : 'Add Application'}
+          </button>
+        </section>
+
+        {error && (
+          <div className="bg-error-container text-on-error-container px-md py-sm rounded-lg text-body-sm">
+            {error}
+          </div>
+        )}
+
+        {showForm && (
+          <form
+            onSubmit={handleSubmit}
+            className="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-lg grid grid-cols-1 md:grid-cols-4 gap-md"
+          >
+            <input
+              required
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="Application name"
+              className="input md:col-span-2"
+            />
+            <input
+              value={form.icon}
+              onChange={(e) => setForm({ ...form, icon: e.target.value })}
+              placeholder="Material icon name (e.g. calculate)"
+              className="input"
+            />
+            <input
+              type="color"
+              value={form.color}
+              onChange={(e) => setForm({ ...form, color: e.target.value })}
+              className="h-[42px] w-full rounded-lg border border-outline-variant/40 cursor-pointer"
+            />
+            <textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              placeholder="Short description"
+              rows={2}
+              className="input md:col-span-4"
+            />
+            <div className="md:col-span-4 flex justify-end">
+              <button
+                type="submit"
+                disabled={submitting}
+                className="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md shadow hover:bg-primary-fixed-variant transition-colors disabled:opacity-60"
+              >
+                {submitting ? 'Saving...' : 'Save Application'}
+              </button>
+            </div>
+          </form>
+        )}
+
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search applications..."
+          className="input max-w-sm"
+        />
+
+        {/* Grid */}
+        {loading ? (
+          <p className="text-body-sm text-on-surface-variant">Loading applications...</p>
+        ) : filtered.length === 0 ? (
+          <p className="text-body-sm text-on-surface-variant">No applications found.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-md">
+            {filtered.map((app) => (
+              <Link
+                key={app._id}
+                href={`/applications/${app._id}`}
+                className="bg-surface dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-lg flex flex-col gap-md hover:border-primary transition-all group"
+              >
+                <div className="flex items-center gap-md">
+                  <div
+                    className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: `${app.color}20` }}
+                  >
+                    <span
+                      className="material-symbols-outlined text-[22px]"
+                      style={{ color: app.color }}
+                    >
+                      {app.icon || 'apps'}
+                    </span>
+                  </div>
+                  <h3 className="font-body-lg text-body-lg text-on-surface dark:text-on-secondary group-hover:text-primary transition-colors">
+                    {app.name}
+                  </h3>
+                </div>
+                {app.description && (
+                  <p className="font-body-sm text-body-sm text-on-surface-variant dark:text-outline line-clamp-2">
+                    {app.description}
+                  </p>
+                )}
+                <div className="flex items-center gap-lg mt-auto pt-sm border-t border-outline-variant/20 text-[12px] text-on-surface-variant">
+                  <span className="flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[16px]">menu_book</span>
+                    {app.articleCount} article{app.articleCount === 1 ? '' : 's'}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[16px]">confirmation_number</span>
+                    {app.ticketCount} ticket{app.ticketCount === 1 ? '' : 's'}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <style jsx global>{`
+        .input {
+          height: 42px;
+          padding: 0 12px;
+          border-radius: 8px;
+          background: var(--surface, #fff);
+          border: 1px solid rgba(0, 0, 0, 0.12);
+          font-size: 14px;
+          width: 100%;
+        }
+        textarea.input {
+          height: auto;
+          padding-top: 10px;
+        }
+      `}</style>
     </AppLayout>
   );
 }

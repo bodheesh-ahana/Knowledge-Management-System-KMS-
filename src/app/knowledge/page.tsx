@@ -13,9 +13,20 @@ interface Article {
   symptoms: string;
   status: 'Draft' | 'UnderReview' | 'Approved' | 'Published' | 'Archived';
   tags: string[];
+  ticketId?: string;
   views: number;
   owner?: { name?: string; email?: string };
+  createdAt?: string;
   updatedAt: string;
+}
+
+interface TrackerHit {
+  _id: string;
+  ticketId: string;
+  application?: string;
+  workDescription: string;
+  date: string;
+  teamMembers: string[];
 }
 
 const STATUS_OPTIONS = ['All', 'Draft', 'UnderReview', 'Approved', 'Published', 'Archived'];
@@ -29,6 +40,7 @@ export default function KnowledgeBaseListPage() {
   const [search, setSearch] = useState('');
   const [application, setApplication] = useState('');
   const [status, setStatus] = useState('All');
+  const [relatedTracker, setRelatedTracker] = useState<TrackerHit[]>([]);
 
   const fetchArticles = useCallback(async () => {
     setLoading(true);
@@ -47,6 +59,7 @@ export default function KnowledgeBaseListPage() {
       }
       setArticles(json.data.articles || []);
       setTotal(json.data.pagination?.total || 0);
+      setRelatedTracker(json.data.relatedTracker || []);
     } catch (err: any) {
       setError(err.message || 'Failed to load knowledge articles');
     } finally {
@@ -112,6 +125,48 @@ export default function KnowledgeBaseListPage() {
 
         <p className="text-body-sm text-on-surface-variant">{total} article(s) found</p>
 
+        {/* Related ticket history from Tracker (not yet a formal KB article) */}
+        {search && relatedTracker.length > 0 && (
+          <div className="space-y-sm">
+            <h3 className="font-h3 text-h3 text-on-surface">
+              Related Ticket History (from Tracker)
+            </h3>
+            <div className="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-x-auto">
+              <table className="w-full text-body-sm">
+                <thead className="bg-surface-container-high/50">
+                  <tr className="text-left text-on-surface-variant uppercase text-[11px] tracking-wider">
+                    <th className="px-4 py-2">Ticket ID</th>
+                    <th className="px-4 py-2">Application</th>
+                    <th className="px-4 py-2">Work Done</th>
+                    <th className="px-4 py-2">Date</th>
+                    <th className="px-4 py-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {relatedTracker.map((t) => (
+                    <tr key={t._id} className="border-t border-outline-variant/20">
+                      <td className="px-4 py-2 font-mono text-primary">{t.ticketId}</td>
+                      <td className="px-4 py-2">{t.application || '-'}</td>
+                      <td className="px-4 py-2 max-w-sm truncate" title={t.workDescription}>
+                        {t.workDescription}
+                      </td>
+                      <td className="px-4 py-2">{new Date(t.date).toLocaleDateString()}</td>
+                      <td className="px-4 py-2">
+                        <Link
+                          href={`/knowledge/create?ticketId=${encodeURIComponent(t.ticketId || '')}&application=${encodeURIComponent(t.application || '')}&symptoms=${encodeURIComponent(t.workDescription || '')}`}
+                          className="text-primary text-[12px] font-medium whitespace-nowrap"
+                        >
+                          Create KB Article
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {/* Results */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-md">
           {loading && (
@@ -134,10 +189,20 @@ export default function KnowledgeBaseListPage() {
                 </span>
                 <StatusBadge status={article.status} />
               </div>
+              {article.ticketId && (
+                <span className="text-[11px] font-mono text-on-surface-variant">
+                  Ticket #{article.ticketId}
+                </span>
+              )}
               <h3 className="font-h3 text-h3 text-on-surface line-clamp-2">{article.title}</h3>
               <p className="text-body-sm text-on-surface-variant line-clamp-2">{article.symptoms}</p>
               <div className="flex items-center justify-between mt-auto pt-sm text-[11px] text-on-surface-variant border-t border-outline-variant/20">
-                <span>{article.owner?.name || 'Unknown'}</span>
+                <div className="flex flex-col">
+                  <span>{article.owner?.name || 'Unknown'}</span>
+                  <span className="text-[10px]">
+                    {article.createdAt ? new Date(article.createdAt).toLocaleString() : new Date(article.updatedAt).toLocaleString()}
+                  </span>
+                </div>
                 <span className="flex items-center gap-1">
                   <span className="material-symbols-outlined text-[14px]">visibility</span>
                   {article.views ?? 0}

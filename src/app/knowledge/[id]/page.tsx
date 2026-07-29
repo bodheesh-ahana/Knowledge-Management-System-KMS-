@@ -23,6 +23,7 @@ interface Article {
   troubleshootingSteps: Step[];
   status: 'Draft' | 'UnderReview' | 'Approved' | 'Published' | 'Archived';
   tags: string[];
+  ticketId?: string;
   views: number;
   owner?: { name?: string; email?: string; _id?: string };
   updatedAt: string;
@@ -143,6 +144,12 @@ export default function KnowledgeArticleDetailsPage() {
                 <span className="material-symbols-outlined text-[16px]">visibility</span>
                 {article.views ?? 0} views
               </span>
+              {article.ticketId && (
+                <span className="flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[16px]">confirmation_number</span>
+                  Ticket #{article.ticketId}
+                </span>
+              )}
               <StatusBadge status={article.status} />
             </div>
           </div>

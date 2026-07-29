@@ -2,18 +2,30 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+
+const LEAD_ROLES = new Set(['TeamLead', 'Manager', 'Admin']);
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const userRole = (session?.user as any)?.role as string | undefined;
+  const isLead = userRole ? LEAD_ROLES.has(userRole) : false;
 
   const menuItems = [
     { icon: 'dashboard', label: 'Dashboard', href: '/dashboard' },
     { icon: 'auto_stories', label: 'Knowledge Base', href: '/knowledge' },
-    { icon: 'confirmation_number', label: 'Tickets', href: '/tickets' },
+    // { icon: 'confirmation_number', label: 'Tickets', href: '/tickets' },
     { icon: 'apps', label: 'Applications', href: '/applications' },
     { icon: 'track_changes', label: 'Tracker', href: '/tracker' },
     { icon: 'analytics', label: 'Analytics', href: '/analytics' },
     { icon: 'description', label: 'Documents', href: '/documents' },
+    { icon: 'group', label: 'Team', href: '/users' },
+    { icon: 'notifications', label: 'Notifications', href: '/notifications' },
+    { icon: 'military_tech', label: 'Ranking', href: '/ranking' },
+    ...(isLead
+      ? [{ icon: 'admin_panel_settings', label: 'Team Access', href: '/team-access' }]
+      : []),
   ];
 
   const pinnedItems = [
@@ -22,11 +34,7 @@ export default function Sidebar() {
     { icon: 'drafts', label: 'Drafts', href: '/knowledge?filter=drafts' },
   ];
 
-  const bottomItems = [
-    { icon: 'notifications', label: 'Notifications', href: '/notifications' },
-    { icon: 'group', label: 'Users', href: '/users' },
-    { icon: 'settings', label: 'Settings', href: '/settings' },
-  ];
+  const bottomItems: { icon: string; label: string; href: string }[] = [];
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 

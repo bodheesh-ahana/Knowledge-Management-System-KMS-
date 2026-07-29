@@ -19,19 +19,55 @@ export async function GET(
       return errorResponse('Application not found', 404);
     }
 
-    const [articles, tickets] = await Promise.all([
-      KnowledgeArticle.find({ application: (application as any).name })
+    const appName = (application as any).name;
+
+    const [
+      articles,
+      tickets,
+      totalArticles,
+      totalTickets,
+      openTickets,
+      inProgressTickets,
+      resolvedTickets,
+      closedTickets,
+      publishedArticles,
+      draftArticles,
+    ] = await Promise.all([
+      KnowledgeArticle.find({ application: appName })
         .sort({ createdAt: -1 })
         .limit(10)
+        .select('title status views createdAt')
         .lean(),
-      Ticket.find({ application: (application as any).name })
+      Ticket.find({ application: appName })
         .sort({ createdAt: -1 })
         .limit(10)
         .populate('assignee', 'name email')
         .lean(),
+      KnowledgeArticle.countDocuments({ application: appName }),
+      Ticket.countDocuments({ application: appName }),
+      Ticket.countDocuments({ application: appName, status: 'Open' }),
+      Ticket.countDocuments({ application: appName, status: 'In Progress' }),
+      Ticket.countDocuments({ application: appName, status: 'Resolved' }),
+      Ticket.countDocuments({ application: appName, status: 'Closed' }),
+      KnowledgeArticle.countDocuments({ application: appName, status: 'Published' }),
+      KnowledgeArticle.countDocuments({ application: appName, status: 'Draft' }),
     ]);
 
-    return successResponse({ ...(application as any), articles, tickets });
+    return successResponse({
+      ...(application as any),
+      articles,
+      tickets,
+      stats: {
+        totalArticles,
+        totalTickets,
+        openTickets,
+        inProgressTickets,
+        resolvedTickets,
+        closedTickets,
+        publishedArticles,
+        draftArticles,
+      },
+    });
   } catch (error) {
     console.error('Error fetching application:', error);
     return errorResponse('Failed to fetch application', 500);

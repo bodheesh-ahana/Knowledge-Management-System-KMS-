@@ -1,10 +1,11 @@
 import { NextRequest } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
-import { KnowledgeArticle, Activity } from '@/models';
+import { KnowledgeArticle, Activity, TrackerEntry } from '@/models';
 import { createArticleSchema } from '@/lib/validation';
 import { getAuthenticatedUser } from '@/lib/auth';
 import { errorResponse, successResponse } from '@/lib/errors';
 import { ZodError } from 'zod';
+import { notifyAll } from '@/lib/notifications';
 
 export async function GET(req: NextRequest) {
   try {
@@ -43,6 +44,7 @@ export async function GET(req: NextRequest) {
         { resolution: regex },
         { application: regex },
         { tags: regex },
+        { ticketId: regex },
       ];
     }
 
@@ -56,8 +58,28 @@ export async function GET(req: NextRequest) {
       KnowledgeArticle.countDocuments(filter),
     ]);
 
+    // Also surface matching Tracker entries so past ticket work is
+    // discoverable from Knowledge Base search even before a formal
+    // article has been written for it.
+    let relatedTracker: any[] = [];
+    if (search) {
+      const regex = new RegExp(search, 'i');
+      relatedTracker = await TrackerEntry.find({
+        $or: [
+          { ticketId: regex },
+          { workDescription: regex },
+          { application: regex },
+          { teamMembers: regex },
+        ],
+      })
+        .sort({ date: -1 })
+        .limit(10)
+        .lean();
+    }
+
     return successResponse({
       articles,
+      relatedTracker,
       pagination: {
         page,
         limit,
@@ -95,6 +117,13 @@ export async function POST(req: NextRequest) {
       resourceType: 'article',
       resourceId: article._id,
       details: { title: article.title },
+    });
+
+    await notifyAll({
+      type: article.status === 'Published' ? 'ArticleCreated' : 'ArticleReviewNeeded',
+      title: article.status === 'Published' ? 'New article published' : 'Article review needed',
+      message: `${article.title}${article.application ? ` · ${article.application}` : ''}`,
+      resourceId: article._id,
     });
 
     return successResponse(article, 201);

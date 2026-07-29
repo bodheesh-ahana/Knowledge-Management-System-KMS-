@@ -5,6 +5,7 @@ import { getAuthenticatedUser } from '@/lib/auth';
 import { createApplicationSchema } from '@/lib/validation';
 import { errorResponse, successResponse } from '@/lib/errors';
 import { ZodError } from 'zod';
+import { notifyAll } from '@/lib/notifications';
 
 export async function GET(_req: NextRequest) {
   try {
@@ -44,6 +45,13 @@ export async function POST(req: NextRequest) {
 
     const application = new Application(validatedData);
     await application.save();
+
+    await notifyAll({
+      type: 'System',
+      title: 'New application added',
+      message: `${application.name} is now supported`,
+      resourceId: application._id,
+    });
 
     return successResponse(application, 201);
   } catch (error) {

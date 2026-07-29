@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     if (role) query.role = role;
     if (status) query.active = status === 'active';
 
-    const users = await User.find(query).sort({ createdAt: -1 }).lean();
+    const users = await User.find(query).select('-password').sort({ createdAt: -1 }).lean();
 
     return successResponse({ users });
   } catch (error) {
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const currentUser = await getAuthenticatedUser();
-    if (!['Admin', 'Manager'].includes(currentUser.role)) {
+    if (!['TeamLead', 'Admin', 'Manager'].includes(currentUser.role)) {
       return errorResponse('Permission denied', 403);
     }
 

@@ -5,6 +5,7 @@ import { getAuthenticatedUser } from '@/lib/auth';
 import { createTicketSchema } from '@/lib/validation';
 import { errorResponse, successResponse } from '@/lib/errors';
 import { ZodError } from 'zod';
+import { notifyAll } from '@/lib/notifications';
 
 export async function GET(req: NextRequest) {
   try {
@@ -72,6 +73,13 @@ export async function POST(req: NextRequest) {
         resourceId: ticket._id,
       });
     }
+
+    await notifyAll({
+      type: 'TicketCreated',
+      title: 'New ticket created',
+      message: `${ticket.ticketNumber}: ${ticket.title}`,
+      resourceId: ticket._id,
+    });
 
     return successResponse(ticket, 201);
   } catch (error) {

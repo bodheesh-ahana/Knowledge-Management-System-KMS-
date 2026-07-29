@@ -1,7 +1,7 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { FormEvent, Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import AppLayout from '@/components/AppLayout';
 import { Button } from '@/components';
 
@@ -10,10 +10,12 @@ interface Step {
   description: string;
 }
 
-export default function CreateKnowledgeArticlePage() {
+function CreateKnowledgeArticleForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [title, setTitle] = useState('');
   const [application, setApplication] = useState('');
+  const [ticketId, setTicketId] = useState('');
   const [description, setDescription] = useState('');
   const [symptoms, setSymptoms] = useState('');
   const [rootCause, setRootCause] = useState('');
@@ -23,6 +25,28 @@ export default function CreateKnowledgeArticlePage() {
   const [steps, setSteps] = useState<Step[]>([{ order: 1, description: '' }]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fromTracker, setFromTracker] = useState(false);
+
+  // Pre-fill from a Tracker entry when the user clicks "Create KB Article".
+  // All fields remain optional/editable so the user can adjust before saving.
+  useEffect(() => {
+    const qTicketId = searchParams.get('ticketId');
+    const qApplication = searchParams.get('application');
+    const qSymptoms = searchParams.get('symptoms');
+    const qTitle = searchParams.get('title');
+
+    if (qTicketId || qApplication || qSymptoms) {
+      setFromTracker(true);
+      if (qTicketId) setTicketId(qTicketId);
+      if (qApplication) setApplication(qApplication);
+      if (qSymptoms) setSymptoms(qSymptoms);
+      if (qTitle) {
+        setTitle(qTitle);
+      } else if (qApplication && qTicketId) {
+        setTitle(`Ticket #${qTicketId} - ${qApplication} issue`);
+      }
+    }
+  }, [searchParams]);
 
   const addStep = () => setSteps((s) => [...s, { order: s.length + 1, description: '' }]);
   const removeStep = (idx: number) =>
@@ -38,6 +62,7 @@ export default function CreateKnowledgeArticlePage() {
         title: title.trim(),
         description: description.trim() || undefined,
         application: application.trim(),
+        ticketId: ticketId.trim() || undefined,
         symptoms: symptoms.trim(),
         rootCause: rootCause.trim(),
         resolution: resolution.trim(),
@@ -81,6 +106,11 @@ export default function CreateKnowledgeArticlePage() {
           <p className="font-body-md text-body-md text-on-surface-variant mt-1">
             Document the issue so anyone can search and resolve it next time.
           </p>
+          {fromTracker && (
+            <p className="mt-2 text-body-sm text-primary bg-secondary-container/40 inline-block px-2 py-1 rounded">
+              Pre-filled from Tracker entry &mdash; review and complete before publishing.
+            </p>
+          )}
         </div>
 
         {error && (
@@ -101,13 +131,21 @@ export default function CreateKnowledgeArticlePage() {
             />
           </Field>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
             <Field label="Application *">
               <input
                 required
                 value={application}
                 onChange={(e) => setApplication(e.target.value)}
                 placeholder="e.g. Drake, QuickBooks, CCH"
+                className="input"
+              />
+            </Field>
+            <Field label="Related Ticket ID (optional)">
+              <input
+                value={ticketId}
+                onChange={(e) => setTicketId(e.target.value)}
+                placeholder="e.g. 208137 (ManageEngine)"
                 className="input"
               />
             </Field>
@@ -239,6 +277,14 @@ export default function CreateKnowledgeArticlePage() {
         }
       `}</style>
     </AppLayout>
+  );
+}
+
+export default function CreateKnowledgeArticlePage() {
+  return (
+    <Suspense fallback={null}>
+      <CreateKnowledgeArticleForm />
+    </Suspense>
   );
 }
 

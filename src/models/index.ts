@@ -1,5 +1,6 @@
 // Export all models
 export { User } from './User';
+export { TeamMember } from './TeamMember';
 export { KnowledgeArticle } from './KnowledgeArticle';
 export { Ticket } from './Ticket';
 export { Activity } from './Activity';
