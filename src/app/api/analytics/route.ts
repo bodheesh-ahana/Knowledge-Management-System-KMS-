@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
-import { TrackerEntry, Ticket, KnowledgeArticle } from '@/models';
+import { TrackerEntry, Ticket, KnowledgeArticle, SlaBreach, TicketLog } from '@/models';
 import { getAuthenticatedUser } from '@/lib/auth';
 import { errorResponse, successResponse } from '@/lib/errors';
 
@@ -21,14 +21,19 @@ function fillDailyTrend(rows: { _id: string; hours: number }[], days = 7) {
   return trend;
 }
 
-function fillMonthlyTrend(rows: { _id: string; count: number }[], months = 6) {
+function fillMonthlyTrend(rows: { _id: string; count: number }[], startDate: Date) {
   const map = new Map(rows.map((r) => [r._id, r.count]));
   const trend = [];
-  for (let i = months - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setMonth(d.getMonth() - i);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const now = new Date();
+  const start = new Date(startDate);
+
+  let current = new Date(start);
+  current.setDate(1); // Set to first of month
+
+  while (current <= now) {
+    const key = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
     trend.push({ month: key, count: map.get(key) || 0 });
+    current.setMonth(current.getMonth() + 1);
   }
   return trend;
 }
@@ -45,6 +50,7 @@ export async function GET(_req: NextRequest) {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const sixMonthsAgo = new Date(now);
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    const april2026 = new Date('2026-04-01');
 
     const [
       totalTickets,
@@ -53,7 +59,6 @@ export async function GET(_req: NextRequest) {
       openTickets,
       resolvedTickets,
       inProgressTickets,
-      slaBreaches,
       escalations,
       totalHoursAgg,
       ticketsByApplication,
@@ -62,18 +67,20 @@ export async function GET(_req: NextRequest) {
       monthlyTicketsAgg,
       statusCounts,
       trackerEntries,
+      slaBreachList,
+      slaBreachMonthlyAgg,
     ] = await Promise.all([
-      Ticket.countDocuments(),
+      TicketLog.countDocuments({ createdTime: { $gte: april2026 } }),
       KnowledgeArticle.countDocuments(),
       TrackerEntry.countDocuments(),
-      Ticket.countDocuments({ status: 'Open' }),
-      Ticket.countDocuments({ status: 'Resolved' }),
-      Ticket.countDocuments({ status: 'In Progress' }),
-      TrackerEntry.countDocuments({ slaBreach: 'Yes' }),
+      TicketLog.countDocuments({ status: 'Open', createdTime: { $gte: april2026 } }),
+      TicketLog.countDocuments({ status: 'Resolved', createdTime: { $gte: april2026 } }),
+      TicketLog.countDocuments({ status: 'In Progress', createdTime: { $gte: april2026 } }),
       TrackerEntry.countDocuments({ escalationStatus: 'Yes' }),
       TrackerEntry.aggregate([{ $group: { _id: null, total: { $sum: '$hoursWorked' } } }]),
-      Ticket.aggregate([
-        { $group: { _id: { $ifNull: ['$application', 'Unspecified'] }, count: { $sum: 1 } } },
+      TicketLog.aggregate([
+        { $match: { createdTime: { $gte: april2026 } } },
+        { $group: { _id: { $ifNull: ['$requestType', 'Unspecified'] }, count: { $sum: 1 } } },
         { $sort: { count: -1 } },
       ]),
       TrackerEntry.aggregate([
@@ -85,14 +92,29 @@ export async function GET(_req: NextRequest) {
         { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } }, hours: { $sum: '$hoursWorked' } } },
         { $sort: { _id: 1 } },
       ]),
-      Ticket.aggregate([
-        { $match: { createdAt: { $gte: sixMonthsAgo } } },
-        { $group: { _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } }, count: { $sum: 1 } } },
+      TicketLog.aggregate([
+        { $match: { createdTime: { $gte: april2026 } } },
+        { $group: { _id: { $dateToString: { format: '%Y-%m', date: '$createdTime' } }, count: { $sum: 1 } } },
         { $sort: { _id: 1 } },
       ]),
-      Ticket.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
+      TicketLog.aggregate([
+        { $match: { createdTime: { $gte: april2026 } } },
+        { $group: { _id: '$status', count: { $sum: 1 } } },
+      ]),
       TrackerEntry.find().sort({ date: -1 }).limit(500).lean(),
+      SlaBreach.find().sort({ createdDate: -1 }).lean(),
+      SlaBreach.aggregate([
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m', date: '$createdDate' } },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+      ]),
     ]);
+
+    const slaBreaches = slaBreachList.length;
 
     // Engineer efficiency from tracker entries.
     const engineerMap = new Map<
@@ -149,9 +171,11 @@ export async function GET(_req: NextRequest) {
       ticketsByApplication,
       hoursByApplication,
       dailyHoursTrend: fillDailyTrend(dailyHoursAgg as any[]),
-      monthlyTicketsTrend: fillMonthlyTrend(monthlyTicketsAgg as any[]),
+      monthlyTicketsTrend: fillMonthlyTrend(monthlyTicketsAgg as any[], april2026),
       statusCounts,
       engineerEfficiency,
+      slaBreachList,
+      slaBreachMonthlyTrend: slaBreachMonthlyAgg,
     });
   } catch (error: any) {
     console.error('Error fetching analytics:', error);

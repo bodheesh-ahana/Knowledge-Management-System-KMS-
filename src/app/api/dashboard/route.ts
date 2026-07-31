@@ -6,6 +6,8 @@ import {
   Application,
   TrackerEntry,
   Activity,
+  SlaBreach,
+  TicketLog,
 } from '@/models';
 import { getAuthenticatedUser } from '@/lib/auth';
 import { errorResponse, successResponse } from '@/lib/errors';
@@ -58,17 +60,25 @@ export async function GET(_req: NextRequest) {
 
     const now = new Date();
     const months = last6Months();
+    const april2026 = new Date('2026-04-01');
 
     const [
       openTickets,
+      totalTicketsSinceApril,
       totalArticles,
       pendingReviews,
       appsSupported,
       kbReuse,
       totalTracker,
       resolvedAvg,
+      slaBreaches,
+      slaBreachesSinceApril,
+      slaBreachesOurTeam,
+      totalHoursAgg,
+      trackerEntries,
     ] = await Promise.all([
       Ticket.countDocuments({ status: 'Open' }),
+      TicketLog.countDocuments({ createdTime: { $gte: april2026 } }),
       KnowledgeArticle.countDocuments({}),
       KnowledgeArticle.countDocuments({ status: 'UnderReview' }),
       Application.countDocuments({}),
@@ -90,10 +100,62 @@ export async function GET(_req: NextRequest) {
         },
         { $group: { _id: null, avg: { $avg: '$hours' } } },
       ]),
+      SlaBreach.countDocuments({}),
+      SlaBreach.countDocuments({
+        createdDate: { $gte: new Date('2026-04-01') },
+      }),
+      SlaBreach.countDocuments({
+        createdDate: { $gte: new Date('2026-04-01') },
+        requestId: '213770',
+      }),
+      TrackerEntry.aggregate([{ $group: { _id: null, total: { $sum: '$hoursWorked' } } }]),
+      TrackerEntry.find().sort({ date: -1 }).limit(500).lean(),
     ]);
 
     const avgResTime = resolvedAvg[0]?.avg ?? 0;
     const kbReuseRate = totalTracker ? Math.round((kbReuse / totalTracker) * 100) : 0;
+    const totalHours = totalHoursAgg[0]?.total || 0;
+
+    // Engineer efficiency from tracker entries
+    const TEAM_LEAD = 'Bodheesh V C';
+    const engineerMap = new Map<
+      string,
+      { name: string; hours: number; entries: number; tickets: Set<string>; ownerTickets: number; articlesCreated: number }
+    >();
+
+    for (const e of trackerEntries as any[]) {
+      const members = Array.isArray(e.teamMembers) ? e.teamMembers : [];
+      const share = members.length ? e.hoursWorked / members.length : e.hoursWorked;
+
+      for (const member of members) {
+        if (!member || member === TEAM_LEAD) continue;
+        const existing = engineerMap.get(member) || {
+          name: member,
+          hours: 0,
+          entries: 0,
+          tickets: new Set<string>(),
+          ownerTickets: 0,
+          articlesCreated: 0,
+        };
+        existing.hours += share;
+        existing.entries += 1;
+        existing.tickets.add(e.ticketId);
+        if (e.role === 'Owner') existing.ownerTickets += 1;
+        existing.articlesCreated += e.articlesCreated || 0;
+        engineerMap.set(member, existing);
+      }
+    }
+
+    const engineerEfficiency = Array.from(engineerMap.values())
+      .map((e) => ({
+        name: e.name,
+        hours: Math.round(e.hours * 100) / 100,
+        entries: e.entries,
+        ticketsHandled: e.tickets.size,
+        ownerTickets: e.ownerTickets,
+        articlesCreated: e.articlesCreated,
+      }))
+      .sort((a, b) => b.hours - a.hours);
 
     const monthlyTrend = await Promise.all(
       months.map(async (m) => {
@@ -164,17 +226,23 @@ export async function GET(_req: NextRequest) {
     return successResponse({
       stats: {
         openTickets,
+        totalTicketsSinceApril,
         totalArticles,
         pendingReviews,
         appsSupported,
         avgResTime: Number(avgResTime.toFixed(1)),
         kbReuseRate,
+        slaBreaches,
+        slaBreachesSinceApril,
+        slaBreachesOurTeam,
+        totalHours: Number(totalHours.toFixed(1)),
       },
       topApplications: topApplications.slice(0, 5),
       recentActivity: activityItems,
       criticalOpenTickets,
       recentArticles,
       monthlyTrend,
+      engineerEfficiency,
     });
   } catch (error: any) {
     console.error('[dashboard:GET] error:', error);

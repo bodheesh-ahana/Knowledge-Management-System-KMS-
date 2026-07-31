@@ -6,11 +6,16 @@ import AppLayout from '@/components/AppLayout';
 
 interface DashboardStats {
   openTickets: number;
+  totalTicketsSinceApril: number;
   totalArticles: number;
   pendingReviews: number;
   appsSupported: number;
   avgResTime: number;
   kbReuseRate: number;
+  slaBreaches: number;
+  slaBreachesSinceApril: number;
+  slaBreachesOurTeam: number;
+  totalHours: number;
 }
 
 interface TopApp {
@@ -60,6 +65,14 @@ interface DashboardData {
   criticalOpenTickets: TicketItem[];
   recentArticles: ArticleItem[];
   monthlyTrend: MonthlyPoint[];
+  engineerEfficiency: {
+    name: string;
+    hours: number;
+    entries: number;
+    ticketsHandled: number;
+    ownerTickets: number;
+    articlesCreated: number;
+  }[];
 }
 
 function formatDate(iso?: string) {
@@ -204,9 +217,10 @@ export default function DashboardPage() {
             {/* Stats */}
             <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-md">
               <StatCard
-                label="Open Tickets"
-                value={data.stats.openTickets}
-                accent="text-error"
+                label="Total Tickets"
+                value={data.stats.totalTicketsSinceApril}
+                sub="since April 2026"
+                accent="text-primary"
                 icon="confirmation_number"
               />
               <StatCard
@@ -215,24 +229,38 @@ export default function DashboardPage() {
                 accent="text-primary"
                 icon="menu_book"
               />
+              <div className="bg-surface dark:bg-surface-container-lowest border-2 border-emerald-300 dark:border-emerald-700 bg-gradient-to-br from-emerald-50 via-surface to-surface dark:from-emerald-900/20 dark:via-surface-container-lowest dark:to-surface-container-lowest rounded-xl p-md flex flex-col gap-sm">
+                <div className="flex justify-between items-start">
+                  <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
+                    SLA Breaches
+                  </span>
+                  <span className="material-symbols-outlined text-[20px] text-emerald-500">verified</span>
+                </div>
+                <div className="flex items-end gap-2 mt-auto">
+                  <span className="font-h1 text-h1 font-extrabold text-emerald-600 dark:text-emerald-400 leading-none">
+                    {data.stats.slaBreachesOurTeam}
+                  </span>
+                  <span className="font-body-sm text-body-sm text-on-surface-variant mb-1">
+                    from our team
+                  </span>
+                </div>
+                <p className="text-[11px] text-on-surface-variant">
+                  {data.stats.slaBreachesSinceApril} total since April 2026
+                </p>
+              </div>
               <StatCard
-                label="Pending Reviews"
-                value={data.stats.pendingReviews}
-                accent="text-warning"
-                icon="rate_review"
-              />
-              <StatCard
-                label="Apps Supported"
-                value={data.stats.appsSupported}
-                accent="text-tertiary"
-                icon="apps"
+                label="Total Hours"
+                value={data.stats.totalHours}
+                sub="logged"
+                accent="text-secondary"
+                icon="schedule"
               />
               <StatCard
                 label="Avg Res. Time"
                 value={data.stats.avgResTime}
                 sub="hours"
-                accent="text-secondary"
-                icon="schedule"
+                accent="text-tertiary"
+                icon="timer"
               />
               <StatCard
                 label="KB Reuse Rate"
@@ -471,6 +499,48 @@ export default function DashboardPage() {
                           <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{article.application}</td>
                           <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{article.views}</td>
                           <td className="py-2 text-body-sm text-on-surface-variant">{formatDate(article.createdAt)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+
+            {/* Engineer efficiency */}
+            <section className="bg-surface dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-lg flex flex-col gap-md">
+              <div className="flex items-center justify-between">
+                <h3 className="font-title-md text-title-md text-on-surface dark:text-on-secondary">
+                  Engineer Efficiency
+                </h3>
+                <Link href="/analytics" className="text-primary font-label-md text-label-md hover:underline">
+                  View analytics
+                </Link>
+              </div>
+              {data.engineerEfficiency.length === 0 ? (
+                <p className="text-body-sm text-on-surface-variant">No efficiency data available.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="text-on-surface-variant border-b border-outline-variant/40 text-[12px]">
+                        <th className="py-2 pr-4 font-medium">Engineer</th>
+                        <th className="py-2 pr-4 font-medium">Hours</th>
+                        <th className="py-2 pr-4 font-medium">Entries</th>
+                        <th className="py-2 pr-4 font-medium">Tickets</th>
+                        <th className="py-2 pr-4 font-medium">Owner</th>
+                        <th className="py-2 font-medium">Articles</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.engineerEfficiency.map((eng) => (
+                        <tr key={eng.name} className="border-b border-outline-variant/20 last:border-b-0">
+                          <td className="py-2 pr-4 font-body-md text-body-md text-on-surface">{eng.name}</td>
+                          <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{eng.hours}h</td>
+                          <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{eng.entries}</td>
+                          <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{eng.ticketsHandled}</td>
+                          <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{eng.ownerTickets}</td>
+                          <td className="py-2 text-body-sm text-on-surface-variant">{eng.articlesCreated}</td>
                         </tr>
                       ))}
                     </tbody>

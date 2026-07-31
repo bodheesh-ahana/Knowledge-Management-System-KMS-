@@ -35,7 +35,8 @@ export async function GET(req: NextRequest) {
     }
 
     if (search) {
-      const regex = new RegExp(search, 'i');
+      const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escaped, 'i');
       filter.$or = [
         { title: regex },
         { description: regex },
@@ -50,7 +51,7 @@ export async function GET(req: NextRequest) {
 
     const [articles, total] = await Promise.all([
       KnowledgeArticle.find(filter)
-        .sort({ updatedAt: -1 })
+        .sort({ _id: -1 })
         .skip(skip)
         .limit(limit)
         .populate('owner', 'name email')
@@ -63,7 +64,8 @@ export async function GET(req: NextRequest) {
     // article has been written for it.
     let relatedTracker: any[] = [];
     if (search) {
-      const regex = new RegExp(search, 'i');
+      const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escaped, 'i');
       relatedTracker = await TrackerEntry.find({
         $or: [
           { ticketId: regex },

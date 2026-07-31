@@ -15,8 +15,10 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
   const menuItems = [
     { icon: 'dashboard', label: 'Dashboard', href: '/dashboard' },
     { icon: 'auto_stories', label: 'Knowledge Base', href: '/knowledge' },
-    // { icon: 'confirmation_number', label: 'Tickets', href: '/tickets' },
+    { icon: 'confirmation_number', label: 'Ticket Log', href: '/ticket-log' },
+    { icon: 'edit_note', label: 'Manual Report (temp)', href: '/manual-tickets' },
     { icon: 'apps', label: 'Applications', href: '/applications' },
+    { icon: 'dns', label: 'App Servers', href: '/application-servers' },
     { icon: 'track_changes', label: 'Tracker', href: '/tracker' },
     { icon: 'analytics', label: 'Analytics', href: '/analytics' },
     { icon: 'description', label: 'Documents', href: '/documents' },

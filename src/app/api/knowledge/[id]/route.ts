@@ -76,7 +76,9 @@ export async function DELETE(
       return errorResponse('Article not found', 404);
     }
 
-    if (article.owner.toString() !== user._id.toString()) {
+    const isOwner = article.owner.toString() === user._id.toString();
+    const canDelete = isOwner || ['Admin', 'TeamLead'].includes(user.role);
+    if (!canDelete) {
       return errorResponse('Permission denied', 403);
     }
 

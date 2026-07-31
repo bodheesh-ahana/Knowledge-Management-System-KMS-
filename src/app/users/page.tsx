@@ -15,6 +15,93 @@ const EMPTY_FORM = {
   joinDate: '—',
 };
 
+const LEADERSHIP_RE = /head|director|vp|practice|manager/i;
+const LEAD_RE = /lead/i;
+
+function getRoleRank(role: string) {
+  const lower = role.toLowerCase();
+  if (LEADERSHIP_RE.test(lower)) return 0;
+  if (LEAD_RE.test(lower)) return 1;
+  return 2;
+}
+
+function MemberCard({
+  member,
+  size = 'md',
+}: {
+  member: TeamMemberFromDB;
+  size?: 'sm' | 'md' | 'lg';
+}) {
+  const sizeClasses = {
+    sm: 'w-32 p-2 gap-1',
+    md: 'w-40 p-3 gap-2',
+    lg: 'w-48 p-4 gap-2',
+  };
+  const nameClass = size === 'sm' ? 'font-body-sm' : 'font-body-md';
+
+  return (
+    <div
+      className={`bg-surface-container-low dark:bg-surface-container-lowest rounded-lg border border-outline-variant flex flex-col items-center text-center ${sizeClasses[size]}`}
+    >
+      <div className="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md">
+        {member.name.charAt(0)}
+      </div>
+      <div className={`${nameClass} font-bold text-on-surface leading-tight`}>
+        {member.name}
+      </div>
+      <div className="font-body-sm text-on-surface-variant leading-tight">
+        {member.role}
+      </div>
+    </div>
+  );
+}
+
+function TeamHierarchy({ members }: { members: TeamMemberFromDB[] }) {
+  const top = members.filter((m) => getRoleRank(m.role) === 0);
+  const leads = members.filter((m) => getRoleRank(m.role) === 1);
+  const staff = members.filter((m) => getRoleRank(m.role) === 2);
+
+  const root = top[0] || leads[0];
+  if (!root) return null;
+
+  const lead = leads[0];
+  const hasStaff = staff.length > 0;
+
+  return (
+    <section className="bg-surface dark:bg-surface-container-lowest rounded-xl border border-outline-variant p-lg mb-lg">
+      <h3 className="font-h3 text-h3 text-on-surface mb-md">Team Hierarchy</h3>
+      <div className="flex flex-col items-center overflow-x-auto">
+        {top[0] && (
+          <>
+            <MemberCard member={top[0]} size="lg" />
+            {lead && <div className="h-6 w-px bg-outline-variant" />}
+          </>
+        )}
+
+        {lead && (
+          <>
+            <MemberCard member={lead} size="md" />
+            {hasStaff && <div className="h-6 w-px bg-outline-variant" />}
+          </>
+        )}
+
+        {hasStaff && (
+          <div className="relative w-full max-w-5xl flex justify-center">
+            <div className="absolute left-1/2 top-0 h-6 w-px bg-outline-variant -translate-x-1/2" />
+            <div className="w-full border-t-2 border-outline-variant pt-6">
+              <div className="flex flex-wrap justify-center gap-4">
+                {staff.map((m) => (
+                  <MemberCard key={m._id} member={m} size="sm" />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function UsersPage() {
   const { data: session } = useSession();
   const userRole = (session?.user as any)?.role as string | undefined;
@@ -73,7 +160,7 @@ export default function UsersPage() {
         <section className="flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
           <div className="space-y-xs">
             <h2 className="font-h1 text-h1 text-on-surface dark:text-on-secondary">
-              Team Members
+               Application support - Team Hierarchy
             </h2>
             <p className="font-body-md text-body-md text-on-surface-variant dark:text-outline">
               Numera ADM team. Team Lead: Bodheesh V C · Reports to: Sudheendra Gururaj M P
@@ -89,6 +176,8 @@ export default function UsersPage() {
             </button>
           )}
         </section>
+
+        {!loading && members.length > 0 && <TeamHierarchy members={members} />}
 
         {error && (
           <div className="bg-error-container text-on-error-container px-md py-sm rounded-lg text-body-sm">

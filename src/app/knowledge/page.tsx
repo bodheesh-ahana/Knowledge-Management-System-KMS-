@@ -40,6 +40,8 @@ export default function KnowledgeBaseListPage() {
   const [search, setSearch] = useState('');
   const [application, setApplication] = useState('');
   const [status, setStatus] = useState('All');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [relatedTracker, setRelatedTracker] = useState<TrackerHit[]>([]);
 
   const fetchArticles = useCallback(async () => {
@@ -50,7 +52,8 @@ export default function KnowledgeBaseListPage() {
       if (search) params.set('search', search);
       if (application) params.set('application', application);
       if (status && status !== 'All') params.set('status', status);
-      params.set('limit', '50');
+      params.set('page', String(page));
+      params.set('limit', '12');
 
       const res = await fetch(`/api/knowledge?${params.toString()}`);
       const json = await res.json();
@@ -59,12 +62,17 @@ export default function KnowledgeBaseListPage() {
       }
       setArticles(json.data.articles || []);
       setTotal(json.data.pagination?.total || 0);
+      setTotalPages(json.data.pagination?.pages || 1);
       setRelatedTracker(json.data.relatedTracker || []);
     } catch (err: any) {
       setError(err.message || 'Failed to load knowledge articles');
     } finally {
       setLoading(false);
     }
+  }, [search, application, status, page]);
+
+  useEffect(() => {
+    setPage(1);
   }, [search, application, status]);
 
   useEffect(() => {
@@ -124,6 +132,30 @@ export default function KnowledgeBaseListPage() {
         </div>
 
         <p className="text-body-sm text-on-surface-variant">{total} article(s) found</p>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-sm bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-md">
+          <button
+            type="button"
+            disabled={page === 1}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            className="px-4 py-2 rounded-lg text-body-sm font-medium bg-primary text-on-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <span className="text-body-sm text-on-surface-variant">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            type="button"
+            disabled={page === totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            className="px-4 py-2 rounded-lg text-body-sm font-medium bg-primary text-on-primary disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
         {/* Related ticket history from Tracker (not yet a formal KB article) */}
         {search && relatedTracker.length > 0 && (
