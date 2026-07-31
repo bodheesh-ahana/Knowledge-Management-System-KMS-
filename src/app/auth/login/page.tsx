@@ -54,7 +54,8 @@ function LoginContent() {
 
       if (result.ok) {
         console.log('✅ [LOGIN] Sign in successful, redirecting to:', callbackUrl);
-        router.replace(callbackUrl);
+        // Use window.location.href for full page reload to ensure session cookie is properly set
+        window.location.href = callbackUrl;
         return;
       }
 
