@@ -15,3 +15,4 @@ export { AuditLog } from './AuditLog';
 export { Project } from './Project';
 export { DocumentRecord } from './Document';
 export { ManualTicket } from './ManualTicket';
+export { default as VIPUser } from './VIPUser';

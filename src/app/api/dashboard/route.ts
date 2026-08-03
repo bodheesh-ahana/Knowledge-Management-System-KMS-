@@ -76,9 +76,16 @@ export async function GET(_req: NextRequest) {
       slaBreachesOurTeam,
       totalHoursAgg,
       trackerEntries,
+      onboardingCount,
+      offboardingCount,
     ] = await Promise.all([
       Ticket.countDocuments({ status: 'Open' }),
-      TicketLog.countDocuments({ createdTime: { $gte: april2026 } }),
+      TicketLog.countDocuments({ 
+        $and: [
+          { createdTime: { $gte: april2026 } },
+          { source: { $ne: 'onboardingoffboarding' } },
+        ],
+      }),
       KnowledgeArticle.countDocuments({}),
       KnowledgeArticle.countDocuments({ status: 'UnderReview' }),
       Application.countDocuments({}),
@@ -110,6 +117,8 @@ export async function GET(_req: NextRequest) {
       }),
       TrackerEntry.aggregate([{ $group: { _id: null, total: { $sum: '$hoursWorked' } } }]),
       TrackerEntry.find().sort({ date: -1 }).limit(500).lean(),
+      TicketLog.countDocuments({ source: 'onboardingoffboarding', category: 'Onboarding', createdTime: { $gte: april2026 } }),
+      TicketLog.countDocuments({ source: 'onboardingoffboarding', category: 'Offboarding', createdTime: { $gte: april2026 } }),
     ]);
 
     const avgResTime = resolvedAvg[0]?.avg ?? 0;
@@ -159,19 +168,28 @@ export async function GET(_req: NextRequest) {
 
     const monthlyTrend = await Promise.all(
       months.map(async (m) => {
-        const [tickets, articles, trackerHours] = await Promise.all([
-          Ticket.countDocuments({ createdAt: { $gte: m.start, $lt: m.end } }),
+        const [regularTickets, onboardingOffboarding, articles] = await Promise.all([
+          TicketLog.countDocuments({
+            $and: [
+              { createdTime: { $gte: m.start, $lt: m.end } },
+              { createdTime: { $gte: april2026 } },
+              { source: { $ne: 'onboardingoffboarding' } },
+            ],
+          }),
+          TicketLog.countDocuments({
+            $and: [
+              { createdTime: { $gte: m.start, $lt: m.end } },
+              { createdTime: { $gte: april2026 } },
+              { source: 'onboardingoffboarding' },
+            ],
+          }),
           KnowledgeArticle.countDocuments({ createdAt: { $gte: m.start, $lt: m.end } }),
-          TrackerEntry.aggregate([
-            { $match: { createdAt: { $gte: m.start, $lt: m.end } } },
-            { $group: { _id: null, hours: { $sum: '$hoursWorked' } } },
-          ]),
         ]);
         return {
           label: m.label,
-          tickets,
+          tickets: regularTickets,
+          onboardingOffboarding,
           articles,
-          hours: trackerHours[0]?.hours || 0,
         };
       })
     );
@@ -236,6 +254,8 @@ export async function GET(_req: NextRequest) {
         slaBreachesSinceApril,
         slaBreachesOurTeam,
         totalHours: Number(totalHours.toFixed(1)),
+        onboardingCount,
+        offboardingCount,
       },
       topApplications: topApplications.slice(0, 5),
       recentActivity: activityItems,

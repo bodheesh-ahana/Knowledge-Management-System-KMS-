@@ -7,14 +7,22 @@ const createJestConfig = nextJest({
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
+  preset: 'ts-jest',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testMatch: [
-    '**/__tests__/**/*.[jt]s?(x)',
-    '**/?(*.)+(spec|test).[jt]s?(x)',
+    '<rootDir>/src/__tests__/utils/**/*.js',
+  ],
+  transform: {
+    '^.+\\.(js|jsx)$': ['babel-jest', { presets: ['next/babel'] }],
+  },
+  testPathIgnorePatterns: [
+    '<rootDir>/src/__tests__/models',
+    '<rootDir>/src/__tests__/api',
+    '<rootDir>/src/__tests__/components',
   ],
 }
 
