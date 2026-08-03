@@ -2,10 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import AppLayout from '@/components/AppLayout';
+import PacmanLoader from '@/components/PacmanLoader';
 import { getTeamMembers, TeamMemberFromDB } from '@/lib/team';
-import { useSession } from 'next-auth/react';
-
-const LEAD_ROLES = new Set(['TeamLead', 'Manager', 'Admin']);
+import { usePermissions } from '@/hooks/usePermissions';
 
 const EMPTY_FORM = {
   name: '',
@@ -103,9 +102,7 @@ function TeamHierarchy({ members }: { members: TeamMemberFromDB[] }) {
 }
 
 export default function UsersPage() {
-  const { data: session } = useSession();
-  const userRole = (session?.user as any)?.role as string | undefined;
-  const canManage = userRole ? LEAD_ROLES.has(userRole) : false;
+  const { canManageTeamMembers: canManage } = usePermissions();
 
   const [members, setMembers] = useState<TeamMemberFromDB[]>([]);
   const [loading, setLoading] = useState(true);
@@ -185,7 +182,7 @@ export default function UsersPage() {
           </div>
         )}
 
-        {showForm && (
+        {canManage && showForm && (
           <section className="bg-surface dark:bg-surface-container-lowest rounded-xl border border-outline-variant p-lg space-y-md">
             <h3 className="font-h3 text-h3 text-on-surface">Add Team Member</h3>
             <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-3 gap-md">
@@ -240,7 +237,10 @@ export default function UsersPage() {
         {/* Users Table */}
         <div className="overflow-x-auto rounded-xl border border-outline-variant dark:border-outline">
           {loading ? (
-            <p className="p-lg text-on-surface-variant">Loading members...</p>
+            <div className="flex flex-col items-center justify-center py-20">
+              <PacmanLoader size={30} speedMultiplier={2} />
+              <p className="text-body-sm text-on-surface-variant mt-4">Loading members...</p>
+            </div>
           ) : (
             <table className="w-full">
               <thead>

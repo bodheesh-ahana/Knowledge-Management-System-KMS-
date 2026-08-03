@@ -2,6 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import AppLayout from '@/components/AppLayout';
+import PacmanLoader from '@/components/PacmanLoader';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface OfficialDocument {
   name: string;
@@ -28,6 +30,7 @@ const EXTENSION_ICONS: Record<string, string> = {
 };
 
 export default function DocumentsPage() {
+  const { canDownloadDocuments } = usePermissions();
   const [documents, setDocuments] = useState<OfficialDocument[]>([]);
   const [supportedApplications, setSupportedApplications] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -127,7 +130,10 @@ export default function DocumentsPage() {
         {/* Documents List */}
         <div className="space-y-md">
           {loading && (
-            <p className="text-body-sm text-on-surface-variant">Loading documents...</p>
+            <div className="flex flex-col items-center justify-center py-20">
+              <PacmanLoader size={30} speedMultiplier={2} />
+              <p className="text-body-sm text-on-surface-variant mt-4">Loading documents...</p>
+            </div>
           )}
           {!loading && filteredDocuments.length === 0 && (
             <p className="text-body-sm text-on-surface-variant">No documents found.</p>
@@ -175,14 +181,16 @@ export default function DocumentsPage() {
                 >
                   <span className="material-symbols-outlined text-[20px]">visibility</span>
                 </a>
-                <a
-                  href={doc.url}
-                  download={doc.filename}
-                  className="text-primary dark:text-primary-fixed-dim hover:bg-surface-container-high rounded p-sm transition-colors"
-                  title="Download"
-                >
-                  <span className="material-symbols-outlined text-[20px]">download</span>
-                </a>
+                {canDownloadDocuments && (
+                  <a
+                    href={doc.url}
+                    download={doc.filename}
+                    className="text-primary dark:text-primary-fixed-dim hover:bg-surface-container-high rounded p-sm transition-colors"
+                    title="Download"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">download</span>
+                  </a>
+                )}
               </div>
             </div>
           ))}

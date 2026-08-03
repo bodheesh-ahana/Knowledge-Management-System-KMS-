@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { User } from '@/models';
 import { getAuthenticatedUser } from '@/lib/auth';
+import { can } from '@/lib/permissions';
 import { updateUserSchema } from '@/lib/validation';
 import { errorResponse, successResponse } from '@/lib/errors';
 import { ZodError } from 'zod';
@@ -37,9 +38,9 @@ export async function PUT(
     const body = await req.json();
     const validatedData = updateUserSchema.parse(body);
 
-    // Only Admin/Manager can change role/active status; users may edit their own profile fields
+    // Only the lead can change role/active status; users may edit their own profile fields
     if ((validatedData.role || validatedData.active !== undefined) &&
-        !['Admin', 'Manager'].includes(currentUser.role)) {
+        !can.manageTeamAccess(currentUser.role)) {
       return errorResponse('Permission denied', 403);
     }
 
@@ -67,7 +68,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     const currentUser = await getAuthenticatedUser();
-    if (!['Admin', 'Manager'].includes(currentUser.role)) {
+    if (!can.manageTeamAccess(currentUser.role)) {
       return errorResponse('Permission denied', 403);
     }
 

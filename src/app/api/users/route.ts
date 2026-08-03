@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { connectDB } from '@/lib/mongodb';
 import { User } from '@/models';
 import { getAuthenticatedUser } from '@/lib/auth';
+import { can } from '@/lib/permissions';
 import { createUserSchema } from '@/lib/validation';
 import { errorResponse, successResponse } from '@/lib/errors';
 import { ZodError } from 'zod';
@@ -39,7 +40,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const currentUser = await getAuthenticatedUser();
-    if (!['TeamLead', 'Admin', 'Manager'].includes(currentUser.role)) {
+    if (!can.manageTeamAccess(currentUser.role)) {
       return errorResponse('Permission denied', 403);
     }
 

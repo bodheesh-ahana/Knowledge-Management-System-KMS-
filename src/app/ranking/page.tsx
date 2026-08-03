@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AppLayout from '@/components/AppLayout';
+import PacmanLoader from '@/components/PacmanLoader';
 
 interface RankedEngineer {
   rank: number;
@@ -50,8 +51,9 @@ export default function RankingPage() {
   if (loading) {
     return (
       <AppLayout>
-        <div className="p-lg max-w-container-max mx-auto text-center text-on-surface-variant">
-          Loading ranking...
+        <div className="flex flex-col items-center justify-center py-20">
+          <PacmanLoader size={30} speedMultiplier={2} />
+          <p className="text-body-sm text-on-surface-variant mt-4">Loading ranking...</p>
         </div>
       </AppLayout>
     );

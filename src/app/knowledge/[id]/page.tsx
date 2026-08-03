@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import AppLayout from '@/components/AppLayout';
+import PacmanLoader from '@/components/PacmanLoader';
 import { Button } from '@/components';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface Step {
   order: number;
@@ -34,6 +36,7 @@ export default function KnowledgeArticleDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
+  const { canDeleteKnowledgeArticle } = usePermissions();
 
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
@@ -97,7 +100,10 @@ export default function KnowledgeArticleDetailsPage() {
   if (loading) {
     return (
       <AppLayout>
-        <div className="p-lg text-center text-on-surface-variant">Loading...</div>
+        <div className="flex flex-col items-center justify-center py-20">
+          <PacmanLoader size={30} speedMultiplier={2} />
+          <p className="text-body-sm text-on-surface-variant mt-4">Loading...</p>
+        </div>
       </AppLayout>
     );
   }
@@ -157,9 +163,11 @@ export default function KnowledgeArticleDetailsPage() {
             {article.status !== 'Published' && (
               <Button onClick={handlePublish}>Publish</Button>
             )}
-            <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
-              {deleting ? 'Deleting...' : 'Delete'}
-            </Button>
+            {canDeleteKnowledgeArticle && (
+              <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+                {deleting ? 'Deleting...' : 'Delete'}
+              </Button>
+            )}
           </div>
         </div>
 

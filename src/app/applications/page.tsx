@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState, FormEvent } from 'react';
 import Link from 'next/link';
 import AppLayout from '@/components/AppLayout';
+import PacmanLoader from '@/components/PacmanLoader';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface AppItem {
   _id: string;
@@ -17,6 +19,7 @@ interface AppItem {
 const EMPTY_FORM = { name: '', description: '', icon: 'apps', color: '#0ea5e9' };
 
 export default function ApplicationsListPage() {
+  const { canManageApplications } = usePermissions();
   const [applications, setApplications] = useState<AppItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -93,15 +96,17 @@ export default function ApplicationsListPage() {
               Applications we provide support for.
             </p>
           </div>
-          <button
-            onClick={() => setShowForm((s) => !s)}
-            className="bg-primary text-on-primary px-lg py-md rounded-lg font-label-md text-label-md shadow hover:bg-primary-fixed-variant transition-colors flex items-center gap-sm"
-          >
-            <span className="material-symbols-outlined text-[18px]">
-              {showForm ? 'close' : 'add'}
-            </span>
-            {showForm ? 'Cancel' : 'Add Application'}
-          </button>
+          {canManageApplications && (
+            <button
+              onClick={() => setShowForm((s) => !s)}
+              className="bg-primary text-on-primary px-lg py-md rounded-lg font-label-md text-label-md shadow hover:bg-primary-fixed-variant transition-colors flex items-center gap-sm"
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                {showForm ? 'close' : 'add'}
+              </span>
+              {showForm ? 'Cancel' : 'Add Application'}
+            </button>
+          )}
         </section>
 
         {error && (
@@ -110,7 +115,7 @@ export default function ApplicationsListPage() {
           </div>
         )}
 
-        {showForm && (
+        {canManageApplications && showForm && (
           <form
             onSubmit={handleSubmit}
             className="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-lg grid grid-cols-1 md:grid-cols-4 gap-md"
@@ -162,7 +167,10 @@ export default function ApplicationsListPage() {
 
         {/* Grid */}
         {loading ? (
-          <p className="text-body-sm text-on-surface-variant">Loading applications...</p>
+          <div className="flex flex-col items-center justify-center py-20">
+            <PacmanLoader size={30} speedMultiplier={2} />
+            <p className="text-body-sm text-on-surface-variant mt-4">Loading applications...</p>
+          </div>
         ) : filtered.length === 0 ? (
           <p className="text-body-sm text-on-surface-variant">No applications found.</p>
         ) : (

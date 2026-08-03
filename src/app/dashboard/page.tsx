@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import AppLayout from '@/components/AppLayout';
+import PacmanLoader from '@/components/PacmanLoader';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 interface DashboardStats {
   openTickets: number;
@@ -16,6 +18,8 @@ interface DashboardStats {
   slaBreachesSinceApril: number;
   slaBreachesOurTeam: number;
   totalHours: number;
+  onboardingCount: number;
+  offboardingCount: number;
 }
 
 interface TopApp {
@@ -54,8 +58,8 @@ interface ArticleItem {
 interface MonthlyPoint {
   label: string;
   tickets: number;
+  onboardingOffboarding: number;
   articles: number;
-  hours: number;
 }
 
 interface DashboardData {
@@ -170,7 +174,7 @@ export default function DashboardPage() {
   };
 
   const maxMonthly = data
-    ? Math.max(...data.monthlyTrend.flatMap((m) => [m.tickets, m.articles, m.hours])) || 1
+    ? Math.max(...data.monthlyTrend.flatMap((m) => [m.tickets, m.onboardingOffboarding, m.articles])) || 1
     : 1;
 
   const maxTopApp = data
@@ -205,7 +209,10 @@ export default function DashboardPage() {
         </section>
 
         {loading ? (
-          <p className="text-body-sm text-on-surface-variant">Loading dashboard...</p>
+          <div className="flex flex-col items-center justify-center py-20">
+            <PacmanLoader size={30} speedMultiplier={2} />
+            <p className="text-body-sm text-on-surface-variant mt-4">Loading dashboard...</p>
+          </div>
         ) : error ? (
           <div className="bg-error-container text-on-error-container px-md py-sm rounded-lg text-body-sm">
             {error}
@@ -240,27 +247,27 @@ export default function DashboardPage() {
                   <span className="font-h1 text-h1 font-extrabold text-emerald-600 dark:text-emerald-400 leading-none">
                     {data.stats.slaBreachesOurTeam}
                   </span>
-                  <span className="font-body-sm text-body-sm text-on-surface-variant mb-1">
+                  {/* <span className="font-body-sm text-body-sm text-on-surface-variant mb-1">
                     from our team
-                  </span>
+                  </span> */}
                 </div>
                 <p className="text-[11px] text-on-surface-variant">
                   {data.stats.slaBreachesSinceApril} total since April 2026
                 </p>
               </div>
               <StatCard
-                label="Total Hours"
-                value={data.stats.totalHours}
-                sub="logged"
+                label="Onboarding"
+                value={data.stats.onboardingCount}
+                sub="since April 2026"
                 accent="text-secondary"
-                icon="schedule"
+                icon="person_add"
               />
               <StatCard
-                label="Avg Res. Time"
-                value={data.stats.avgResTime}
-                sub="hours"
+                label="Offboarding"
+                value={data.stats.offboardingCount}
+                sub="since April 2026"
                 accent="text-tertiary"
-                icon="timer"
+                icon="person_remove"
               />
               <StatCard
                 label="KB Reuse Rate"
@@ -303,7 +310,7 @@ export default function DashboardPage() {
                       <div className="flex justify-between text-body-sm text-on-surface mb-1">
                         <span className="font-medium">{m.label}</span>
                         <span className="text-on-surface-variant">
-                          {m.tickets} tickets · {m.articles} articles · {m.hours}h logged
+                          {m.tickets} - tickets · {m.onboardingOffboarding} - onboarding/offboarding · {m.articles} - articles
                         </span>
                       </div>
                       <div className="flex gap-1 h-2 rounded-full overflow-hidden bg-surface-container-highest">
@@ -312,12 +319,12 @@ export default function DashboardPage() {
                           style={{ width: `${(m.tickets / maxMonthly) * 100}%` }}
                         />
                         <div
-                          className="bg-primary h-full"
-                          style={{ width: `${(m.articles / maxMonthly) * 100}%` }}
+                          className="bg-tertiary h-full"
+                          style={{ width: `${(m.onboardingOffboarding / maxMonthly) * 100}%` }}
                         />
                         <div
-                          className="bg-secondary h-full"
-                          style={{ width: `${(m.hours / maxMonthly) * 100}%` }}
+                          className="bg-primary h-full"
+                          style={{ width: `${(m.articles / maxMonthly) * 100}%` }}
                         />
                       </div>
                     </div>
@@ -328,10 +335,10 @@ export default function DashboardPage() {
                     <span className="w-3 h-3 rounded-full bg-error" /> Tickets
                   </span>
                   <span className="flex items-center gap-1">
-                    <span className="w-3 h-3 rounded-full bg-primary" /> Articles
+                    <span className="w-3 h-3 rounded-full bg-tertiary" /> Onboarding/Offboarding
                   </span>
                   <span className="flex items-center gap-1">
-                    <span className="w-3 h-3 rounded-full bg-secondary" /> Hours
+                    <span className="w-3 h-3 rounded-full bg-primary" /> Articles
                   </span>
                 </div>
               </section>
@@ -420,45 +427,39 @@ export default function DashboardPage() {
                 </div>
               </section>
 
-              {/* Critical open tickets */}
+              {/* Activity Overview Pie Chart */}
               <section className="bg-surface dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-lg flex flex-col gap-md">
-                <h3 className="font-title-md text-title-md text-on-surface dark:text-on-secondary text-error">
-                  Critical Open Tickets
+                <h3 className="font-title-md text-title-md text-on-surface dark:text-on-secondary">
+                  Activity Overview
                 </h3>
-                {data.criticalOpenTickets.length === 0 ? (
-                  <p className="text-body-sm text-on-surface-variant">No critical open tickets.</p>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                      <thead>
-                        <tr className="text-on-surface-variant border-b border-outline-variant/40 text-[12px]">
-                          <th className="py-2 pr-4 font-medium">Ticket</th>
-                          <th className="py-2 pr-4 font-medium">Title</th>
-                          <th className="py-2 pr-4 font-medium">Assignee</th>
-                          <th className="py-2 font-medium">Created</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.criticalOpenTickets.map((ticket) => (
-                          <tr key={ticket._id} className="border-b border-outline-variant/20 last:border-b-0">
-                            <td className="py-2 pr-4 font-body-md text-body-md text-on-surface">
-                              {ticket.ticketNumber}
-                            </td>
-                            <td className="py-2 pr-4 text-body-sm text-on-surface line-clamp-1">
-                              {ticket.title}
-                            </td>
-                            <td className="py-2 pr-4 text-body-sm text-on-surface-variant">
-                              {ticket.assignee?.name || 'Unassigned'}
-                            </td>
-                            <td className="py-2 text-body-sm text-on-surface-variant">
-                              {formatDate(ticket.createdAt)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: 'Tickets', value: data.stats.totalTicketsSinceApril, color: '#ef4444' },
+                          { name: 'Articles', value: data.stats.totalArticles, color: '#3b82f6' },
+                          { name: 'Onboarding', value: data.stats.onboardingCount, color: '#10b981' },
+                          { name: 'Offboarding', value: data.stats.offboardingCount, color: '#f59e0b' },
+                        ]}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        <Cell fill="#ef4444" />
+                        <Cell fill="#3b82f6" />
+                        <Cell fill="#10b981" />
+                        <Cell fill="#f59e0b" />
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
               </section>
             </div>
 
@@ -508,7 +509,7 @@ export default function DashboardPage() {
             </section>
 
             {/* Engineer efficiency */}
-            <section className="bg-surface dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-lg flex flex-col gap-md">
+            {/* <section className="bg-surface dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-lg flex flex-col gap-md">
               <div className="flex items-center justify-between">
                 <h3 className="font-title-md text-title-md text-on-surface dark:text-on-secondary">
                   Engineer Efficiency
@@ -547,7 +548,7 @@ export default function DashboardPage() {
                   </table>
                 </div>
               )}
-            </section>
+            </section> */}
           </>
         )}
       </div>

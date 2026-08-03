@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { Application, KnowledgeArticle, Ticket } from '@/models';
 import { getAuthenticatedUser } from '@/lib/auth';
+import { can } from '@/lib/permissions';
 import { updateApplicationSchema } from '@/lib/validation';
 import { errorResponse, successResponse } from '@/lib/errors';
 import { ZodError } from 'zod';
@@ -80,7 +81,11 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    await getAuthenticatedUser();
+    const user = await getAuthenticatedUser();
+    if (!can.manageApplications(user.role)) {
+      return errorResponse('Permission denied', 403);
+    }
+
     const body = await req.json();
     const validatedData = updateApplicationSchema.parse(body);
 
@@ -111,7 +116,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     const user = await getAuthenticatedUser();
-    if (!['Admin', 'Manager'].includes(user.role)) {
+    if (!can.manageApplications(user.role)) {
       return errorResponse('Permission denied', 403);
     }
 

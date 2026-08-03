@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import AppLayout from '@/components/AppLayout';
+import PacmanLoader from '@/components/PacmanLoader';
 
 interface ManualTicketItem {
   _id: string;
@@ -182,7 +183,10 @@ export default function ManualTicketsPage() {
 
         {/* Loading */}
         {loading && (
-          <p className="text-body-sm text-on-surface-variant">Loading tickets...</p>
+          <div className="flex flex-col items-center justify-center py-20">
+            <PacmanLoader size={30} speedMultiplier={2} />
+            <p className="text-body-sm text-on-surface-variant mt-4">Loading tickets...</p>
+          </div>
         )}
 
         {/* Tickets Table */}

@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import AppLayout from '@/components/AppLayout';
+import PacmanLoader from '@/components/PacmanLoader';
 import { getTeamMembers, TeamMemberFromDB } from '@/lib/team';
-
-const LEAD_ROLES = new Set(['TeamLead', 'Manager', 'Admin']);
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface User {
   _id: string;
@@ -23,9 +22,7 @@ const EMPTY_FORM = {
 };
 
 export default function TeamAccessPage() {
-  const { data: session, status } = useSession();
-  const userRole = (session?.user as any)?.role as string | undefined;
-  const isLead = userRole ? LEAD_ROLES.has(userRole) : false;
+  const { status, canManageTeamAccess: isLead } = usePermissions();
 
   const [users, setUsers] = useState<User[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMemberFromDB[]>([]);
@@ -79,7 +76,10 @@ export default function TeamAccessPage() {
   if (status === 'loading') {
     return (
       <AppLayout>
-        <div className="p-lg">Loading...</div>
+        <div className="flex flex-col items-center justify-center py-20">
+          <PacmanLoader size={30} speedMultiplier={2} />
+          <p className="text-body-sm text-on-surface-variant mt-4">Loading...</p>
+        </div>
       </AppLayout>
     );
   }
@@ -267,7 +267,10 @@ export default function TeamAccessPage() {
 
         <section className="bg-surface dark:bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden">
           {loading ? (
-            <p className="p-lg text-on-surface-variant">Loading members...</p>
+            <div className="flex flex-col items-center justify-center py-20">
+              <PacmanLoader size={30} speedMultiplier={2} />
+              <p className="text-body-sm text-on-surface-variant mt-4">Loading members...</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">

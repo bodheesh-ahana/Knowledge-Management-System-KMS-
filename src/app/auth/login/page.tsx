@@ -2,10 +2,10 @@
 
 import React, { Suspense } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import PacmanLoader from '@/components/PacmanLoader';
 
 function LoginContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -302,7 +302,7 @@ function LoginContent() {
 
 function LoginPageWrapper() {
   return (
-    <Suspense fallback={<main className="min-h-screen flex items-center justify-center bg-surface"><span className="text-on-surface-variant">Loading...</span></main>}>
+    <Suspense fallback={<main className="min-h-screen flex items-center justify-center bg-surface"><PacmanLoader size={30} speedMultiplier={2} /></main>}>
       <LoginContent />
     </Suspense>
   );

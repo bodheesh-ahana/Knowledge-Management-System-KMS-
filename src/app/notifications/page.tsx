@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import AppLayout from '@/components/AppLayout';
+import PacmanLoader from '@/components/PacmanLoader';
 
 interface Notification {
   _id: string;
@@ -116,7 +117,10 @@ export default function NotificationsPage() {
 
         {/* Notifications List */}
         {loading ? (
-          <p className="text-body-md text-on-surface-variant">Loading notifications...</p>
+          <div className="flex flex-col items-center justify-center py-20">
+            <PacmanLoader size={30} speedMultiplier={2} />
+            <p className="text-body-sm text-on-surface-variant mt-4">Loading notifications...</p>
+          </div>
         ) : (
           <div className="space-y-sm">
             {notifications.length === 0 ? (

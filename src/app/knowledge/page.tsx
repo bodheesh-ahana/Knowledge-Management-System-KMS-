@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import AppLayout from '@/components/AppLayout';
+import PacmanLoader from '@/components/PacmanLoader';
 import { Button } from '@/components';
 
 interface Article {
@@ -30,6 +31,35 @@ interface TrackerHit {
 }
 
 const STATUS_OPTIONS = ['All', 'Draft', 'UnderReview', 'Approved', 'Published', 'Archived'];
+
+function getPageNumbers(currentPage: number, totalPages: number): (number | 'ellipsis')[] {
+  const pages: (number | 'ellipsis')[] = [];
+  const maxVisible = 7;
+  
+  if (totalPages <= maxVisible) {
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+  } else {
+    if (currentPage <= 4) {
+      for (let i = 1; i <= 5; i++) pages.push(i);
+      pages.push('ellipsis');
+      pages.push(totalPages);
+    } else if (currentPage >= totalPages - 3) {
+      pages.push(1);
+      pages.push('ellipsis');
+      for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      pages.push('ellipsis');
+      for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+      pages.push('ellipsis');
+      pages.push(totalPages);
+    }
+  }
+  
+  return pages;
+}
 
 export default function KnowledgeBaseListPage() {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -134,23 +164,42 @@ export default function KnowledgeBaseListPage() {
         <p className="text-body-sm text-on-surface-variant">{total} article(s) found</p>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between gap-sm bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-md">
+        <div className="flex items-center justify-center gap-sm bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-md">
           <button
             type="button"
             disabled={page === 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className="px-4 py-2 rounded-lg text-body-sm font-medium bg-primary text-on-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 rounded-lg text-body-sm font-medium bg-surface-container-high text-on-surface hover:bg-primary hover:text-on-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-surface-container-high disabled:hover:text-on-surface transition-colors"
           >
             Previous
           </button>
-          <span className="text-body-sm text-on-surface-variant">
-            Page {page} of {totalPages}
-          </span>
+          
+          <div className="flex items-center gap-1">
+            {getPageNumbers(page, totalPages).map((pageNum, idx) => (
+              pageNum === 'ellipsis' ? (
+                <span key={`ellipsis-${idx}`} className="px-2 text-on-surface-variant">...</span>
+              ) : (
+                <button
+                  key={pageNum}
+                  type="button"
+                  onClick={() => setPage(pageNum as number)}
+                  className={`px-3 py-2 rounded-lg text-body-sm font-medium transition-colors ${
+                    page === pageNum
+                      ? 'bg-primary text-on-primary'
+                      : 'bg-surface-container-high text-on-surface hover:bg-primary hover:text-on-primary'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              )
+            ))}
+          </div>
+          
           <button
             type="button"
             disabled={page === totalPages}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            className="px-4 py-2 rounded-lg text-body-sm font-medium bg-primary text-on-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 rounded-lg text-body-sm font-medium bg-surface-container-high text-on-surface hover:bg-primary hover:text-on-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-surface-container-high disabled:hover:text-on-surface transition-colors"
           >
             Next
           </button>
@@ -202,7 +251,10 @@ export default function KnowledgeBaseListPage() {
         {/* Results */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-md">
           {loading && (
-            <div className="col-span-full text-center py-10 text-on-surface-variant">Loading...</div>
+            <div className="col-span-full flex flex-col items-center justify-center py-20">
+              <PacmanLoader size={30} speedMultiplier={2} />
+              <p className="text-body-sm text-on-surface-variant mt-4">Loading articles...</p>
+            </div>
           )}
           {!loading && articles.length === 0 && (
             <div className="col-span-full text-center py-10 text-on-surface-variant">

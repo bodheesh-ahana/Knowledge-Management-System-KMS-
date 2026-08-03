@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import AppLayout from '@/components/AppLayout';
+import PacmanLoader from '@/components/PacmanLoader';
 
 interface TicketLogItem {
   _id: string;
@@ -365,7 +366,10 @@ export default function TicketLogPage() {
         {/* Table */}
         <div className="overflow-x-auto rounded-xl border border-outline-variant dark:border-outline">
           {loading ? (
-            <p className="p-lg text-on-surface-variant">Loading tickets...</p>
+            <div className="flex flex-col items-center justify-center py-20">
+              <PacmanLoader size={30} speedMultiplier={2} />
+              <p className="text-body-sm text-on-surface-variant mt-4">Loading tickets...</p>
+            </div>
           ) : tickets.length === 0 ? (
             <p className="p-lg text-on-surface-variant">No tickets found.</p>
           ) : (

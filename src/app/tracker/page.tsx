@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, FormEvent } from 'react';
 import Link from 'next/link';
 import AppLayout from '@/components/AppLayout';
+import PacmanLoader from '@/components/PacmanLoader';
 import { Button } from '@/components';
 import { getTeamMembers, TeamMemberFromDB } from '@/lib/team';
 
@@ -635,8 +636,11 @@ export default function InternalTrackerPage() {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={13} className="px-4 py-6 text-center text-on-surface-variant">
-                    Loading...
+                  <td colSpan={13} className="px-4 py-6">
+                    <div className="flex flex-col items-center justify-center">
+                      <PacmanLoader size={30} speedMultiplier={2} />
+                      <p className="text-body-sm text-on-surface-variant mt-4">Loading...</p>
+                    </div>
                   </td>
                 </tr>
               )}
@@ -746,8 +750,11 @@ export default function InternalTrackerPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-6 text-center text-on-surface-variant">
-                    Loading...
+                  <td colSpan={9} className="px-4 py-6">
+                    <div className="flex flex-col items-center justify-center">
+                      <PacmanLoader size={30} speedMultiplier={2} />
+                      <p className="text-body-sm text-on-surface-variant mt-4">Loading...</p>
+                    </div>
                   </td>
                 </tr>
               ) : ticketGroups.length === 0 ? (

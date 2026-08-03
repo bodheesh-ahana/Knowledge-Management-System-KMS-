@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { KnowledgeArticle } from '@/models';
 import { getAuthenticatedUser } from '@/lib/auth';
+import { can } from '@/lib/permissions';
 import { errorResponse, successResponse } from '@/lib/errors';
 
 export async function GET(
@@ -68,18 +69,15 @@ export async function DELETE(
   try {
     const { id } = await params;
     const user = await getAuthenticatedUser();
+    if (!can.deleteKnowledgeArticle(user.role)) {
+      return errorResponse('Permission denied', 403);
+    }
 
     await connectDB();
 
     const article = await KnowledgeArticle.findById(id);
     if (!article) {
       return errorResponse('Article not found', 404);
-    }
-
-    const isOwner = article.owner.toString() === user._id.toString();
-    const canDelete = isOwner || ['Admin', 'TeamLead'].includes(user.role);
-    if (!canDelete) {
-      return errorResponse('Permission denied', 403);
     }
 
     await KnowledgeArticle.deleteOne({ _id: id });

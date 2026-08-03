@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import AppLayout from '@/components/AppLayout';
+import PacmanLoader from '@/components/PacmanLoader';
 
 interface ArticleItem {
   _id: string;
@@ -126,7 +127,10 @@ export default function ApplicationDetailPage() {
     <AppLayout>
       <div className="p-lg md:p-xl max-w-container-max mx-auto w-full flex flex-col gap-lg">
         {loading ? (
-          <p className="text-body-sm text-on-surface-variant">Loading application...</p>
+          <div className="flex flex-col items-center justify-center py-20">
+            <PacmanLoader size={30} speedMultiplier={2} />
+            <p className="text-body-sm text-on-surface-variant mt-4">Loading application...</p>
+          </div>
         ) : error ? (
           <div className="bg-error-container text-on-error-container px-md py-sm rounded-lg text-body-sm">
             {error}

@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
 import { TeamMember } from '@/models';
 import { getAuthenticatedUser } from '@/lib/auth';
+import { can } from '@/lib/permissions';
 import { errorResponse, successResponse } from '@/lib/errors';
 import { TEAM_MEMBERS } from '@/lib/team';
 
@@ -39,7 +40,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const currentUser = await getAuthenticatedUser();
-    if (!['TeamLead', 'Admin', 'Manager'].includes(currentUser.role)) {
+    if (!can.manageTeamMembers(currentUser.role)) {
       return errorResponse('Permission denied', 403);
     }
 

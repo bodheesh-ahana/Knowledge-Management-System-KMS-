@@ -2,21 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-
-const LEAD_ROLES = new Set(['TeamLead', 'Manager', 'Admin']);
+import { usePermissions } from '@/hooks/usePermissions';
 
 export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
-  const { data: session } = useSession();
-  const userRole = (session?.user as any)?.role as string | undefined;
-  const isLead = userRole ? LEAD_ROLES.has(userRole) : false;
+  const { canManageTeamAccess } = usePermissions();
 
   const menuItems = [
     { icon: 'dashboard', label: 'Dashboard', href: '/dashboard' },
+    { icon: 'school', label: 'Learning Center', href: '/learning' },
     { icon: 'auto_stories', label: 'Knowledge Base', href: '/knowledge' },
     { icon: 'confirmation_number', label: 'Ticket Log', href: '/ticket-log' },
-    { icon: 'edit_note', label: 'Manual Report (temp)', href: '/manual-tickets' },
+    { icon: 'workspace_premium', label: 'VIP Users', href: '/vip-users' },
+    // { icon: 'edit_note', label: 'Manual Report (temp)', href: '/manual-tickets' },
     { icon: 'apps', label: 'Applications', href: '/applications' },
     { icon: 'dns', label: 'App Servers', href: '/application-servers' },
     { icon: 'track_changes', label: 'Tracker', href: '/tracker' },
@@ -25,7 +23,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
     { icon: 'group', label: 'Team', href: '/users' },
     { icon: 'notifications', label: 'Notifications', href: '/notifications' },
     { icon: 'military_tech', label: 'Ranking', href: '/ranking' },
-    ...(isLead
+    ...(canManageTeamAccess
       ? [{ icon: 'admin_panel_settings', label: 'Team Access', href: '/team-access' }]
       : []),
   ];
