@@ -283,6 +283,7 @@ export default function Header({ onMenuToggle }: { onMenuToggle?: () => void }) 
         <button
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           className="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors"
+          aria-label="Toggle theme"
         >
           <span className="material-symbols-outlined text-[20px]">
             {theme === 'dark' ? 'light_mode' : 'dark_mode'}
