@@ -11,13 +11,13 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
   const menuItems = [
     { icon: 'dashboard', label: 'Dashboard', href: '/dashboard' },
     { icon: 'school', label: 'Learning Center', href: '/learning' },
-    { icon: 'auto_stories', label: 'Knowledge Base', href: '/knowledge' },
+    { icon: 'auto_stories', label: 'Knowledge Base', href: '/knowledge', highlight: true },
     { icon: 'confirmation_number', label: 'Ticket Log', href: '/ticket-log' },
     { icon: 'workspace_premium', label: 'VIP Users', href: '/vip-users' },
     // { icon: 'edit_note', label: 'Manual Report (temp)', href: '/manual-tickets' },
     { icon: 'apps', label: 'Applications', href: '/applications' },
     { icon: 'dns', label: 'App Servers', href: '/application-servers' },
-    { icon: 'track_changes', label: 'Tracker', href: '/tracker' },
+    { icon: 'track_changes', label: 'Tracker', href: '/tracker', tag: 'Daily', highlight: true },
     { icon: 'analytics', label: 'Analytics', href: '/analytics' },
     { icon: 'description', label: 'Documents', href: '/documents' },
     { icon: 'group', label: 'Team', href: '/users' },
@@ -82,14 +82,24 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
                 <Link
                   href={item.href}
                   onClick={handleLinkClick}
-                  className={`flex items-center gap-md px-sm py-2 rounded transition-all duration-200 ease-in-out font-label-md text-label-md ${
+                  className={`relative flex items-center gap-md px-sm py-2 rounded transition-all duration-200 ease-in-out font-label-md text-label-md ${
                     isActive(item.href)
                       ? 'bg-secondary-container dark:bg-secondary-container text-on-secondary-container dark:text-on-secondary-container border-l-2 border-primary'
-                      : 'text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant'
+                      : item.highlight
+                        ? 'bg-primary-container dark:bg-primary-container text-on-primary-container dark:text-on-primary-container'
+                        : 'text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-on-surface-variant'
                   }`}
                 >
                   <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-                  {item.label}
+                  <span className="flex-1">{item.label}</span>
+                  {item.highlight && (
+                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse" aria-hidden="true" />
+                  )}
+                  {item.tag && (
+                    <span className="text-[10px] font-bold uppercase tracking-wide bg-tertiary text-on-tertiary px-1.5 py-0.5 rounded-full">
+                      {item.tag}
+                    </span>
+                  )}
                 </Link>
               </li>
             ))}

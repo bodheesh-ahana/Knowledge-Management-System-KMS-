@@ -27,6 +27,8 @@
   --color-on-primary: #ffffff;
   --color-primary-container: #2563eb;
   --color-secondary: #505f76;
+  --color-secondary-container: #d0e1fb;
+  --color-on-secondary-container: #54647a;
   --color-error: #ba1a1a;
   --color-on-error: #ffffff;
   --color-border: #c3c6d7;
@@ -56,6 +58,8 @@ html.dark {
   --color-on-primary: #002d72;
   --color-primary-container: #004ac6;
   --color-secondary: #a0a4b0;
+  --color-secondary-container: #2a2e3e;
+  --color-on-secondary-container: #d0d5e0;
   --color-error: #ff6b6b;
   --color-on-error: #1a0a0a;
   --color-border: #3f4250;
