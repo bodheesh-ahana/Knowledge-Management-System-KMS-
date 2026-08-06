@@ -32,6 +32,7 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
     { icon: 'widgets', label: 'Applications', href: '/applications' },
     { icon: 'star', label: 'Favourites', href: '/knowledge?filter=favorites' },
     { icon: 'drafts', label: 'Drafts', href: '/knowledge?filter=drafts' },
+    { icon: 'info', label: 'About', href: '/about' },
   ];
 
   const bottomItems: { icon: string; label: string; href: string }[] = [];

@@ -34,6 +34,14 @@ interface ArticleSuggestion {
   status: string;
 }
 
+interface Application {
+  _id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+}
+
 const WORK_TYPES = [
   'Investigation',
   'Call',
@@ -111,6 +119,7 @@ export default function InternalTrackerPage() {
   const [suggestLoading, setSuggestLoading] = useState(false);
   const [membersOpen, setMembersOpen] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMemberFromDB[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
   const membersRef = useRef<HTMLDivElement>(null);
 
   const trackableMembers = useMemo(
@@ -120,6 +129,21 @@ export default function InternalTrackerPage() {
 
   useEffect(() => {
     getTeamMembers().then(setTeamMembers).catch(() => setTeamMembers([]));
+  }, []);
+
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        const res = await fetch('/api/applications');
+        const json = await res.json();
+        if (res.ok && json.success) {
+          setApplications(json.data.applications || []);
+        }
+      } catch {
+        // Silent fail - applications are optional
+      }
+    };
+    fetchApplications();
   }, []);
 
   // Filters
@@ -500,12 +524,18 @@ export default function InternalTrackerPage() {
             </Field>
 
             <Field label="Application">
-              <input
+              <select
                 value={form.application}
                 onChange={(e) => setForm({ ...form, application: e.target.value })}
-                placeholder="e.g. Drake, QuickBooks"
                 className="input"
-              />
+              >
+                <option value="">Select Application</option>
+                {applications.map((app) => (
+                  <option key={app._id} value={app.name}>
+                    {app.name}
+                  </option>
+                ))}
+              </select>
             </Field>
 
             <Field label="SLA Breach">
