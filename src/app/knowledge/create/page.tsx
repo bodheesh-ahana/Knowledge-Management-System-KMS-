@@ -26,6 +26,7 @@ function CreateKnowledgeArticleForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fromTracker, setFromTracker] = useState(false);
+  const [applications, setApplications] = useState<{ _id: string; name: string }[]>([]);
 
   // Pre-fill from a Tracker entry when the user clicks "Create KB Article".
   // All fields remain optional/editable so the user can adjust before saving.
@@ -47,6 +48,21 @@ function CreateKnowledgeArticleForm() {
       }
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        const res = await fetch('/api/applications');
+        const json = await res.json();
+        if (res.ok && json.success) {
+          setApplications(json.data.applications || []);
+        }
+      } catch {
+        // Silent fail - applications dropdown is optional
+      }
+    };
+    fetchApplications();
+  }, []);
 
   const addStep = () => setSteps((s) => [...s, { order: s.length + 1, description: '' }]);
   const removeStep = (idx: number) =>
@@ -133,13 +149,19 @@ function CreateKnowledgeArticleForm() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
             <Field label="Application *">
-              <input
+              <select
                 required
                 value={application}
                 onChange={(e) => setApplication(e.target.value)}
-                placeholder="e.g. Drake, QuickBooks, CCH"
                 className="input"
-              />
+              >
+                <option value="">Select Application</option>
+                {applications.map((app) => (
+                  <option key={app._id} value={app.name}>
+                    {app.name}
+                  </option>
+                ))}
+              </select>
             </Field>
             <Field label="Related Ticket ID (optional)">
               <input
