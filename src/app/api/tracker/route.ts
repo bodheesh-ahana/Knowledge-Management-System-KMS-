@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
         .sort({ date: -1, createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
-        .populate('user', 'name')
+        .populate('user', 'name _id')
         .populate('linkedArticle', 'title status')
         .lean(),
       TrackerEntry.countDocuments(query),

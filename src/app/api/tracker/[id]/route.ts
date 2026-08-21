@@ -40,7 +40,9 @@ export async function PUT(
       return errorResponse('Entry not found', 404);
     }
 
-    if (entry.user.toString() !== user._id.toString()) {
+    const isOwner = entry.user.toString() === user._id.toString();
+    const isAdmin = user.role === 'Admin' || user.role === 'TeamLead';
+    if (!isOwner && !isAdmin) {
       return errorResponse('Permission denied', 403);
     }
 
@@ -69,7 +71,7 @@ export async function DELETE(
       return errorResponse('Entry not found', 404);
     }
 
-    if (entry.user.toString() !== user._id.toString()) {
+    if (user.role !== 'Admin' && user.role !== 'TeamLead') {
       return errorResponse('Permission denied', 403);
     }
 

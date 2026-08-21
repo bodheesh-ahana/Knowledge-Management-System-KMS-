@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import AppLayout from '@/components/AppLayout';
+import { getTeamMembers, TeamMemberFromDB } from '@/lib/team';
+import { isLeadRole } from '@/lib/permissions';
 
 interface ProfileStats {
   knowledgeArticles: {
@@ -18,22 +20,43 @@ interface ProfileStats {
     totalHours: number;
     recent: any[];
   };
+  streak?: {
+    current: number;
+    longest: number;
+  };
   activity: Array<{
     _id: string;
     count: number;
     hours: number;
   }>;
+  user?: {
+    name: string;
+    email: string;
+    role: string;
+  };
 }
 
 export default function ProfilePage() {
   const { data: session } = useSession();
   const [stats, setStats] = useState<ProfileStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [teamMembers, setTeamMembers] = useState<TeamMemberFromDB[]>([]);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const currentRole = (session?.user as any)?.role as string | undefined;
+  const canViewOthers = isLeadRole(currentRole);
+
+  useEffect(() => {
+    if (canViewOthers) {
+      getTeamMembers().then(setTeamMembers).catch(console.error);
+    }
+  }, [canViewOthers]);
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const res = await fetch('/api/profile/stats');
+        setLoading(true);
+        const query = selectedMemberId ? `?memberId=${encodeURIComponent(selectedMemberId)}` : '';
+        const res = await fetch(`/api/profile/stats${query}`);
         const data = await res.json();
         if (data.success) {
           setStats(data.data);
@@ -48,9 +71,9 @@ export default function ProfilePage() {
     if (session) {
       fetchStats();
     }
-  }, [session]);
+  }, [session, selectedMemberId]);
 
-  const user = session?.user as any;
+  const user = stats?.user || (session?.user as any);
 
   // Generate activity map for the last 12 months
   const generateActivityMap = () => {
@@ -111,10 +134,10 @@ export default function ProfilePage() {
   const getContribClass = (level: number) => {
     const classes = [
       'bg-surface-container-low border border-outline-variant',
-      'bg-primary/20 border border-primary/30',
-      'bg-primary/40 border border-primary/50',
-      'bg-primary/60 border border-primary/70',
-      'bg-primary border border-primary',
+      'bg-green-500/20 border border-green-500/30',
+      'bg-green-500/40 border border-green-500/50',
+      'bg-green-500/60 border border-green-500/70',
+      'bg-green-500 border border-green-500',
     ];
     return classes[level] || classes[0];
   };
@@ -148,7 +171,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="flex-1 z-10">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col items-start sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h1 className="font-h1 text-h1 text-on-surface mb-1">
                     {user?.name || 'User'}
@@ -159,6 +182,20 @@ export default function ProfilePage() {
                     {user?.email}
                   </p>
                 </div>
+                {canViewOthers && teamMembers.length > 0 && (
+                  <select
+                    value={selectedMemberId || ''}
+                    onChange={(e) => setSelectedMemberId(e.target.value || null)}
+                    className="bg-surface border border-outline-variant rounded-lg px-3 py-2 text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    <option value="">Me</option>
+                    {teamMembers.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
             </div>
           </div>
@@ -254,15 +291,20 @@ export default function ProfilePage() {
               {/* Activity Map */}
               <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="font-h3 text-h3 text-on-surface">Activity Map</h2>
+                  <div className="flex items-center gap-3">
+                    <h2 className="font-h3 text-h3 text-on-surface">Activity Map</h2>
+                    <span className="px-2.5 py-1 bg-green-500/10 text-green-600 rounded-full font-body-sm text-body-sm font-medium">
+                      {stats?.streak?.current ?? 0} day streak
+                    </span>
+                  </div>
                   <div className="flex items-center gap-4 font-body-sm text-body-sm text-on-surface-variant">
                     <span>Less</span>
                     <div className="flex gap-1">
                       <div className="w-3 h-3 rounded-sm bg-surface-container-low border border-outline-variant"></div>
-                      <div className="w-3 h-3 rounded-sm bg-primary/20 border border-primary/30"></div>
-                      <div className="w-3 h-3 rounded-sm bg-primary/40 border border-primary/50"></div>
-                      <div className="w-3 h-3 rounded-sm bg-primary/60 border border-primary/70"></div>
-                      <div className="w-3 h-3 rounded-sm bg-primary border border-primary"></div>
+                      <div className="w-3 h-3 rounded-sm bg-green-500/20 border border-green-500/30"></div>
+                      <div className="w-3 h-3 rounded-sm bg-green-500/40 border border-green-500/50"></div>
+                      <div className="w-3 h-3 rounded-sm bg-green-500/60 border border-green-500/70"></div>
+                      <div className="w-3 h-3 rounded-sm bg-green-500 border border-green-500"></div>
                     </div>
                     <span>More</span>
                   </div>

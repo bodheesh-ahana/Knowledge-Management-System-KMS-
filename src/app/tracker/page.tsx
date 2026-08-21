@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, FormEvent } from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import * as XLSX from 'xlsx';
 import AppLayout from '@/components/AppLayout';
 import PacmanLoader from '@/components/PacmanLoader';
 import { Button } from '@/components';
@@ -73,6 +75,8 @@ const TICKET_STATUSES = [
   'Cancelled',
 ];
 
+const PAGE_SIZE = 50;
+
 interface FormState {
   ticketId: string;
   title: string;
@@ -109,7 +113,6 @@ const EMPTY_FORM: FormState = {
 
 export default function InternalTrackerPage() {
   const [entries, setEntries] = useState<TrackerEntry[]>([]);
-  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -117,9 +120,19 @@ export default function InternalTrackerPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [suggestions, setSuggestions] = useState<ArticleSuggestion[]>([]);
   const [suggestLoading, setSuggestLoading] = useState(false);
+  const { data: session } = useSession();
+  const currentUserId = (session?.user as any)?.id as string | undefined;
+  const userRole = (session?.user as any)?.role as string | undefined;
+  const canManage = userRole === 'Admin' || userRole === 'TeamLead';
   const [membersOpen, setMembersOpen] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMemberFromDB[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
+  const [activeTab, setActiveTab] = useState<'tracker' | 'summary'>('tracker');
+  const [trackerPage, setTrackerPage] = useState(1);
+  const [summaryPage, setSummaryPage] = useState(1);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
   const membersRef = useRef<HTMLDivElement>(null);
 
   const trackableMembers = useMemo(
@@ -146,10 +159,31 @@ export default function InternalTrackerPage() {
     fetchApplications();
   }, []);
 
+  // Re-fetch application list from the DB every time the new entry form opens
+  // so newly added apps (like Canopy) appear immediately without a full page reload.
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        const res = await fetch('/api/applications');
+        const json = await res.json();
+        if (res.ok && json.success) {
+          setApplications(json.data.applications || []);
+        }
+      } catch {
+        // Silent fail - applications are optional
+      }
+    };
+    if (showForm) {
+      fetchApplications();
+    }
+  }, [showForm]);
+
   // Filters
   const [search, setSearch] = useState('');
   const [ticketFilter, setTicketFilter] = useState('');
   const [memberFilter, setMemberFilter] = useState('');
+  const [titleFilter, setTitleFilter] = useState('');
+  const [sort, setSort] = useState('date-desc');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
@@ -163,7 +197,7 @@ export default function InternalTrackerPage() {
       if (memberFilter) params.set('teamMember', memberFilter);
       if (dateFrom) params.set('dateFrom', dateFrom);
       if (dateTo) params.set('dateTo', dateTo);
-      params.set('limit', '100');
+      params.set('limit', '10000');
 
       const res = await fetch(`/api/tracker?${params.toString()}`);
       const json = await res.json();
@@ -171,7 +205,6 @@ export default function InternalTrackerPage() {
         throw new Error(json.error || 'Failed to load tracker entries');
       }
       setEntries(json.data.entries || []);
-      setTotal(json.data.total || 0);
     } catch (err: any) {
       setError(err.message || 'Failed to load tracker entries');
     } finally {
@@ -182,6 +215,11 @@ export default function InternalTrackerPage() {
   useEffect(() => {
     fetchEntries();
   }, [fetchEntries]);
+
+  useEffect(() => {
+    setTrackerPage(1);
+    setSummaryPage(1);
+  }, [search, ticketFilter, memberFilter, titleFilter, dateFrom, dateTo]);
 
   // Close the team member dropdown on an outside click.
   useEffect(() => {
@@ -195,6 +233,19 @@ export default function InternalTrackerPage() {
     }
     return () => document.removeEventListener('mousedown', handleClick);
   }, [membersOpen]);
+
+  // Close the report dropdown on an outside click.
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (reportRef.current && !reportRef.current.contains(e.target as Node)) {
+        setReportOpen(false);
+      }
+    };
+    if (reportOpen) {
+      document.addEventListener('mousedown', handleClick);
+    }
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [reportOpen]);
 
   // Live-search Knowledge Base as the user types the issue title, so a
   // matching solution can be linked instead of duplicating work.
@@ -243,11 +294,17 @@ export default function InternalTrackerPage() {
         ticketStatus: form.ticketStatus,
       };
 
-      const res = await fetch('/api/tracker', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const res = editingId
+        ? await fetch(`/api/tracker/${editingId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+        : await fetch('/api/tracker', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
       const json = await res.json();
       if (!res.ok || !json.success) {
         throw new Error(json.error || 'Failed to save entry');
@@ -256,6 +313,7 @@ export default function InternalTrackerPage() {
       setForm(EMPTY_FORM);
       setSuggestions([]);
       setShowForm(false);
+      setEditingId(null);
       fetchEntries();
     } catch (err: any) {
       setError(err.message || 'Failed to save entry');
@@ -264,9 +322,41 @@ export default function InternalTrackerPage() {
     }
   };
 
-  const totalHours = entries.reduce((sum, e) => sum + (e.hoursWorked || 0), 0);
-  const breachCount = entries.filter((e) => e.slaBreach === 'Yes').length;
-  const escalationCount = entries.filter((e) => e.escalationStatus === 'Yes').length;
+  const startEdit = (entry: TrackerEntry) => {
+    setEditingId(entry._id);
+    setForm({
+      ticketId: entry.ticketId,
+      title: entry.title || '',
+      teamMembers: entry.teamMembers || [],
+      role: entry.role,
+      date: new Date(entry.date).toISOString().slice(0, 10),
+      workDescription: entry.workDescription,
+      hoursWorked: String(entry.hoursWorked),
+      workType: entry.workType || 'Follow-up',
+      slaBreach: entry.slaBreach,
+      slaBreachReason: entry.slaBreachReason || '',
+      escalationStatus: entry.escalationStatus,
+      application: entry.application || '',
+      linkedArticle: entry.linkedArticle?._id || '',
+      ticketStatus: entry.ticketStatus || 'Open',
+    });
+    setSuggestions([]);
+    setShowForm(true);
+  };
+
+  const deleteEntry = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this tracker entry?')) return;
+    try {
+      const res = await fetch(`/api/tracker/${id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || 'Failed to delete entry');
+      }
+      fetchEntries();
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete entry');
+    }
+  };
 
   const updateTicketStatus = async (ticketId: string, ticketStatus: string) => {
     try {
@@ -288,9 +378,65 @@ export default function InternalTrackerPage() {
     }
   };
 
+  const getSortValue = (e: TrackerEntry, key: string) => {
+    switch (key) {
+      case 'ticketId':
+        return e.ticketId;
+      case 'title':
+        return e.title || '';
+      case 'teamMembers':
+        return e.teamMembers?.join(', ') || '';
+      case 'role':
+        return e.role;
+      case 'date':
+        return new Date(e.date).getTime();
+      case 'workDescription':
+        return e.workDescription || '';
+      case 'hoursWorked':
+        return e.hoursWorked || 0;
+      case 'slaBreach':
+        return e.slaBreach;
+      case 'escalationStatus':
+        return e.escalationStatus;
+      case 'ticketStatus':
+        return e.ticketStatus || '';
+      case 'addedBy':
+        return e.user?.name || '';
+      case 'loggedAt':
+        return e.createdAt ? new Date(e.createdAt).getTime() : 0;
+      case 'knowledgeLinked':
+        return e.linkedArticle?.title || 'Unlinked';
+      default:
+        return '';
+    }
+  };
+
+  const filteredAndSortedEntries = useMemo(() => {
+    const [sortBy, sortOrder] = sort.split('-') as [string, 'asc' | 'desc'];
+    let data = entries;
+    if (titleFilter.trim()) {
+      const term = titleFilter.trim().toLowerCase();
+      data = data.filter((e) => e.title?.toLowerCase().includes(term));
+    }
+    data = [...data].sort((a, b) => {
+      const order = sortOrder === 'asc' ? 1 : -1;
+      const aVal = getSortValue(a, sortBy);
+      const bVal = getSortValue(b, sortBy);
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return (aVal - bVal) * order;
+      }
+      return String(aVal || '').localeCompare(String(bVal || '')) * order;
+    });
+    return data;
+  }, [entries, titleFilter, sort]);
+
+  const totalHours = filteredAndSortedEntries.reduce((sum, e) => sum + (e.hoursWorked || 0), 0);
+  const breachCount = filteredAndSortedEntries.filter((e) => e.slaBreach === 'Yes').length;
+  const escalationCount = filteredAndSortedEntries.filter((e) => e.escalationStatus === 'Yes').length;
+
   const ticketGroups = useMemo(() => {
     const groups: Record<string, any> = {};
-    for (const e of entries) {
+    for (const e of filteredAndSortedEntries) {
       if (!groups[e.ticketId]) {
         groups[e.ticketId] = {
           ticketId: e.ticketId,
@@ -322,13 +468,76 @@ export default function InternalTrackerPage() {
           .join(', '),
       }))
       .sort((a: any, b: any) => b.hours - a.hours);
-  }, [entries]);
+  }, [filteredAndSortedEntries]);
+
+  const paginatedEntries = useMemo(
+    () => filteredAndSortedEntries.slice((trackerPage - 1) * PAGE_SIZE, trackerPage * PAGE_SIZE),
+    [filteredAndSortedEntries, trackerPage]
+  );
+
+  const paginatedGroups = useMemo(
+    () => ticketGroups.slice((summaryPage - 1) * PAGE_SIZE, summaryPage * PAGE_SIZE),
+    [ticketGroups, summaryPage]
+  );
+
+  const exportToExcel = () => {
+    const data = activeTab === 'tracker' ? entries : ticketGroups;
+    const name = activeTab === 'tracker' ? 'Common Tracker' : 'Unique Ticket Summary';
+    const cleaned = data.map((row: any) => ({
+      ...row,
+      linkedArticle: row.linkedArticle?.title || 'Unlinked',
+      teamMembers: Array.isArray(row.teamMembers) ? row.teamMembers.join(', ') : row.teamMembers,
+      members: Array.isArray(row.members) ? row.members.join(', ') : row.members,
+      contributors: row.contributors,
+      user: row.user?.name || row.user || '—',
+    }));
+    const ws = XLSX.utils.json_to_sheet(cleaned);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, name);
+    XLSX.writeFile(wb, `tracker-${activeTab}-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
+  const downloadReport = () => {
+    const trackerData = entries.map((e: any) => ({
+      'Ticket ID': e.ticketId,
+      Title: e.title || '—',
+      'Team Members': e.teamMembers?.join(', '),
+      Role: e.role,
+      Date: new Date(e.date).toLocaleDateString(),
+      'Work Done': e.workDescription,
+      Hours: e.hoursWorked,
+      'SLA Breach': e.slaBreach,
+      Escalation: e.escalationStatus,
+      'Ticket Status': e.ticketStatus,
+      'Added By': e.user?.name || '—',
+      Application: e.application || '—',
+      'Knowledge Linked': e.linkedArticle?.title || 'Unlinked',
+    }));
+    const summaryData = ticketGroups.map((g: any) => ({
+      'Ticket ID': g.ticketId,
+      Title: g.title || '—',
+      Application: g.application || '—',
+      Owner: g.owner,
+      Contributors: g.contributors || '—',
+      'Total Hours': g.hours.toFixed(2),
+      Status: g.ticketStatus,
+      'Knowledge Linked': g.linkedArticle?.title || 'Unlinked',
+    }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(trackerData), 'Common Tracker');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summaryData), 'Unique Summary');
+    XLSX.writeFile(wb, `tracker-report-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
+  const downloadPDF = () => {
+    window.print();
+  };
 
   return (
     <AppLayout>
-      <div className="p-lg max-w-[1600px] mx-auto space-y-lg">
+      <div className="p-lg w-full space-y-lg">
         {/* Header */}
-        <div className="flex justify-between items-end pb-sm border-b border-outline-variant/20">
+        <div className="max-w-[1600px] mx-auto flex justify-between items-end pb-sm border-b border-outline-variant/20">
           <div>
             <h1 className="font-h1 text-h1 text-on-surface tracking-tight">Internal Tracker</h1>
             <p className="font-body-md text-body-md text-on-surface-variant mt-1">
@@ -347,8 +556,8 @@ export default function InternalTrackerPage() {
         )}
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
-          <StatCard label="Entries" value={total} />
+        <div className="max-w-[1600px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-md">
+          <StatCard label="Entries" value={filteredAndSortedEntries.length} />
           <StatCard label="Total Hours" value={totalHours.toFixed(2)} />
           <StatCard label="SLA Breaches" value={breachCount} accent="text-error" />
           <StatCard label="Escalations" value={escalationCount} accent="text-amber-500" />
@@ -358,7 +567,7 @@ export default function InternalTrackerPage() {
         {showForm && (
           <form
             onSubmit={handleSubmit}
-            className="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-lg grid grid-cols-1 md:grid-cols-3 gap-md"
+            className="max-w-[1600px] mx-auto bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-lg grid grid-cols-1 md:grid-cols-3 gap-md"
           >
             <Field label="Ticket ID *">
               <input
@@ -599,18 +808,18 @@ export default function InternalTrackerPage() {
             </Field>
 
             <div className="md:col-span-3 flex justify-end gap-sm">
-              <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
+              <Button type="button" variant="ghost" onClick={() => { setShowForm(false); setEditingId(null); setForm(EMPTY_FORM); }}>
                 Cancel
               </Button>
               <Button type="submit" disabled={submitting}>
-                {submitting ? 'Saving...' : 'Save Entry'}
+                {submitting ? 'Saving...' : (editingId ? 'Save Changes' : 'Save Entry')}
               </Button>
             </div>
           </form>
         )}
 
         {/* Search / Filters */}
-        <div className="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-md grid grid-cols-1 md:grid-cols-5 gap-sm">
+        <div className="max-w-[1600px] mx-auto bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-md grid grid-cols-1 md:grid-cols-7 gap-sm">
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -630,6 +839,26 @@ export default function InternalTrackerPage() {
             className="input"
           />
           <input
+            value={titleFilter}
+            onChange={(e) => setTitleFilter(e.target.value)}
+            placeholder="Filter by Title"
+            className="input"
+          />
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            className="input"
+          >
+            <option value="date-desc">Newest First</option>
+            <option value="date-asc">Oldest First</option>
+            <option value="title-asc">Title A-Z</option>
+            <option value="title-desc">Title Z-A</option>
+            <option value="hours-desc">Hours High-Low</option>
+            <option value="hours-asc">Hours Low-High</option>
+            <option value="ticketId-asc">Ticket ID A-Z</option>
+            <option value="ticketId-desc">Ticket ID Z-A</option>
+          </select>
+          <input
             type="date"
             value={dateFrom}
             onChange={(e) => setDateFrom(e.target.value)}
@@ -643,30 +872,123 @@ export default function InternalTrackerPage() {
           />
         </div>
 
-        {/* Table */}
-        <div className="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-x-auto">
+        {/* Tabs + Table */}
+        <div className="space-y-md">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-sm">
+            <div className="inline-flex bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-1">
+              <button
+                type="button"
+                onClick={() => setActiveTab('tracker')}
+                className={`px-4 py-2 text-body-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'tracker'
+                    ? 'bg-primary text-on-primary'
+                    : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+              >
+                Common Tracker
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('summary')}
+                className={`px-4 py-2 text-body-sm font-medium rounded-md transition-colors ${
+                  activeTab === 'summary'
+                    ? 'bg-primary text-on-primary'
+                    : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+              >
+                Unique Ticket Summary
+              </button>
+            </div>
+            <div className="flex items-center gap-sm">
+              <button
+                type="button"
+                onClick={exportToExcel}
+                className="px-3 py-2 text-[12px] border border-outline-variant/30 rounded-lg hover:bg-surface-container-high text-on-surface"
+              >
+                Export to Excel
+              </button>
+              <div className="relative" ref={reportRef}>
+                <button
+                  type="button"
+                  onClick={() => setReportOpen((s) => !s)}
+                  className="px-3 py-2 text-[12px] bg-primary text-on-primary rounded-lg hover:bg-primary/90"
+                >
+                  Download Report
+                </button>
+                {reportOpen && (
+                  <div className="absolute right-0 mt-1 w-40 bg-surface dark:bg-surface-container-lowest border border-outline-variant/40 rounded-lg shadow-lg z-10 overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => { downloadReport(); setReportOpen(false); }}
+                      className="w-full text-left px-3 py-2 text-[12px] text-on-surface hover:bg-surface-container-high"
+                    >
+                      Excel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { downloadPDF(); setReportOpen(false); }}
+                      className="w-full text-left px-3 py-2 text-[12px] text-on-surface hover:bg-surface-container-high"
+                    >
+                      PDF
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {activeTab === 'tracker' && (
+          <div className="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-x-auto">
           <table className="w-full text-body-sm">
             <thead className="bg-surface-container-high/50">
               <tr className="text-left text-on-surface-variant uppercase text-[11px] tracking-wider">
-                <th className="px-4 py-3">Ticket ID</th>
-                <th className="px-4 py-3">Title</th>
-                <th className="px-4 py-3">Team Member(s)</th>
-                <th className="px-4 py-3">Role</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Work Done</th>
-                <th className="px-4 py-3">Hours</th>
-                <th className="px-4 py-3">SLA Breach</th>
-                <th className="px-4 py-3">Escalation</th>
-                <th className="px-4 py-3">Ticket Status</th>
-                <th className="px-4 py-3">Added By</th>
-                <th className="px-4 py-3">Logged At</th>
-                <th className="px-4 py-3">Knowledge Linked</th>
+                <SortableHeader label="Ticket ID" sortKey="ticketId" sort={sort} onSort={setSort} />
+                <th className="px-4 py-3 align-top">
+                  <div className="flex flex-col gap-1 normal-case">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSort(sort === 'title-asc' ? 'title-desc' : 'title-asc')
+                      }
+                      className="text-left flex items-center gap-1 hover:text-primary"
+                    >
+                      <span className="uppercase tracking-wider">Title</span>
+                      {sort.startsWith('title') ? (
+                        sort === 'title-asc' ? (
+                          <span className="material-symbols-outlined text-[14px]">arrow_upward</span>
+                        ) : (
+                          <span className="material-symbols-outlined text-[14px]">arrow_downward</span>
+                        )
+                      ) : (
+                        <span className="material-symbols-outlined text-[14px] opacity-50">unfold_more</span>
+                      )}
+                    </button>
+                    <input
+                      value={titleFilter}
+                      onChange={(e) => setTitleFilter(e.target.value)}
+                      placeholder="Search title"
+                      className="input text-[11px] py-1 px-2"
+                    />
+                  </div>
+                </th>
+                <SortableHeader label="Team Member(s)" sortKey="teamMembers" sort={sort} onSort={setSort} />
+                <SortableHeader label="Role" sortKey="role" sort={sort} onSort={setSort} />
+                <SortableHeader label="Date" sortKey="date" sort={sort} onSort={setSort} />
+                <SortableHeader label="Work Done" sortKey="workDescription" sort={sort} onSort={setSort} />
+                <SortableHeader label="Hours" sortKey="hoursWorked" sort={sort} onSort={setSort} />
+                <SortableHeader label="SLA Breach" sortKey="slaBreach" sort={sort} onSort={setSort} />
+                <SortableHeader label="Escalation" sortKey="escalationStatus" sort={sort} onSort={setSort} />
+                <SortableHeader label="Ticket Status" sortKey="ticketStatus" sort={sort} onSort={setSort} />
+                <SortableHeader label="Added By" sortKey="addedBy" sort={sort} onSort={setSort} />
+                <SortableHeader label="Logged At" sortKey="loggedAt" sort={sort} onSort={setSort} />
+                <SortableHeader label="Knowledge Linked" sortKey="knowledgeLinked" sort={sort} onSort={setSort} />
+                <th className="px-4 py-3">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={13} className="px-4 py-6">
+                  <td colSpan={14} className="px-4 py-6">
                     <div className="flex flex-col items-center justify-center">
                       <PacmanLoader size={30} speedMultiplier={2} />
                       <p className="text-body-sm text-on-surface-variant mt-4">Loading...</p>
@@ -674,14 +996,14 @@ export default function InternalTrackerPage() {
                   </td>
                 </tr>
               )}
-              {!loading && entries.length === 0 && (
+              {!loading && paginatedEntries.length === 0 && (
                 <tr>
-                  <td colSpan={13} className="px-4 py-6 text-center text-on-surface-variant">
+                  <td colSpan={14} className="px-4 py-6 text-center text-on-surface-variant">
                     No tracker entries found. Click &quot;New Entry&quot; to add one.
                   </td>
                 </tr>
               )}
-              {entries.map((entry) => (
+              {paginatedEntries.map((entry) => (
                 <tr
                   key={entry._id}
                   className="border-t border-outline-variant/20 hover:bg-surface-container-high/30"
@@ -747,13 +1069,44 @@ export default function InternalTrackerPage() {
                       </Link>
                     )}
                   </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      {(canManage || entry.user?._id === currentUserId) && (
+                        <button
+                          type="button"
+                          title="Edit"
+                          onClick={() => startEdit(entry)}
+                          className="text-primary hover:text-primary/80"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">edit</span>
+                        </button>
+                      )}
+                      {canManage && (
+                        <button
+                          type="button"
+                          title="Delete"
+                          onClick={() => deleteEntry(entry._id)}
+                          className="text-error hover:text-error/80"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <Pagination
+            page={trackerPage}
+            total={entries.length}
+            pageSize={PAGE_SIZE}
+            onChange={setTrackerPage}
+          />
         </div>
-
-        {/* Ticket Summary */}
+          )}
+          {activeTab === 'summary' && (
+        // Ticket Summary
         <div className="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-x-auto">
           <div className="px-4 py-3 border-b border-outline-variant/20">
             <h3 className="font-title-md text-title-md text-on-surface dark:text-on-secondary">
@@ -787,14 +1140,14 @@ export default function InternalTrackerPage() {
                     </div>
                   </td>
                 </tr>
-              ) : ticketGroups.length === 0 ? (
+              ) : paginatedGroups.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="px-4 py-6 text-center text-on-surface-variant">
                     No tickets logged yet.
                   </td>
                 </tr>
               ) : (
-                ticketGroups.map((group: any) => (
+                paginatedGroups.map((group: any) => (
                   <tr
                     key={group.ticketId}
                     className="border-t border-outline-variant/20 hover:bg-surface-container-high/30"
@@ -843,6 +1196,14 @@ export default function InternalTrackerPage() {
               )}
             </tbody>
           </table>
+          <Pagination
+            page={summaryPage}
+            total={ticketGroups.length}
+            pageSize={PAGE_SIZE}
+            onChange={setSummaryPage}
+          />
+        </div>
+          )}
         </div>
       </div>
 
@@ -935,5 +1296,87 @@ function Badge({ value, positiveIsBad }: { value: string; positiveIsBad?: boolea
 
   return (
     <span className={`px-2 py-0.5 rounded text-[11px] font-medium ${cls}`}>{value}</span>
+  );
+}
+
+function Pagination({
+  page,
+  total,
+  pageSize,
+  onChange,
+}: {
+  page: number;
+  total: number;
+  pageSize: number;
+  onChange: (p: number) => void;
+}) {
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (totalPages <= 1) return null;
+  const start = Math.min((page - 1) * pageSize + 1, total);
+  const end = Math.min(page * pageSize, total);
+  return (
+    <div className="flex items-center justify-between px-4 py-3 border-t border-outline-variant/20">
+      <p className="text-[12px] text-on-surface-variant">
+        Showing {start} - {end} of {total}
+      </p>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onChange(Math.max(1, page - 1))}
+          disabled={page === 1}
+          className="px-3 py-1 text-[12px] border border-outline-variant/30 rounded hover:bg-surface-container-high disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span className="text-[12px] text-on-surface-variant">
+          Page {page} of {totalPages}
+        </span>
+        <button
+          type="button"
+          onClick={() => onChange(Math.min(totalPages, page + 1))}
+          disabled={page === totalPages}
+          className="px-3 py-1 text-[12px] border border-outline-variant/30 rounded hover:bg-surface-container-high disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SortableHeader({
+  label,
+  sortKey,
+  sort,
+  onSort,
+}: {
+  label: string;
+  sortKey: string;
+  sort: string;
+  onSort: (sort: string) => void;
+}) {
+  const active = sort.startsWith(`${sortKey}-`);
+  const isAsc = active && sort.endsWith('-asc');
+  return (
+    <th className="px-4 py-3 align-top">
+      <button
+        type="button"
+        onClick={() =>
+          onSort(active ? (isAsc ? `${sortKey}-desc` : `${sortKey}-asc`) : `${sortKey}-asc`)
+        }
+        className="text-left flex items-center gap-1 hover:text-primary"
+      >
+        <span className="uppercase tracking-wider">{label}</span>
+        {active ? (
+          isAsc ? (
+            <span className="material-symbols-outlined text-[14px]">arrow_upward</span>
+          ) : (
+            <span className="material-symbols-outlined text-[14px]">arrow_downward</span>
+          )
+        ) : (
+          <span className="material-symbols-outlined text-[14px] opacity-50">unfold_more</span>
+        )}
+      </button>
+    </th>
   );
 }

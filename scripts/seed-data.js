@@ -14,6 +14,7 @@ const APPLICATIONS = [
   { name: 'Ultratax', description: 'Thomson Reuters tax compliance and preparation software.', icon: 'summarize', color: '#f97316' },
   { name: 'Transaction Pro', description: 'Data import/export utility for QuickBooks and accounting transactions.', icon: 'sync_alt', color: '#0ea5e9' },
   { name: 'CCH Axcess', description: 'Wolters Kluwer cloud-based tax, audit, and accounting workflow platform.', icon: 'gavel', color: '#dc2626' },
+  { name: 'Canopy', description: 'Cloud-based accounting practice management and document portal.', icon: 'cloud', color: '#10b981' },
 ];
 
 // Old placeholder/demo applications from earlier seed versions. Removed on

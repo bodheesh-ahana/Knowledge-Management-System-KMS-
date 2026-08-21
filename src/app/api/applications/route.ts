@@ -12,6 +12,13 @@ export async function GET(_req: NextRequest) {
   try {
     await connectDB();
 
+    // Ensure Canopy is always available as an application option
+    await Application.updateOne(
+      { name: 'Canopy' },
+      { $setOnInsert: { name: 'Canopy' } },
+      { upsert: true }
+    );
+
     const applications = await Application.find({}).sort({ name: 1 }).lean();
 
     // Enrich with counts (users = tickets+articles referencing the app as a proxy for activity)
