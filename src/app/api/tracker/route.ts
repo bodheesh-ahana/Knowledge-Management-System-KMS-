@@ -50,8 +50,19 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // Collected as $and clauses so the ticket filter and the free-text search
+    // can both apply without one overwriting the other's $or.
+    const andClauses: any[] = [];
+
     if (ticketId) {
-      query.ticketId = { $regex: ticketId, $options: 'i' };
+      // Match against the parent ticket or the sub-task number so a single
+      // filter finds both the ticket entry and its task entries.
+      andClauses.push({
+        $or: [
+          { ticketId: { $regex: ticketId, $options: 'i' } },
+          { taskId: { $regex: ticketId, $options: 'i' } },
+        ],
+      });
     }
 
     if (teamMember) {
@@ -64,13 +75,20 @@ export async function GET(req: NextRequest) {
 
     if (search) {
       const regex = { $regex: search, $options: 'i' };
-      query.$or = [
-        { ticketId: regex },
-        { title: regex },
-        { workDescription: regex },
-        { application: regex },
-        { teamMembers: regex },
-      ];
+      andClauses.push({
+        $or: [
+          { ticketId: regex },
+          { taskId: regex },
+          { title: regex },
+          { workDescription: regex },
+          { application: regex },
+          { teamMembers: regex },
+        ],
+      });
+    }
+
+    if (andClauses.length > 0) {
+      query.$and = andClauses;
     }
 
     const [entries, total] = await Promise.all([
@@ -158,20 +176,24 @@ export async function POST(req: NextRequest) {
 
     await entry.save();
 
-    await Activity.create({
-      user: user._id,
-      type: 'HoursLogged',
-      resourceType: 'tracker',
-      resourceId: entry._id,
-      details: { hoursWorked: entry.hoursWorked, date: entry.date },
-    });
-
-    await notifyAll({
-      type: 'TrackerEntryCreated',
-      title: 'Tracker entry logged',
-      message: `${entry.ticketId}${entry.title ? ` — ${entry.title}` : ''}${entry.application ? ` · ${entry.application}` : ''}`,
-      resourceId: entry._id,
-    });
+    // The activity log and the broadcast notification are independent of each
+    // other, so run them concurrently instead of as two more sequential
+    // round trips to the database.
+    await Promise.all([
+      Activity.create({
+        user: user._id,
+        type: 'HoursLogged',
+        resourceType: 'tracker',
+        resourceId: entry._id,
+        details: { hoursWorked: entry.hoursWorked, date: entry.date },
+      }),
+      notifyAll({
+        type: 'TrackerEntryCreated',
+        title: 'Tracker entry logged',
+        message: `${entry.ticketId}${entry.title ? ` — ${entry.title}` : ''}${entry.application ? ` · ${entry.application}` : ''}`,
+        resourceId: entry._id,
+      }),
+    ]);
 
     return successResponse(entry, 201);
   } catch (error) {

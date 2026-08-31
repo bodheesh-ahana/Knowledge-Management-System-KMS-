@@ -183,6 +183,8 @@ export interface ITrackerEntry {
   user: string; // User ID (owner of the entry / logged-in engineer)
   teamMembers: string[]; // Team member name(s), e.g. ["Rajarshi Dasgupta", "Bindushree A C"]
   ticketId: string; // ManageEngine ticket ID, may include suffix e.g. "204811(#1612)"
+  isTask: boolean; // True when this entry tracks a sub-task of the parent ticket
+  taskId?: string; // Sub-task number under the parent ticketId, only set when isTask is true
   title?: string; // Issue title/summary, used to auto-match Knowledge Base articles
   linkedArticle?: string; // KnowledgeArticle ID if this entry's issue has a documented solution
   role: 'Owner' | 'Contributor';

@@ -31,6 +31,8 @@ export const createTicketSchema = z.object({
 export const createTrackerEntrySchema = z.object({
   date: z.coerce.date(),
   ticketId: z.string().min(1, 'Ticket ID is required'),
+  isTask: z.boolean().default(false),
+  taskId: z.string().optional(),
   title: z.string().optional(),
   linkedArticle: z.string().optional(),
   teamMembers: z.array(z.string().min(1)).min(1, 'At least one team member is required'),
@@ -55,7 +57,31 @@ export const createTrackerEntrySchema = z.object({
   ticketStatus: z.string().optional(),
   ticketsResolved: z.number().min(0).optional(),
   articlesCreated: z.number().min(0).optional(),
-});
+})
+  // A Task No. is always a sub-task of a parent ticket, so it can never be
+  // supplied without a Ticket No. When "Is Task" is unchecked the Task No. is
+  // dropped so it is never persisted against a plain ticket entry.
+  .superRefine((data, ctx) => {
+    const taskId = data.taskId?.trim();
+    if (taskId && !data.ticketId.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['ticketId'],
+        message: 'Ticket ID is required when a Task ID is provided',
+      });
+    }
+    if (data.isTask && !taskId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['taskId'],
+        message: 'Task ID is required when the entry is marked as a task',
+      });
+    }
+  })
+  .transform((data) => ({
+    ...data,
+    taskId: data.isTask ? data.taskId?.trim() || undefined : undefined,
+  }));
 
 export const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
