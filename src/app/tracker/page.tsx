@@ -14,6 +14,8 @@ interface TrackerEntry {
   user?: { _id: string; name: string };
   teamMembers: string[];
   ticketId: string;
+  isTask?: boolean;
+  taskId?: string;
   title?: string;
   linkedArticle?: { _id: string; title: string; status: string } | null;
   role: 'Owner' | 'Contributor';
@@ -79,6 +81,8 @@ const PAGE_SIZE = 50;
 
 interface FormState {
   ticketId: string;
+  isTask: boolean;
+  taskId: string;
   title: string;
   teamMembers: string[];
   role: 'Owner' | 'Contributor';
@@ -96,6 +100,8 @@ interface FormState {
 
 const EMPTY_FORM: FormState = {
   ticketId: '',
+  isTask: false,
+  taskId: '',
   title: '',
   teamMembers: [],
   role: 'Contributor',
@@ -127,9 +133,10 @@ export default function InternalTrackerPage() {
   const [membersOpen, setMembersOpen] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMemberFromDB[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
-  const [activeTab, setActiveTab] = useState<'tracker' | 'summary'>('tracker');
+  const [activeTab, setActiveTab] = useState<'tracker' | 'summary' | 'tasks'>('tracker');
   const [trackerPage, setTrackerPage] = useState(1);
   const [summaryPage, setSummaryPage] = useState(1);
+  const [taskPage, setTaskPage] = useState(1);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [reportOpen, setReportOpen] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
@@ -219,6 +226,7 @@ export default function InternalTrackerPage() {
   useEffect(() => {
     setTrackerPage(1);
     setSummaryPage(1);
+    setTaskPage(1);
   }, [search, ticketFilter, memberFilter, titleFilter, dateFrom, dateTo]);
 
   // Close the team member dropdown on an outside click.
@@ -277,8 +285,22 @@ export default function InternalTrackerPage() {
     setSubmitting(true);
     setError(null);
     try {
+      const trimmedTicketId = form.ticketId.trim();
+      const trimmedTaskId = form.taskId.trim();
+
+      // A Task No. is always a sub-task of a parent ticket, so it can never be
+      // saved on its own.
+      if (!trimmedTicketId) {
+        throw new Error('Ticket No. is required');
+      }
+      if (form.isTask && !trimmedTaskId) {
+        throw new Error('Task No. is required when "Is Task" is checked');
+      }
+
       const payload = {
-        ticketId: form.ticketId.trim(),
+        ticketId: trimmedTicketId,
+        isTask: form.isTask,
+        taskId: form.isTask ? trimmedTaskId : undefined,
         title: form.title.trim() || undefined,
         linkedArticle: form.linkedArticle || undefined,
         teamMembers: form.teamMembers,
@@ -314,7 +336,9 @@ export default function InternalTrackerPage() {
       setSuggestions([]);
       setShowForm(false);
       setEditingId(null);
-      fetchEntries();
+      // Awaited so the saving overlay stays up until the refreshed list is on
+      // screen, rather than flashing an empty/stale table for a moment.
+      await fetchEntries();
     } catch (err: any) {
       setError(err.message || 'Failed to save entry');
     } finally {
@@ -326,6 +350,8 @@ export default function InternalTrackerPage() {
     setEditingId(entry._id);
     setForm({
       ticketId: entry.ticketId,
+      isTask: Boolean(entry.isTask || entry.taskId),
+      taskId: entry.taskId || '',
       title: entry.title || '',
       teamMembers: entry.teamMembers || [],
       role: entry.role,
@@ -382,6 +408,8 @@ export default function InternalTrackerPage() {
     switch (key) {
       case 'ticketId':
         return e.ticketId;
+      case 'taskId':
+        return e.taskId || '';
       case 'title':
         return e.title || '';
       case 'teamMembers':
@@ -418,14 +446,22 @@ export default function InternalTrackerPage() {
       const term = titleFilter.trim().toLowerCase();
       data = data.filter((e) => e.title?.toLowerCase().includes(term));
     }
+    // Most recently logged entry wins any tie, so a newly saved entry always
+    // surfaces above older ones recorded against the same date.
+    const byNewest = (a: TrackerEntry, b: TrackerEntry) =>
+      (b.createdAt ? new Date(b.createdAt).getTime() : 0) -
+      (a.createdAt ? new Date(a.createdAt).getTime() : 0);
+
     data = [...data].sort((a, b) => {
       const order = sortOrder === 'asc' ? 1 : -1;
       const aVal = getSortValue(a, sortBy);
       const bVal = getSortValue(b, sortBy);
       if (typeof aVal === 'number' && typeof bVal === 'number') {
-        return (aVal - bVal) * order;
+        return (aVal - bVal) * order || byNewest(a, b);
       }
-      return String(aVal || '').localeCompare(String(bVal || '')) * order;
+      return (
+        String(aVal || '').localeCompare(String(bVal || '')) * order || byNewest(a, b)
+      );
     });
     return data;
   }, [entries, titleFilter, sort]);
@@ -440,6 +476,7 @@ export default function InternalTrackerPage() {
       if (!groups[e.ticketId]) {
         groups[e.ticketId] = {
           ticketId: e.ticketId,
+          taskIds: new Set<string>(),
           title: e.title,
           application: e.application,
           allMembers: new Set<string>(),
@@ -447,9 +484,11 @@ export default function InternalTrackerPage() {
           hours: 0,
           linkedArticle: e.linkedArticle,
           ticketStatus: e.ticketStatus,
+          latestActivity: 0,
         };
       }
       const g = groups[e.ticketId];
+      if (e.taskId) g.taskIds.add(e.taskId);
       e.teamMembers?.forEach((m: string) => g.allMembers.add(m));
       g.hours += e.hoursWorked;
       if (!g.title && e.title) g.title = e.title;
@@ -457,17 +496,28 @@ export default function InternalTrackerPage() {
       if (!g.linkedArticle && e.linkedArticle) g.linkedArticle = e.linkedArticle;
       if (e.ticketStatus) g.ticketStatus = e.ticketStatus;
       if (e.role === 'Owner' && !g.owner) g.owner = e.teamMembers?.[0];
+
+      // Track the most recent activity on the ticket so the roll-up can be
+      // ordered newest-first. Prefer the logged-at timestamp and fall back to
+      // the work date for older entries that predate createdAt.
+      const activity = Math.max(
+        e.createdAt ? new Date(e.createdAt).getTime() : 0,
+        e.date ? new Date(e.date).getTime() : 0
+      );
+      if (activity > g.latestActivity) g.latestActivity = activity;
     }
     return Object.values(groups)
       .map((g: any) => ({
         ...g,
         owner: g.owner || '—',
+        taskNumbers: Array.from(g.taskIds as Set<string>).join(', '),
         members: Array.from(g.allMembers as Set<string>),
         contributors: Array.from(g.allMembers as Set<string>)
           .filter((m) => m !== g.owner)
           .join(', '),
       }))
-      .sort((a: any, b: any) => b.hours - a.hours);
+      // Newest ticket activity first, with total hours as the tie-breaker.
+      .sort((a: any, b: any) => b.latestActivity - a.latestActivity || b.hours - a.hours);
   }, [filteredAndSortedEntries]);
 
   const paginatedEntries = useMemo(
@@ -480,17 +530,42 @@ export default function InternalTrackerPage() {
     [ticketGroups, summaryPage]
   );
 
+  // Task-only view: entries logged against a sub-task of a parent ticket.
+  const taskEntries = useMemo(
+    () => filteredAndSortedEntries.filter((e) => Boolean(e.taskId || e.isTask)),
+    [filteredAndSortedEntries]
+  );
+
+  const paginatedTasks = useMemo(
+    () => taskEntries.slice((taskPage - 1) * PAGE_SIZE, taskPage * PAGE_SIZE),
+    [taskEntries, taskPage]
+  );
+
+  const taskHours = taskEntries.reduce((sum, e) => sum + (e.hoursWorked || 0), 0);
+
   const exportToExcel = () => {
-    const data = activeTab === 'tracker' ? entries : ticketGroups;
-    const name = activeTab === 'tracker' ? 'Common Tracker' : 'Unique Ticket Summary';
-    const cleaned = data.map((row: any) => ({
-      ...row,
-      linkedArticle: row.linkedArticle?.title || 'Unlinked',
-      teamMembers: Array.isArray(row.teamMembers) ? row.teamMembers.join(', ') : row.teamMembers,
-      members: Array.isArray(row.members) ? row.members.join(', ') : row.members,
-      contributors: row.contributors,
-      user: row.user?.name || row.user || '—',
-    }));
+    const data =
+      activeTab === 'tracker' ? entries : activeTab === 'tasks' ? taskEntries : ticketGroups;
+    const name =
+      activeTab === 'tracker'
+        ? 'Common Tracker'
+        : activeTab === 'tasks'
+        ? 'Task Entries'
+        : 'Unique Ticket Summary';
+    const cleaned = data.map((row: any, idx: number) => {
+      // Sets and internal sort keys don't serialise into a spreadsheet cell,
+      // so drop them rather than emitting "[object Set]" columns.
+      const { allMembers, taskIds, latestActivity, ...rest } = row;
+      return {
+        'SL No.': idx + 1,
+        ...rest,
+        linkedArticle: row.linkedArticle?.title || 'Unlinked',
+        teamMembers: Array.isArray(row.teamMembers) ? row.teamMembers.join(', ') : row.teamMembers,
+        members: Array.isArray(row.members) ? row.members.join(', ') : row.members,
+        contributors: row.contributors,
+        user: row.user?.name || row.user || '—',
+      };
+    });
     const ws = XLSX.utils.json_to_sheet(cleaned);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, name);
@@ -498,8 +573,9 @@ export default function InternalTrackerPage() {
   };
 
   const downloadReport = () => {
-    const trackerData = entries.map((e: any) => ({
-      'Ticket ID': e.ticketId,
+    const toReportRow = (e: any) => ({
+      'Ticket No.': e.ticketId,
+      'Task No.': e.taskId || '—',
       Title: e.title || '—',
       'Team Members': e.teamMembers?.join(', '),
       Role: e.role,
@@ -512,9 +588,15 @@ export default function InternalTrackerPage() {
       'Added By': e.user?.name || '—',
       Application: e.application || '—',
       'Knowledge Linked': e.linkedArticle?.title || 'Unlinked',
-    }));
-    const summaryData = ticketGroups.map((g: any) => ({
-      'Ticket ID': g.ticketId,
+    });
+    const trackerData = entries.map((e: any, idx: number) => ({ 'SL No.': idx + 1, ...toReportRow(e) }));
+    const taskData = entries
+      .filter((e: any) => e.taskId || e.isTask)
+      .map((e: any, idx: number) => ({ 'SL No.': idx + 1, ...toReportRow(e) }));
+    const summaryData = ticketGroups.map((g: any, idx: number) => ({
+      'SL No.': idx + 1,
+      'Ticket No.': g.ticketId,
+      'Task No.': g.taskNumbers || '—',
       Title: g.title || '—',
       Application: g.application || '—',
       Owner: g.owner,
@@ -526,6 +608,7 @@ export default function InternalTrackerPage() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(trackerData), 'Common Tracker');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summaryData), 'Unique Summary');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(taskData), 'Task Entries');
     XLSX.writeFile(wb, `tracker-report-${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
@@ -533,8 +616,212 @@ export default function InternalTrackerPage() {
     window.print();
   };
 
+  // Shared by the "Common Tracker" and "Tasks" tabs so both views stay in sync
+  // instead of duplicating the whole table markup.
+  const renderEntriesTable = ({
+    rows,
+    page,
+    total,
+    onPageChange,
+    emptyMessage,
+  }: {
+    rows: TrackerEntry[];
+    page: number;
+    total: number;
+    onPageChange: (p: number) => void;
+    emptyMessage: string;
+  }) => (
+    <div className="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-x-auto">
+      <table className="w-full text-body-sm">
+        <thead className="bg-surface-container-high/50">
+          <tr className="text-left text-on-surface-variant uppercase text-[11px] tracking-wider">
+            <th className="px-4 py-3">SL No.</th>
+            <SortableHeader label="Ticket No." sortKey="ticketId" sort={sort} onSort={setSort} />
+            <SortableHeader label="Task No." sortKey="taskId" sort={sort} onSort={setSort} />
+            <th className="px-4 py-3 align-top">
+              <div className="flex flex-col gap-1 normal-case">
+                <button
+                  type="button"
+                  onClick={() => setSort(sort === 'title-asc' ? 'title-desc' : 'title-asc')}
+                  className="text-left flex items-center gap-1 hover:text-primary"
+                >
+                  <span className="uppercase tracking-wider">Title</span>
+                  {sort.startsWith('title') ? (
+                    sort === 'title-asc' ? (
+                      <span className="material-symbols-outlined text-[14px]">arrow_upward</span>
+                    ) : (
+                      <span className="material-symbols-outlined text-[14px]">arrow_downward</span>
+                    )
+                  ) : (
+                    <span className="material-symbols-outlined text-[14px] opacity-50">unfold_more</span>
+                  )}
+                </button>
+                <input
+                  value={titleFilter}
+                  onChange={(e) => setTitleFilter(e.target.value)}
+                  placeholder="Search title"
+                  className="input text-[11px] py-1 px-2"
+                />
+              </div>
+            </th>
+            <SortableHeader label="Team Member(s)" sortKey="teamMembers" sort={sort} onSort={setSort} />
+            <SortableHeader label="Role" sortKey="role" sort={sort} onSort={setSort} />
+            <SortableHeader label="Date" sortKey="date" sort={sort} onSort={setSort} />
+            <SortableHeader label="Work Done" sortKey="workDescription" sort={sort} onSort={setSort} />
+            <SortableHeader label="Hours" sortKey="hoursWorked" sort={sort} onSort={setSort} />
+            <SortableHeader label="SLA Breach" sortKey="slaBreach" sort={sort} onSort={setSort} />
+            <SortableHeader label="Escalation" sortKey="escalationStatus" sort={sort} onSort={setSort} />
+            <SortableHeader label="Ticket Status" sortKey="ticketStatus" sort={sort} onSort={setSort} />
+            <SortableHeader label="Added By" sortKey="addedBy" sort={sort} onSort={setSort} />
+            <SortableHeader label="Logged At" sortKey="loggedAt" sort={sort} onSort={setSort} />
+            <SortableHeader label="Knowledge Linked" sortKey="knowledgeLinked" sort={sort} onSort={setSort} />
+            <th className="px-4 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading && (
+            <tr>
+              <td colSpan={16} className="px-4 py-6">
+                <div className="flex flex-col items-center justify-center">
+                  <PacmanLoader size={30} speedMultiplier={2} />
+                  <p className="text-body-sm text-on-surface-variant mt-4">Loading...</p>
+                </div>
+              </td>
+            </tr>
+          )}
+          {!loading && rows.length === 0 && (
+            <tr>
+              <td colSpan={16} className="px-4 py-6 text-center text-on-surface-variant">
+                {emptyMessage}
+              </td>
+            </tr>
+          )}
+          {rows.map((entry, idx) => (
+            <tr
+              key={entry._id}
+              className="border-t border-outline-variant/20 hover:bg-surface-container-high/30"
+            >
+              <td className="px-4 py-3">{(page - 1) * PAGE_SIZE + idx + 1}</td>
+              <td className="px-4 py-3 font-mono text-primary">{entry.ticketId}</td>
+              <td className="px-4 py-3 font-mono">
+                {entry.taskId ? (
+                  <span className="text-secondary">{entry.taskId}</span>
+                ) : (
+                  <span className="text-on-surface-variant">&mdash;</span>
+                )}
+              </td>
+              <td className="px-4 py-3 max-w-[180px] truncate" title={entry.title}>
+                {entry.title || <span className="text-on-surface-variant italic">&mdash;</span>}
+              </td>
+              <td className="px-4 py-3">{entry.teamMembers?.join(', ')}</td>
+              <td className="px-4 py-3">{entry.role}</td>
+              <td className="px-4 py-3">{new Date(entry.date).toLocaleDateString()}</td>
+              <td className="px-4 py-3 max-w-xs truncate" title={entry.workDescription}>
+                {entry.workDescription}
+              </td>
+              <td className="px-4 py-3">{entry.hoursWorked}</td>
+              <td className="px-4 py-3">
+                <Badge value={entry.slaBreach} positiveIsBad />
+              </td>
+              <td className="px-4 py-3">
+                <Badge value={entry.escalationStatus} positiveIsBad />
+              </td>
+              <td className="px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <select
+                    value={entry.ticketStatus || 'Open'}
+                    onChange={(e) => updateTicketStatus(entry.ticketId, e.target.value)}
+                    className="input text-[12px] py-1 px-2 rounded min-w-[140px]"
+                  >
+                    {TICKET_STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </td>
+              <td className="px-4 py-3 text-on-surface-variant text-[12px]">
+                {entry.user?.name || '—'}
+              </td>
+              <td className="px-4 py-3 text-on-surface-variant text-[12px]">
+                {entry.createdAt ? new Date(entry.createdAt).toLocaleString() : '—'}
+              </td>
+              <td className="px-4 py-3">
+                {entry.linkedArticle ? (
+                  <Link
+                    href={`/knowledge/${entry.linkedArticle._id}`}
+                    className="text-emerald-600 text-[12px] font-medium whitespace-nowrap flex items-center gap-1"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">link</span>
+                    {entry.linkedArticle.title}
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/knowledge/create?ticketId=${encodeURIComponent(entry.ticketId || '')}&application=${encodeURIComponent(entry.application || '')}&title=${encodeURIComponent(entry.title || '')}&symptoms=${encodeURIComponent(entry.workDescription || '')}`}
+                    className="text-on-surface-variant text-[12px] italic whitespace-nowrap hover:text-primary"
+                  >
+                    Unlinked &middot; Create KB Article
+                  </Link>
+                )}
+              </td>
+              <td className="px-4 py-3">
+                <div className="flex items-center gap-3">
+                  {(canManage || entry.user?._id === currentUserId) && (
+                    <button
+                      type="button"
+                      title="Edit"
+                      onClick={() => startEdit(entry)}
+                      className="text-primary hover:text-primary/80"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">edit</span>
+                    </button>
+                  )}
+                  {canManage && (
+                    <button
+                      type="button"
+                      title="Delete"
+                      onClick={() => deleteEntry(entry._id)}
+                      className="text-error hover:text-error/80"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">delete</span>
+                    </button>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <Pagination page={page} total={total} pageSize={PAGE_SIZE} onChange={onPageChange} />
+    </div>
+  );
+
   return (
     <AppLayout>
+      {/* Full-screen saving overlay: blurs the page and blocks interaction so
+          it is obvious the entry is still being written to the database. */}
+      {submitting && (
+        <div
+          role="status"
+          aria-live="polite"
+          aria-label={editingId ? 'Saving changes' : 'Saving entry'}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-surface/60 backdrop-blur-sm"
+        >
+          <div className="flex flex-col items-center gap-md rounded-xl bg-surface-container-lowest border border-outline-variant/30 px-2xl py-xl shadow-xl">
+            <PacmanLoader size={30} speedMultiplier={2} />
+            <div className="text-center">
+              <p className="font-title-md text-title-md text-on-surface mt-sm">
+                {editingId ? 'Saving changes...' : 'Saving entry...'}
+              </p>
+              <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                Writing to the database. Please don&apos;t close this tab.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="p-lg w-full space-y-lg">
         {/* Header */}
         <div className="max-w-[1600px] mx-auto flex justify-between items-end pb-sm border-b border-outline-variant/20">
@@ -569,7 +856,7 @@ export default function InternalTrackerPage() {
             onSubmit={handleSubmit}
             className="max-w-[1600px] mx-auto bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-lg grid grid-cols-1 md:grid-cols-3 gap-md"
           >
-            <Field label="Ticket ID *">
+            <Field label="Ticket No. *">
               <input
                 required
                 value={form.ticketId}
@@ -577,9 +864,38 @@ export default function InternalTrackerPage() {
                 placeholder="e.g. 216740 or 216740(#2380)"
                 className="input"
               />
+              <label className="flex items-center gap-2 mt-2 text-body-sm text-on-surface cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={form.isTask}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      isTask: e.target.checked,
+                      taskId: e.target.checked ? form.taskId : '',
+                    })
+                  }
+                  className="rounded border-outline-variant"
+                />
+                Is Task
+              </label>
             </Field>
 
-            <Field label="Issue Title" className="md:col-span-2 relative">
+            <Field label={form.isTask ? 'Task No. *' : 'Task No.'}>
+              <input
+                required={form.isTask}
+                disabled={!form.isTask}
+                value={form.taskId}
+                onChange={(e) => setForm({ ...form, taskId: e.target.value })}
+                placeholder={form.isTask ? 'e.g. 216950' : 'Check "Is Task" to enter'}
+                className="input disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+              <p className="text-[11px] text-on-surface-variant mt-1">
+                Sub-task of the Ticket No. above.
+              </p>
+            </Field>
+
+            <Field label="Issue Title" className="md:col-span-3 relative">
               <input
                 value={form.title}
                 onChange={(e) =>
@@ -829,7 +1145,7 @@ export default function InternalTrackerPage() {
           <input
             value={ticketFilter}
             onChange={(e) => setTicketFilter(e.target.value)}
-            placeholder="Filter by Ticket ID"
+            placeholder="Filter by Ticket / Task No."
             className="input"
           />
           <input
@@ -855,8 +1171,10 @@ export default function InternalTrackerPage() {
             <option value="title-desc">Title Z-A</option>
             <option value="hours-desc">Hours High-Low</option>
             <option value="hours-asc">Hours Low-High</option>
-            <option value="ticketId-asc">Ticket ID A-Z</option>
-            <option value="ticketId-desc">Ticket ID Z-A</option>
+            <option value="ticketId-asc">Ticket No. A-Z</option>
+            <option value="ticketId-desc">Ticket No. Z-A</option>
+            <option value="taskId-asc">Task No. A-Z</option>
+            <option value="taskId-desc">Task No. Z-A</option>
           </select>
           <input
             type="date"
@@ -898,6 +1216,26 @@ export default function InternalTrackerPage() {
               >
                 Unique Ticket Summary
               </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('tasks')}
+                className={`px-4 py-2 text-body-sm font-medium rounded-md transition-colors flex items-center gap-2 ${
+                  activeTab === 'tasks'
+                    ? 'bg-primary text-on-primary'
+                    : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+              >
+                Tasks Only
+                <span
+                  className={`text-[11px] px-1.5 py-0.5 rounded-full ${
+                    activeTab === 'tasks'
+                      ? 'bg-on-primary/20 text-on-primary'
+                      : 'bg-surface-container-high text-on-surface-variant'
+                  }`}
+                >
+                  {taskEntries.length}
+                </span>
+              </button>
             </div>
             <div className="flex items-center gap-sm">
               <button
@@ -937,174 +1275,14 @@ export default function InternalTrackerPage() {
             </div>
           </div>
 
-          {activeTab === 'tracker' && (
-          <div className="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-x-auto">
-          <table className="w-full text-body-sm">
-            <thead className="bg-surface-container-high/50">
-              <tr className="text-left text-on-surface-variant uppercase text-[11px] tracking-wider">
-                <SortableHeader label="Ticket ID" sortKey="ticketId" sort={sort} onSort={setSort} />
-                <th className="px-4 py-3 align-top">
-                  <div className="flex flex-col gap-1 normal-case">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setSort(sort === 'title-asc' ? 'title-desc' : 'title-asc')
-                      }
-                      className="text-left flex items-center gap-1 hover:text-primary"
-                    >
-                      <span className="uppercase tracking-wider">Title</span>
-                      {sort.startsWith('title') ? (
-                        sort === 'title-asc' ? (
-                          <span className="material-symbols-outlined text-[14px]">arrow_upward</span>
-                        ) : (
-                          <span className="material-symbols-outlined text-[14px]">arrow_downward</span>
-                        )
-                      ) : (
-                        <span className="material-symbols-outlined text-[14px] opacity-50">unfold_more</span>
-                      )}
-                    </button>
-                    <input
-                      value={titleFilter}
-                      onChange={(e) => setTitleFilter(e.target.value)}
-                      placeholder="Search title"
-                      className="input text-[11px] py-1 px-2"
-                    />
-                  </div>
-                </th>
-                <SortableHeader label="Team Member(s)" sortKey="teamMembers" sort={sort} onSort={setSort} />
-                <SortableHeader label="Role" sortKey="role" sort={sort} onSort={setSort} />
-                <SortableHeader label="Date" sortKey="date" sort={sort} onSort={setSort} />
-                <SortableHeader label="Work Done" sortKey="workDescription" sort={sort} onSort={setSort} />
-                <SortableHeader label="Hours" sortKey="hoursWorked" sort={sort} onSort={setSort} />
-                <SortableHeader label="SLA Breach" sortKey="slaBreach" sort={sort} onSort={setSort} />
-                <SortableHeader label="Escalation" sortKey="escalationStatus" sort={sort} onSort={setSort} />
-                <SortableHeader label="Ticket Status" sortKey="ticketStatus" sort={sort} onSort={setSort} />
-                <SortableHeader label="Added By" sortKey="addedBy" sort={sort} onSort={setSort} />
-                <SortableHeader label="Logged At" sortKey="loggedAt" sort={sort} onSort={setSort} />
-                <SortableHeader label="Knowledge Linked" sortKey="knowledgeLinked" sort={sort} onSort={setSort} />
-                <th className="px-4 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading && (
-                <tr>
-                  <td colSpan={14} className="px-4 py-6">
-                    <div className="flex flex-col items-center justify-center">
-                      <PacmanLoader size={30} speedMultiplier={2} />
-                      <p className="text-body-sm text-on-surface-variant mt-4">Loading...</p>
-                    </div>
-                  </td>
-                </tr>
-              )}
-              {!loading && paginatedEntries.length === 0 && (
-                <tr>
-                  <td colSpan={14} className="px-4 py-6 text-center text-on-surface-variant">
-                    No tracker entries found. Click &quot;New Entry&quot; to add one.
-                  </td>
-                </tr>
-              )}
-              {paginatedEntries.map((entry) => (
-                <tr
-                  key={entry._id}
-                  className="border-t border-outline-variant/20 hover:bg-surface-container-high/30"
-                >
-                  <td className="px-4 py-3 font-mono text-primary">{entry.ticketId}</td>
-                  <td className="px-4 py-3 max-w-[180px] truncate" title={entry.title}>
-                    {entry.title || <span className="text-on-surface-variant italic">&mdash;</span>}
-                  </td>
-                  <td className="px-4 py-3">{entry.teamMembers?.join(', ')}</td>
-                  <td className="px-4 py-3">{entry.role}</td>
-                  <td className="px-4 py-3">
-                    {new Date(entry.date).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-3 max-w-xs truncate" title={entry.workDescription}>
-                    {entry.workDescription}
-                  </td>
-                  <td className="px-4 py-3">{entry.hoursWorked}</td>
-                  <td className="px-4 py-3">
-                    <Badge
-                      value={entry.slaBreach}
-                      positiveIsBad
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge value={entry.escalationStatus} positiveIsBad />
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <select
-                        value={entry.ticketStatus || 'Open'}
-                        onChange={(e) => updateTicketStatus(entry.ticketId, e.target.value)}
-                        className="input text-[12px] py-1 px-2 rounded min-w-[140px]"
-                      >
-                        {TICKET_STATUSES.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-on-surface-variant text-[12px]">
-                    {entry.user?.name || '—'}
-                  </td>
-                  <td className="px-4 py-3 text-on-surface-variant text-[12px]">
-                    {entry.createdAt ? new Date(entry.createdAt).toLocaleString() : '—'}
-                  </td>
-                  <td className="px-4 py-3">
-                    {entry.linkedArticle ? (
-                      <Link
-                        href={`/knowledge/${entry.linkedArticle._id}`}
-                        className="text-emerald-600 text-[12px] font-medium whitespace-nowrap flex items-center gap-1"
-                      >
-                        <span className="material-symbols-outlined text-[14px]">link</span>
-                        {entry.linkedArticle.title}
-                      </Link>
-                    ) : (
-                      <Link
-                        href={`/knowledge/create?ticketId=${encodeURIComponent(entry.ticketId || '')}&application=${encodeURIComponent(entry.application || '')}&title=${encodeURIComponent(entry.title || '')}&symptoms=${encodeURIComponent(entry.workDescription || '')}`}
-                        className="text-on-surface-variant text-[12px] italic whitespace-nowrap hover:text-primary"
-                      >
-                        Unlinked &middot; Create KB Article
-                      </Link>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      {(canManage || entry.user?._id === currentUserId) && (
-                        <button
-                          type="button"
-                          title="Edit"
-                          onClick={() => startEdit(entry)}
-                          className="text-primary hover:text-primary/80"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">edit</span>
-                        </button>
-                      )}
-                      {canManage && (
-                        <button
-                          type="button"
-                          title="Delete"
-                          onClick={() => deleteEntry(entry._id)}
-                          className="text-error hover:text-error/80"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">delete</span>
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <Pagination
-            page={trackerPage}
-            total={entries.length}
-            pageSize={PAGE_SIZE}
-            onChange={setTrackerPage}
-          />
-        </div>
-          )}
+          {activeTab === 'tracker' &&
+            renderEntriesTable({
+              rows: paginatedEntries,
+              page: trackerPage,
+              total: filteredAndSortedEntries.length,
+              onPageChange: setTrackerPage,
+              emptyMessage: 'No tracker entries found. Click "New Entry" to add one.',
+            })}
           {activeTab === 'summary' && (
         // Ticket Summary
         <div className="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl overflow-x-auto">
@@ -1119,7 +1297,9 @@ export default function InternalTrackerPage() {
           <table className="w-full text-body-sm">
             <thead className="bg-surface-container-high/50">
               <tr className="text-left text-on-surface-variant uppercase text-[11px] tracking-wider">
-                <th className="px-4 py-3">Ticket ID</th>
+                <th className="px-4 py-3">SL No.</th>
+                <th className="px-4 py-3">Ticket No.</th>
+                <th className="px-4 py-3">Task No.</th>
                 <th className="px-4 py-3">Title</th>
                 <th className="px-4 py-3">Application</th>
                 <th className="px-4 py-3">Owner</th>
@@ -1133,7 +1313,7 @@ export default function InternalTrackerPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-6">
+                  <td colSpan={11} className="px-4 py-6">
                     <div className="flex flex-col items-center justify-center">
                       <PacmanLoader size={30} speedMultiplier={2} />
                       <p className="text-body-sm text-on-surface-variant mt-4">Loading...</p>
@@ -1142,17 +1322,25 @@ export default function InternalTrackerPage() {
                 </tr>
               ) : paginatedGroups.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-6 text-center text-on-surface-variant">
+                  <td colSpan={11} className="px-4 py-6 text-center text-on-surface-variant">
                     No tickets logged yet.
                   </td>
                 </tr>
               ) : (
-                paginatedGroups.map((group: any) => (
+                paginatedGroups.map((group: any, idx: number) => (
                   <tr
                     key={group.ticketId}
                     className="border-t border-outline-variant/20 hover:bg-surface-container-high/30"
                   >
+                    <td className="px-4 py-3">{(summaryPage - 1) * PAGE_SIZE + idx + 1}</td>
                     <td className="px-4 py-3 font-mono text-primary">{group.ticketId}</td>
+                    <td className="px-4 py-3 font-mono" title={group.taskNumbers}>
+                      {group.taskNumbers ? (
+                        <span className="text-secondary">{group.taskNumbers}</span>
+                      ) : (
+                        <span className="text-on-surface-variant">&mdash;</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 max-w-[180px] truncate" title={group.title}>
                       {group.title || <span className="text-on-surface-variant italic">&mdash;</span>}
                     </td>
@@ -1203,6 +1391,28 @@ export default function InternalTrackerPage() {
             onChange={setSummaryPage}
           />
         </div>
+          )}
+          {activeTab === 'tasks' && (
+            <div className="space-y-md">
+              <div className="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-4 py-3">
+                <h3 className="font-title-md text-title-md text-on-surface dark:text-on-secondary">
+                  Task Entries
+                </h3>
+                <p className="text-body-sm text-on-surface-variant">
+                  Only entries logged against a Task No. under a parent ticket &mdash;{' '}
+                  {taskEntries.length} {taskEntries.length === 1 ? 'entry' : 'entries'},{' '}
+                  {taskHours.toFixed(2)} hours.
+                </p>
+              </div>
+              {renderEntriesTable({
+                rows: paginatedTasks,
+                page: taskPage,
+                total: taskEntries.length,
+                onPageChange: setTaskPage,
+                emptyMessage:
+                  'No task entries yet. Check "Is Task" and enter a Task No. when logging work.',
+              })}
+            </div>
           )}
         </div>
       </div>

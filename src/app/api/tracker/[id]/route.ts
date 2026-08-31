@@ -46,7 +46,24 @@ export async function PUT(
       return errorResponse('Permission denied', 403);
     }
 
-    Object.assign(entry, body);
+    // A Task No. only ever exists as a sub-task of a parent ticket, so reject
+    // an update that would leave a task without its ticket and clear the task
+    // number whenever the entry is no longer flagged as a task.
+    const nextTicketId = (body.ticketId ?? entry.ticketId ?? '').trim();
+    const nextIsTask = body.isTask ?? entry.isTask;
+    const nextTaskId = (body.taskId ?? entry.taskId ?? '').trim();
+
+    if (nextTaskId && !nextTicketId) {
+      return errorResponse('Ticket ID is required when a Task ID is provided', 400);
+    }
+    if (nextIsTask && !nextTaskId) {
+      return errorResponse('Task ID is required when the entry is marked as a task', 400);
+    }
+
+    Object.assign(entry, body, {
+      isTask: nextIsTask,
+      taskId: nextIsTask ? nextTaskId : undefined,
+    });
     await entry.save();
 
     return successResponse(entry);

@@ -12,8 +12,27 @@ function LoginContent() {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
   const [showPassword, setShowPassword] = React.useState(false);
+  const [remember, setRemember] = React.useState(false);
 
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+
+  React.useEffect(() => {
+    try {
+      const savedEmail = localStorage.getItem('kms_login_email');
+      const savedUntil = localStorage.getItem('kms_login_until');
+      if (savedEmail && savedUntil) {
+        if (Date.now() < parseInt(savedUntil, 10)) {
+          setEmail(savedEmail);
+          setRemember(true);
+        } else {
+          localStorage.removeItem('kms_login_email');
+          localStorage.removeItem('kms_login_until');
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -28,6 +47,7 @@ function LoginContent() {
       const result = await signIn('credentials', {
         email: email.trim(),
         password: password,
+        remember: remember ? 'true' : 'false',
         redirect: false,
       });
 
@@ -54,6 +74,14 @@ function LoginContent() {
 
       if (result.ok) {
         console.log('✅ [LOGIN] Sign in successful, redirecting to:', callbackUrl);
+        if (remember) {
+          const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+          localStorage.setItem('kms_login_email', email.trim());
+          localStorage.setItem('kms_login_until', expiresAt.toString());
+        } else {
+          localStorage.removeItem('kms_login_email');
+          localStorage.removeItem('kms_login_until');
+        }
         // Use window.location.href for full page reload to ensure session cookie is properly set
         window.location.href = callbackUrl;
         return;
@@ -175,7 +203,7 @@ function LoginContent() {
             </div>
           )}
 
-          <form className="space-y-md" onSubmit={handleLogin}>
+          <form className="space-y-md" onSubmit={handleLogin} method="POST" action="/auth/login">
             <div>
               <label
                 className="block font-label-md text-label-md text-on-surface dark:text-surface-bright mb-xs"
@@ -189,10 +217,10 @@ function LoginContent() {
                 </div>
                 <input
                   id="email"
-                  name="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
                   placeholder="name@company.com"
                   required
                   disabled={loading}
@@ -221,10 +249,10 @@ function LoginContent() {
                 </div>
                 <input
                   id="password"
-                  name="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
                   placeholder="••••••••"
                   required
                   disabled={loading}
@@ -244,8 +272,10 @@ function LoginContent() {
             <div className="flex items-center mt-sm">
               <input
                 id="remember"
-                name="remember"
                 type="checkbox"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                disabled={loading}
                 className="w-4 h-4 text-primary bg-surface dark:bg-inverse-surface border-outline-variant dark:border-outline rounded focus:ring-primary focus:ring-2 focus:ring-offset-0 focus:outline-none cursor-pointer"
               />
               <label

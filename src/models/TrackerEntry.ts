@@ -17,6 +17,14 @@ const trackerSchema = new Schema<ITrackerEntry>(
       type: String,
       trim: true,
     },
+    isTask: {
+      type: Boolean,
+      default: false,
+    },
+    taskId: {
+      type: String,
+      trim: true,
+    },
     title: {
       type: String,
       trim: true,
@@ -108,6 +116,7 @@ const trackerSchema = new Schema<ITrackerEntry>(
 trackerSchema.index({ user: 1, date: -1 });
 trackerSchema.index({ status: 1 });
 trackerSchema.index({ ticketId: 1 });
+trackerSchema.index({ taskId: 1 });
 trackerSchema.index({ teamMembers: 1 });
 
 // Force recompilation during hot reload so schema changes are picked up

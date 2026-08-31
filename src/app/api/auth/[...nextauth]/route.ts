@@ -1,6 +1,7 @@
 import NextAuth, { type NextAuthOptions, type Session } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import type { JWT } from 'next-auth/jwt';
+import { encode as jwtEncode, type JWTEncodeParams } from 'next-auth/jwt';
 import bcrypt from 'bcryptjs';
 import { connectDB } from '@/lib/mongodb';
 import { User } from '@/models';
@@ -12,6 +13,7 @@ const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'email', placeholder: 'email@example.com' },
         password: { label: 'Password', type: 'password' },
+        remember: { label: 'Remember me', type: 'text' },
       },
       async authorize(credentials) {
         console.log('🔐 [AUTH] authorize() called');
@@ -43,11 +45,14 @@ const authOptions: NextAuthOptions = {
 
           console.log('✅ [AUTH] Password verified');
 
+          const remember = credentials?.remember === 'true';
+
           const returnUser = {
             id: user._id.toString(),
             email: user.email,
             name: user.name,
             role: user.role,
+            remember,
           };
 
           console.log('✅ [AUTH] Returning user');
@@ -69,6 +74,12 @@ const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.remember = user.remember;
+        const now = Math.floor(Date.now() / 1000);
+        const maxAgeSeconds = user.remember
+          ? 30 * 24 * 60 * 60
+          : 8 * 60 * 60;
+        token.exp = now + maxAgeSeconds;
         console.log('✅ [JWT] Token updated with user');
       }
       return token;
@@ -78,6 +89,9 @@ const authOptions: NextAuthOptions = {
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;
+        if (typeof token.exp === 'number') {
+          session.expires = new Date(token.exp * 1000).toISOString();
+        }
         console.log('✅ [SESSION] Session updated');
       }
       return session;
@@ -85,10 +99,17 @@ const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
-    maxAge: 8 * 60 * 60,
+    maxAge: 30 * 24 * 60 * 60,
   },
   jwt: {
-    maxAge: 8 * 60 * 60,
+    maxAge: 30 * 24 * 60 * 60,
+    encode: async ({ token, secret, maxAge }: JWTEncodeParams) => {
+      const now = Date.now() / 1000;
+      const age = token && typeof token.exp === 'number'
+        ? Math.max(1, Math.floor(token.exp - now))
+        : (maxAge ?? 30 * 24 * 60 * 60);
+      return jwtEncode({ token, secret, maxAge: age });
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: true,
