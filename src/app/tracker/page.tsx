@@ -8,6 +8,7 @@ import AppLayout from '@/components/AppLayout';
 import PacmanLoader from '@/components/PacmanLoader';
 import { Button } from '@/components';
 import { getTeamMembers, TeamMemberFromDB } from '@/lib/team';
+import { inlineTaskRefs, parentTicketId, taskRefOf } from '@/lib/tickets';
 
 interface TrackerEntry {
   _id: string;
@@ -78,6 +79,29 @@ const TICKET_STATUSES = [
 ];
 
 const PAGE_SIZE = 50;
+
+// Legacy rows stored the sub-task reference inline in the ticket number, e.g.
+// "219772(#2512)". Strip it so the roll-up groups every entry under its parent
+// ticket and the sub-task number is only ever shown in the Task No. column.
+const sumHours = (rows: { hoursWorked?: number }[]) =>
+  rows.reduce((sum, e) => sum + (e.hoursWorked || 0), 0);
+
+const distinct = (values: (string | undefined)[]) =>
+  new Set(values.filter(Boolean) as string[]).size;
+
+interface Stat {
+  label: string;
+  value: string | number;
+}
+
+// Roll-up bookkeeping fields that must never reach a spreadsheet column.
+const INTERNAL_ROW_KEYS = [
+  'allMembers',
+  'taskIds',
+  'rawTicketIds',
+  'ticketIds',
+  'latestActivity',
+];
 
 interface FormState {
   ticketId: string;
@@ -384,12 +408,15 @@ export default function InternalTrackerPage() {
     }
   };
 
-  const updateTicketStatus = async (ticketId: string, ticketStatus: string) => {
+  const updateTicketStatus = async (ticketId: string | string[], ticketStatus: string) => {
+    // A roll-up row can cover several stored ticket numbers (the plain ticket
+    // plus legacy "219772(#2512)" variants), so accept a list of ids too.
+    const ids = Array.isArray(ticketId) ? ticketId : [ticketId];
     try {
       const res = await fetch('/api/tracker', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ticketId, ticketStatus }),
+        body: JSON.stringify({ ticketId: ids, ticketStatus }),
       });
       const json = await res.json();
       if (!res.ok || !json.success) {
@@ -397,7 +424,7 @@ export default function InternalTrackerPage() {
       }
       // Optimistically update all rows with the same ticket ID in the UI
       setEntries((prev) =>
-        prev.map((e) => (e.ticketId === ticketId ? { ...e, ticketStatus } : e))
+        prev.map((e) => (ids.includes(e.ticketId) ? { ...e, ticketStatus } : e))
       );
     } catch (err: any) {
       setError(err.message || 'Failed to update status');
@@ -407,9 +434,9 @@ export default function InternalTrackerPage() {
   const getSortValue = (e: TrackerEntry, key: string) => {
     switch (key) {
       case 'ticketId':
-        return e.ticketId;
+        return parentTicketId(e.ticketId) || e.ticketId;
       case 'taskId':
-        return e.taskId || '';
+        return e.taskId || inlineTaskRefs(e.ticketId).join(', ');
       case 'title':
         return e.title || '';
       case 'teamMembers':
@@ -473,9 +500,11 @@ export default function InternalTrackerPage() {
   const ticketGroups = useMemo(() => {
     const groups: Record<string, any> = {};
     for (const e of filteredAndSortedEntries) {
-      if (!groups[e.ticketId]) {
-        groups[e.ticketId] = {
-          ticketId: e.ticketId,
+      const key = parentTicketId(e.ticketId) || e.ticketId;
+      if (!groups[key]) {
+        groups[key] = {
+          ticketId: key,
+          rawTicketIds: new Set<string>(),
           taskIds: new Set<string>(),
           title: e.title,
           application: e.application,
@@ -487,8 +516,10 @@ export default function InternalTrackerPage() {
           latestActivity: 0,
         };
       }
-      const g = groups[e.ticketId];
+      const g = groups[key];
+      g.rawTicketIds.add(e.ticketId);
       if (e.taskId) g.taskIds.add(e.taskId);
+      inlineTaskRefs(e.ticketId).forEach((t) => g.taskIds.add(t));
       e.teamMembers?.forEach((m: string) => g.allMembers.add(m));
       g.hours += e.hoursWorked;
       if (!g.title && e.title) g.title = e.title;
@@ -507,10 +538,13 @@ export default function InternalTrackerPage() {
       if (activity > g.latestActivity) g.latestActivity = activity;
     }
     return Object.values(groups)
+      // Tickets that carry a sub-task belong to the Tasks Only tab, so the
+      // roll-up lists plain tickets only.
+      .filter((g: any) => (g.taskIds as Set<string>).size === 0)
       .map((g: any) => ({
         ...g,
         owner: g.owner || '—',
-        taskNumbers: Array.from(g.taskIds as Set<string>).join(', '),
+        ticketIds: Array.from(g.rawTicketIds as Set<string>),
         members: Array.from(g.allMembers as Set<string>),
         contributors: Array.from(g.allMembers as Set<string>)
           .filter((m) => m !== g.owner)
@@ -532,7 +566,10 @@ export default function InternalTrackerPage() {
 
   // Task-only view: entries logged against a sub-task of a parent ticket.
   const taskEntries = useMemo(
-    () => filteredAndSortedEntries.filter((e) => Boolean(e.taskId || e.isTask)),
+    () =>
+      filteredAndSortedEntries.filter(
+        (e) => Boolean(e.taskId || e.isTask) || inlineTaskRefs(e.ticketId).length > 0
+      ),
     [filteredAndSortedEntries]
   );
 
@@ -541,21 +578,108 @@ export default function InternalTrackerPage() {
     [taskEntries, taskPage]
   );
 
-  const taskHours = taskEntries.reduce((sum, e) => sum + (e.hoursWorked || 0), 0);
+  const taskHours = sumHours(taskEntries);
+
+  // Per-view totals. Every view is driven by the same filters, so these numbers
+  // always describe exactly what the table below is showing.
+  const trackerStats = useMemo<Stat[]>(() => {
+    const rows = filteredAndSortedEntries;
+    return [
+      { label: 'Entries', value: rows.length },
+      {
+        label: 'Unique Tickets',
+        value: distinct(rows.map((e) => parentTicketId(e.ticketId) || e.ticketId)),
+      },
+      { label: 'Unique Tasks', value: distinct(rows.map(taskRefOf)) },
+      { label: 'Total Hours', value: sumHours(rows).toFixed(2) },
+      { label: 'SLA Breaches', value: rows.filter((e) => e.slaBreach === 'Yes').length },
+      { label: 'Escalations', value: rows.filter((e) => e.escalationStatus === 'Yes').length },
+      { label: 'Team Members', value: distinct(rows.flatMap((e) => e.teamMembers || [])) },
+    ];
+  }, [filteredAndSortedEntries]);
+
+  const summaryStats = useMemo<Stat[]>(() => {
+    const hours = ticketGroups.reduce((sum: number, g: any) => sum + g.hours, 0);
+    return [
+      { label: 'Unique Tickets', value: ticketGroups.length },
+      { label: 'Total Hours', value: hours.toFixed(2) },
+      {
+        label: 'Avg Hours / Ticket',
+        value: ticketGroups.length ? (hours / ticketGroups.length).toFixed(2) : '0.00',
+      },
+      {
+        label: 'Knowledge Linked',
+        value: ticketGroups.filter((g: any) => g.linkedArticle).length,
+      },
+      { label: 'Team Members', value: distinct(ticketGroups.flatMap((g: any) => g.members)) },
+    ];
+  }, [ticketGroups]);
+
+  const taskStats = useMemo<Stat[]>(
+    () => [
+      { label: 'Task Entries', value: taskEntries.length },
+      { label: 'Unique Tasks', value: distinct(taskEntries.map(taskRefOf)) },
+      {
+        label: 'Parent Tickets',
+        value: distinct(taskEntries.map((e) => parentTicketId(e.ticketId) || e.ticketId)),
+      },
+      { label: 'Total Hours', value: sumHours(taskEntries).toFixed(2) },
+      { label: 'SLA Breaches', value: taskEntries.filter((e) => e.slaBreach === 'Yes').length },
+      {
+        label: 'Escalations',
+        value: taskEntries.filter((e) => e.escalationStatus === 'Yes').length,
+      },
+    ],
+    [taskEntries]
+  );
+
+  const activeView =
+    activeTab === 'tracker'
+      ? 'Common Tracker'
+      : activeTab === 'tasks'
+      ? 'Task Entries'
+      : 'Unique Ticket Summary';
+
+  const activeStats =
+    activeTab === 'tracker' ? trackerStats : activeTab === 'tasks' ? taskStats : summaryStats;
+
+  const filterContext = (): Stat[] => [
+    {
+      label: 'Date Range',
+      value: dateFrom || dateTo ? `${dateFrom || 'start'} to ${dateTo || 'today'}` : 'All dates',
+    },
+    { label: 'Search', value: search || '—' },
+    { label: 'Ticket / Task Filter', value: ticketFilter || '—' },
+    { label: 'Team Member Filter', value: memberFilter || '—' },
+    { label: 'Title Filter', value: titleFilter || '—' },
+    { label: 'Generated', value: new Date().toLocaleString() },
+  ];
+
+  const statsSheet = (sections: { title: string; stats: Stat[] }[]) =>
+    XLSX.utils.json_to_sheet(
+      sections.flatMap(({ title, stats }) => [
+        { Section: title, Metric: '', Value: '' },
+        ...stats.map((s) => ({ Section: '', Metric: s.label, Value: s.value })),
+        { Section: '', Metric: '', Value: '' },
+      ])
+    );
 
   const exportToExcel = () => {
+    // Export what the user is actually looking at (filters + sort applied) so
+    // the row count matches the totals shown above the table.
     const data =
-      activeTab === 'tracker' ? entries : activeTab === 'tasks' ? taskEntries : ticketGroups;
-    const name =
       activeTab === 'tracker'
-        ? 'Common Tracker'
+        ? filteredAndSortedEntries
         : activeTab === 'tasks'
-        ? 'Task Entries'
-        : 'Unique Ticket Summary';
+        ? taskEntries
+        : ticketGroups;
+    const name = activeView;
     const cleaned = data.map((row: any, idx: number) => {
       // Sets and internal sort keys don't serialise into a spreadsheet cell,
       // so drop them rather than emitting "[object Set]" columns.
-      const { allMembers, taskIds, latestActivity, ...rest } = row;
+      const rest = Object.fromEntries(
+        Object.entries(row).filter(([k]) => !INTERNAL_ROW_KEYS.includes(k))
+      );
       return {
         'SL No.': idx + 1,
         ...rest,
@@ -566,16 +690,33 @@ export default function InternalTrackerPage() {
         user: row.user?.name || row.user || '—',
       };
     });
-    const ws = XLSX.utils.json_to_sheet(cleaned);
+    // Close the sheet with a totals row so the hours add up inside the file too.
+    const hoursKey = activeTab === 'summary' ? 'hours' : 'hoursWorked';
+    const totalRow: any = { 'SL No.': 'TOTAL' };
+    totalRow[hoursKey] = Number(
+      (activeTab === 'summary'
+        ? ticketGroups.reduce((sum: number, g: any) => sum + g.hours, 0)
+        : sumHours(data as any[])
+      ).toFixed(2)
+    );
+    const ws = XLSX.utils.json_to_sheet([...cleaned, totalRow]);
     const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      wb,
+      statsSheet([
+        { title: `${name} — Summary`, stats: activeStats },
+        { title: 'Filters Applied', stats: filterContext() },
+      ]),
+      'Summary'
+    );
     XLSX.utils.book_append_sheet(wb, ws, name);
     XLSX.writeFile(wb, `tracker-${activeTab}-${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
   const downloadReport = () => {
     const toReportRow = (e: any) => ({
-      'Ticket No.': e.ticketId,
-      'Task No.': e.taskId || '—',
+      'Ticket No.': parentTicketId(e.ticketId) || e.ticketId,
+      'Task No.': e.taskId || inlineTaskRefs(e.ticketId).join(', ') || '—',
       Title: e.title || '—',
       'Team Members': e.teamMembers?.join(', '),
       Role: e.role,
@@ -589,14 +730,19 @@ export default function InternalTrackerPage() {
       Application: e.application || '—',
       'Knowledge Linked': e.linkedArticle?.title || 'Unlinked',
     });
-    const trackerData = entries.map((e: any, idx: number) => ({ 'SL No.': idx + 1, ...toReportRow(e) }));
-    const taskData = entries
-      .filter((e: any) => e.taskId || e.isTask)
-      .map((e: any, idx: number) => ({ 'SL No.': idx + 1, ...toReportRow(e) }));
+    // All three sheets come from the same filtered data set so their totals
+    // agree with each other and with the on-screen summary.
+    const trackerData = filteredAndSortedEntries.map((e: any, idx: number) => ({
+      'SL No.': idx + 1,
+      ...toReportRow(e),
+    }));
+    const taskData = taskEntries.map((e: any, idx: number) => ({
+      'SL No.': idx + 1,
+      ...toReportRow(e),
+    }));
     const summaryData = ticketGroups.map((g: any, idx: number) => ({
       'SL No.': idx + 1,
       'Ticket No.': g.ticketId,
-      'Task No.': g.taskNumbers || '—',
       Title: g.title || '—',
       Application: g.application || '—',
       Owner: g.owner,
@@ -605,10 +751,42 @@ export default function InternalTrackerPage() {
       Status: g.ticketStatus,
       'Knowledge Linked': g.linkedArticle?.title || 'Unlinked',
     }));
+    const withTotal = (rows: any[], key: string, total: number) => [
+      ...rows,
+      { 'SL No.': 'TOTAL', [key]: Number(total.toFixed(2)) },
+    ];
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(trackerData), 'Common Tracker');
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summaryData), 'Unique Summary');
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(taskData), 'Task Entries');
+    XLSX.utils.book_append_sheet(
+      wb,
+      statsSheet([
+        { title: 'Common Tracker', stats: trackerStats },
+        { title: 'Unique Ticket Summary', stats: summaryStats },
+        { title: 'Task Entries', stats: taskStats },
+        { title: 'Filters Applied', stats: filterContext() },
+      ]),
+      'Summary'
+    );
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet(withTotal(trackerData, 'Hours', sumHours(filteredAndSortedEntries))),
+      'Common Tracker'
+    );
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet(
+        withTotal(
+          summaryData,
+          'Total Hours',
+          ticketGroups.reduce((sum: number, g: any) => sum + g.hours, 0)
+        )
+      ),
+      'Unique Summary'
+    );
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet(withTotal(taskData, 'Hours', taskHours)),
+      'Task Entries'
+    );
     XLSX.writeFile(wb, `tracker-report-${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
@@ -702,10 +880,14 @@ export default function InternalTrackerPage() {
               className="border-t border-outline-variant/20 hover:bg-surface-container-high/30"
             >
               <td className="px-4 py-3">{(page - 1) * PAGE_SIZE + idx + 1}</td>
-              <td className="px-4 py-3 font-mono text-primary">{entry.ticketId}</td>
+              <td className="px-4 py-3 font-mono text-primary">
+                {parentTicketId(entry.ticketId) || entry.ticketId}
+              </td>
               <td className="px-4 py-3 font-mono">
-                {entry.taskId ? (
-                  <span className="text-secondary">{entry.taskId}</span>
+                {entry.taskId || inlineTaskRefs(entry.ticketId).join(', ') ? (
+                  <span className="text-secondary">
+                    {entry.taskId || inlineTaskRefs(entry.ticketId).join(', ')}
+                  </span>
                 ) : (
                   <span className="text-on-surface-variant">&mdash;</span>
                 )}
@@ -1275,6 +1457,8 @@ export default function InternalTrackerPage() {
             </div>
           </div>
 
+          <SummaryBar title={activeView} stats={activeStats} />
+
           {activeTab === 'tracker' &&
             renderEntriesTable({
               rows: paginatedEntries,
@@ -1291,7 +1475,8 @@ export default function InternalTrackerPage() {
               Unique Ticket Effort Roll-up
             </h3>
             <p className="text-body-sm text-on-surface-variant">
-              One row per ticket showing the owner, all contributors, and total effort logged.
+              One row per ticket without a sub-task, showing the owner, all contributors,
+              and total effort logged. Tickets with a Task No. are listed in the Tasks Only tab.
             </p>
           </div>
           <table className="w-full text-body-sm">
@@ -1299,7 +1484,6 @@ export default function InternalTrackerPage() {
               <tr className="text-left text-on-surface-variant uppercase text-[11px] tracking-wider">
                 <th className="px-4 py-3">SL No.</th>
                 <th className="px-4 py-3">Ticket No.</th>
-                <th className="px-4 py-3">Task No.</th>
                 <th className="px-4 py-3">Title</th>
                 <th className="px-4 py-3">Application</th>
                 <th className="px-4 py-3">Owner</th>
@@ -1313,7 +1497,7 @@ export default function InternalTrackerPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={11} className="px-4 py-6">
+                  <td colSpan={10} className="px-4 py-6">
                     <div className="flex flex-col items-center justify-center">
                       <PacmanLoader size={30} speedMultiplier={2} />
                       <p className="text-body-sm text-on-surface-variant mt-4">Loading...</p>
@@ -1322,7 +1506,7 @@ export default function InternalTrackerPage() {
                 </tr>
               ) : paginatedGroups.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="px-4 py-6 text-center text-on-surface-variant">
+                  <td colSpan={10} className="px-4 py-6 text-center text-on-surface-variant">
                     No tickets logged yet.
                   </td>
                 </tr>
@@ -1334,13 +1518,6 @@ export default function InternalTrackerPage() {
                   >
                     <td className="px-4 py-3">{(summaryPage - 1) * PAGE_SIZE + idx + 1}</td>
                     <td className="px-4 py-3 font-mono text-primary">{group.ticketId}</td>
-                    <td className="px-4 py-3 font-mono" title={group.taskNumbers}>
-                      {group.taskNumbers ? (
-                        <span className="text-secondary">{group.taskNumbers}</span>
-                      ) : (
-                        <span className="text-on-surface-variant">&mdash;</span>
-                      )}
-                    </td>
                     <td className="px-4 py-3 max-w-[180px] truncate" title={group.title}>
                       {group.title || <span className="text-on-surface-variant italic">&mdash;</span>}
                     </td>
@@ -1356,7 +1533,7 @@ export default function InternalTrackerPage() {
                     <td className="px-4 py-3">
                       <select
                         value={group.ticketStatus || 'Open'}
-                        onChange={(e) => updateTicketStatus(group.ticketId, e.target.value)}
+                        onChange={(e) => updateTicketStatus(group.ticketIds, e.target.value)}
                         className="input text-[12px] py-1 px-2 rounded"
                       >
                         {TICKET_STATUSES.map((s) => (
@@ -1399,9 +1576,7 @@ export default function InternalTrackerPage() {
                   Task Entries
                 </h3>
                 <p className="text-body-sm text-on-surface-variant">
-                  Only entries logged against a Task No. under a parent ticket &mdash;{' '}
-                  {taskEntries.length} {taskEntries.length === 1 ? 'entry' : 'entries'},{' '}
-                  {taskHours.toFixed(2)} hours.
+                  Only entries logged against a Task No. under a parent ticket.
                 </p>
               </div>
               {renderEntriesTable({
@@ -1432,6 +1607,22 @@ export default function InternalTrackerPage() {
         }
       `}</style>
     </AppLayout>
+  );
+}
+
+function SummaryBar({ title, stats }: { title: string; stats: Stat[] }) {
+  return (
+    <div className="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2">
+      <span className="text-label-md font-medium text-on-surface dark:text-on-secondary">
+        {title}
+      </span>
+      {stats.map((s) => (
+        <span key={s.label} className="text-body-sm text-on-surface-variant">
+          {s.label}:{' '}
+          <span className="font-medium text-on-surface dark:text-on-secondary">{s.value}</span>
+        </span>
+      ))}
+    </div>
   );
 }
 
