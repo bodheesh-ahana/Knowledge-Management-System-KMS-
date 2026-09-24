@@ -19,6 +19,7 @@ const EMPTY_FORM = {
   email: '',
   password: '',
   role: 'Engineer',
+  teamRole: 'Software Engineer',
 };
 
 export default function TeamAccessPage() {
@@ -29,20 +30,35 @@ export default function TeamAccessPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const members = useMemo(
-    () =>
-      teamMembers.map((m) => {
-        const u = users.find((u) => u.email.toLowerCase() === m.email.toLowerCase());
-        return {
-          team: m,
-          user: u,
-        };
-      }),
-    [users, teamMembers]
-  );
+  // The roster drives this table, but a login can exist without a roster entry
+  // (older accounts), and those must still be manageable here rather than
+  // silently disappearing.
+  const members = useMemo(() => {
+    const rows = teamMembers.map((m) => ({
+      key: m.id,
+      name: m.name,
+      email: m.email,
+      teamRole: m.role,
+      user: users.find((u) => u.email.toLowerCase() === m.email.toLowerCase()),
+    }));
+
+    const rostered = new Set(teamMembers.map((m) => m.email.toLowerCase()));
+    const orphans = users
+      .filter((u) => !rostered.has(u.email.toLowerCase()))
+      .map((u) => ({
+        key: u._id,
+        name: u.name,
+        email: u.email,
+        teamRole: 'Not on roster',
+        user: u,
+      }));
+
+    return [...rows, ...orphans].sort((a, b) => a.name.localeCompare(b.name));
+  }, [users, teamMembers]);
 
   const fetchUsers = async () => {
     try {
@@ -107,6 +123,7 @@ export default function TeamAccessPage() {
         if (form.name) body.name = form.name;
         if (form.role) body.role = form.role;
         if (form.password) body.password = form.password;
+        if (form.teamRole) body.teamRole = form.teamRole;
 
         const res = await fetch('/api/team-access', {
           method: 'PUT',
@@ -125,9 +142,13 @@ export default function TeamAccessPage() {
         if (!res.ok || !json.success) throw new Error(json.error || 'Failed to create user');
       }
 
+      setNotice(
+        editingId ? 'Member updated.' : `Login created for ${form.email}. They can sign in now.`
+      );
       setForm(EMPTY_FORM);
       setEditingId(null);
-      fetchUsers();
+      // The roster changes too (a new member is added to it), so reload both.
+      await Promise.all([fetchUsers(), loadTeamMembers()]);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -135,23 +156,28 @@ export default function TeamAccessPage() {
     }
   };
 
-  const handleEdit = (user: User) => {
-    setEditingId(user._id);
+  const handleEdit = (row: { name: string; email: string; teamRole: string; user?: User }) => {
+    if (!row.user) return;
+    setNotice(null);
+    setEditingId(row.user._id);
     setForm({
-      name: user.name,
-      email: user.email,
+      name: row.user.name,
+      email: row.user.email,
       password: '',
-      role: user.role,
+      role: row.user.role,
+      teamRole: row.teamRole === 'Not on roster' ? 'Software Engineer' : row.teamRole,
     });
   };
 
-  const handleCreateForMember = (member: TeamMemberFromDB) => {
+  const handleCreateForMember = (row: { name: string; email: string; teamRole: string }) => {
     setEditingId(null);
+    setNotice(null);
     setForm({
-      name: member.name,
-      email: member.email,
+      name: row.name,
+      email: row.email,
       password: '',
       role: 'Engineer',
+      teamRole: row.teamRole === 'Not on roster' ? 'Software Engineer' : row.teamRole,
     });
   };
 
@@ -194,6 +220,12 @@ export default function TeamAccessPage() {
           </div>
         )}
 
+        {notice && (
+          <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 px-md py-sm rounded-lg">
+            {notice}
+          </div>
+        )}
+
         <section className="bg-surface dark:bg-surface-container-lowest rounded-xl border border-outline-variant p-lg space-y-md">
           <h3 className="font-h3 text-h3 text-on-surface">
             {editingId ? 'Edit Member' : 'Create Member'}
@@ -232,7 +264,9 @@ export default function TeamAccessPage() {
               />
             </div>
             <div className="space-y-xs">
-              <label className="font-label-md text-label-md text-on-surface-variant">Role</label>
+              <label className="font-label-md text-label-md text-on-surface-variant">
+                App Role
+              </label>
               <select
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
@@ -243,6 +277,20 @@ export default function TeamAccessPage() {
                 <option value="Manager">Manager</option>
                 <option value="Admin">Admin</option>
               </select>
+            </div>
+            <div className="space-y-xs">
+              <label className="font-label-md text-label-md text-on-surface-variant">
+                Team Role
+              </label>
+              <input
+                value={form.teamRole}
+                onChange={(e) => setForm({ ...form, teamRole: e.target.value })}
+                placeholder="e.g. Software Engineer"
+                className="input"
+              />
+              <p className="text-[11px] text-on-surface-variant">
+                Shown on the team roster and in the tracker&apos;s member picker.
+              </p>
             </div>
             <div className="md:col-span-2 flex gap-sm">
               <button
@@ -287,12 +335,12 @@ export default function TeamAccessPage() {
                 <tbody>
                   {members.map((m) => (
                     <tr
-                      key={m.team.id}
+                      key={m.key}
                       className="border-b border-outline-variant/20 hover:bg-surface-container-high/30"
                     >
-                      <td className="px-4 py-3 text-on-surface">{m.team.name}</td>
-                      <td className="px-4 py-3 text-on-surface-variant">{m.team.email}</td>
-                      <td className="px-4 py-3 text-on-surface">{m.team.role}</td>
+                      <td className="px-4 py-3 text-on-surface">{m.name}</td>
+                      <td className="px-4 py-3 text-on-surface-variant">{m.email}</td>
+                      <td className="px-4 py-3 text-on-surface">{m.teamRole}</td>
                       <td className="px-4 py-3 text-on-surface">{m.user?.role || '—'}</td>
                       <td className="px-4 py-3">
                         {m.user ? (
@@ -316,7 +364,7 @@ export default function TeamAccessPage() {
                           {m.user ? (
                             <>
                               <button
-                                onClick={() => handleEdit(m.user!)}
+                                onClick={() => handleEdit(m)}
                                 className="text-primary hover:underline text-[12px]"
                               >
                                 Edit
@@ -330,7 +378,7 @@ export default function TeamAccessPage() {
                             </>
                           ) : (
                             <button
-                              onClick={() => handleCreateForMember(m.team)}
+                              onClick={() => handleCreateForMember(m)}
                               className="text-primary hover:underline text-[12px]"
                             >
                               Create login
