@@ -211,13 +211,17 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     const { ticketId, ticketStatus } = body;
 
-    if (!ticketId || !ticketStatus) {
+    // The roll-up view can send several stored ticket numbers that belong to
+    // the same parent ticket (e.g. "219772" and the legacy "219772(#2512)").
+    const ticketIds: string[] = (Array.isArray(ticketId) ? ticketId : [ticketId]).filter(Boolean);
+
+    if (ticketIds.length === 0 || !ticketStatus) {
       return errorResponse('ticketId and ticketStatus are required', 400);
     }
 
     await connectDB();
     const result = await TrackerEntry.updateMany(
-      { ticketId },
+      { ticketId: { $in: ticketIds } },
       { $set: { ticketStatus } },
     );
 
@@ -225,7 +229,7 @@ export async function PATCH(req: NextRequest) {
       return errorResponse('No tracker entries found for this ticket', 404);
     }
 
-    return successResponse({ ticketId, ticketStatus });
+    return successResponse({ ticketId: ticketIds, ticketStatus });
   } catch (error) {
     console.error('Error updating ticket status:', error);
     return errorResponse('Failed to update ticket status', 500);

@@ -1,37 +1,17 @@
 import { NextRequest } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
-import {
-  Ticket,
-  KnowledgeArticle,
-  Application,
-  TrackerEntry,
-  Activity,
-  SlaBreach,
-  TicketLog,
-} from '@/models';
+import { KnowledgeArticle, TrackerEntry, Activity } from '@/models';
 import { getAuthenticatedUser } from '@/lib/auth';
 import { errorResponse, successResponse } from '@/lib/errors';
+import { isClosedStatus, normalizeAppName, parentTicketId, taskRefOf } from '@/lib/tickets';
 
-function last6Months() {
-  const months = [];
-  const now = new Date();
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push({
-      label: d.toLocaleString('default', { month: 'short' }),
-      start: new Date(d.getFullYear(), d.getMonth(), 1),
-      end: new Date(d.getFullYear(), d.getMonth() + 1, 1),
-    });
-  }
-  return months;
-}
+const LEAD = 'Bodheesh V C';
 
 function activityMessage(activity: any) {
   const user = activity.user?.name || 'Someone';
-  const type = activity.type;
   const details = activity.details || {};
 
-  switch (type) {
+  switch (activity.type) {
     case 'ArticleCreated':
       return `${user} created article "${details.title || 'Untitled'}"`;
     case 'ArticlePublished':
@@ -40,229 +20,326 @@ function activityMessage(activity: any) {
       return `${user} updated article "${details.title || 'Untitled'}"`;
     case 'ArticleArchived':
       return `${user} archived article "${details.title || 'Untitled'}"`;
-    case 'TicketCreated':
-      return `${user} created ticket ${details.ticketNumber || ''} "${details.title || ''}"`;
-    case 'TicketResolved':
-      return `${user} resolved ticket ${details.ticketNumber || ''} "${details.title || ''}"`;
     case 'HoursLogged':
       return `${user} logged ${details.hoursWorked || 0}h of work`;
     case 'UserLoggedIn':
       return `${user} logged in`;
     default:
-      return `${user} performed ${type}`;
+      return `${user} performed ${activity.type}`;
   }
 }
+
+const dayKey = (d: Date) => d.toISOString().slice(0, 10);
+const monthKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export async function GET(_req: NextRequest) {
   try {
     await getAuthenticatedUser();
     await connectDB();
 
-    const now = new Date();
-    const months = last6Months();
-    const april2026 = new Date('2026-04-01');
-
-    const [
-      openTickets,
-      totalTicketsSinceApril,
-      totalArticles,
-      pendingReviews,
-      appsSupported,
-      kbReuse,
-      totalTracker,
-      resolvedAvg,
-      slaBreaches,
-      slaBreachesSinceApril,
-      slaBreachesOurTeam,
-      totalHoursAgg,
-      trackerEntries,
-      onboardingCount,
-      offboardingCount,
-    ] = await Promise.all([
-      Ticket.countDocuments({ status: 'Open' }),
-      TicketLog.countDocuments({ 
-        $and: [
-          { createdTime: { $gte: april2026 } },
-          { source: { $ne: 'onboardingoffboarding' } },
-        ],
-      }),
-      KnowledgeArticle.countDocuments({}),
-      KnowledgeArticle.countDocuments({ status: 'UnderReview' }),
-      Application.countDocuments({}),
-      TrackerEntry.countDocuments({ linkedArticle: { $ne: null } }),
-      TrackerEntry.countDocuments({}),
-      Ticket.aggregate([
-        {
-          $match: {
-            status: { $in: ['Resolved', 'Closed'] },
-            resolvedAt: { $exists: true, $ne: null },
-          },
-        },
-        {
-          $project: {
-            hours: {
-              $divide: [{ $subtract: ['$resolvedAt', '$createdAt'] }, 3600000],
+    // The tracker is the live data set (one row per piece of work logged) and
+    // the knowledge base is the other. Everything below is derived from those
+    // two collections only, so the dashboard always matches what the team
+    // actually logged.
+    const [entries, articleBuckets, recentArticles, articleTotals, recentActivity] =
+      await Promise.all([
+        TrackerEntry.find({})
+          .select(
+            'ticketId taskId title teamMembers role date createdAt hoursWorked workType slaBreach escalationStatus application ticketStatus linkedArticle'
+          )
+          .sort({ date: -1, createdAt: -1 })
+          .lean(),
+        // Many imported articles have an unusable createdAt, so the ObjectId
+        // timestamp is used as the reliable creation date.
+        KnowledgeArticle.aggregate([
+          { $addFields: { createdOn: { $toDate: '$_id' } } },
+          {
+            $group: {
+              _id: { $dateToString: { date: '$createdOn', format: '%Y-%m' } },
+              articles: { $sum: 1 },
             },
           },
-        },
-        { $group: { _id: null, avg: { $avg: '$hours' } } },
-      ]),
-      SlaBreach.countDocuments({}),
-      SlaBreach.countDocuments({
-        createdDate: { $gte: new Date('2026-04-01') },
-      }),
-      SlaBreach.countDocuments({
-        createdDate: { $gte: new Date('2026-04-01') },
-        requestId: '213770',
-      }),
-      TrackerEntry.aggregate([{ $group: { _id: null, total: { $sum: '$hoursWorked' } } }]),
-      TrackerEntry.find().sort({ date: -1 }).limit(500).lean(),
-      TicketLog.countDocuments({ source: 'onboardingoffboarding', category: 'Onboarding', createdTime: { $gte: april2026 } }),
-      TicketLog.countDocuments({ source: 'onboardingoffboarding', category: 'Offboarding', createdTime: { $gte: april2026 } }),
-    ]);
+        ]),
+        KnowledgeArticle.find({})
+          .sort({ _id: -1 })
+          .limit(6)
+          .select('title application views status ticketId')
+          .lean(),
+        KnowledgeArticle.aggregate([
+          {
+            $group: {
+              _id: null,
+              total: { $sum: 1 },
+              views: { $sum: '$views' },
+              helpful: { $sum: '$helpful' },
+              published: { $sum: { $cond: [{ $eq: ['$status', 'Published'] }, 1, 0] } },
+              withTicket: {
+                $sum: { $cond: [{ $in: ['$ticketId', [null, '']] }, 0, 1] },
+              },
+            },
+          },
+        ]),
+        Activity.find({}).sort({ createdAt: -1 }).limit(10).populate('user', 'name').lean(),
+      ]);
 
-    const avgResTime = resolvedAvg[0]?.avg ?? 0;
-    const kbReuseRate = totalTracker ? Math.round((kbReuse / totalTracker) * 100) : 0;
-    const totalHours = totalHoursAgg[0]?.total || 0;
+    const rows = entries as any[];
 
-    // Engineer efficiency from tracker entries
-    const TEAM_LEAD = 'Bodheesh V C';
-    const engineerMap = new Map<
+    // --- Ticket-level roll-up (entries are grouped by their parent ticket) ---
+    const tickets = new Map<
       string,
-      { name: string; hours: number; entries: number; tickets: Set<string>; ownerTickets: number; articlesCreated: number }
+      { hours: number; status?: string; linked: boolean; latest: number; app: string }
     >();
+    const taskRefs = new Set<string>();
+    const members = new Map<
+      string,
+      { hours: number; entries: number; tickets: Set<string>; ownerTickets: number }
+    >();
+    const apps = new Map<string, { hours: number; entries: number; tickets: Set<string> }>();
+    const workTypes = new Map<string, { hours: number; entries: number }>();
+    const perDay = new Map<string, { hours: number; entries: number }>();
+    const perMonth = new Map<string, { hours: number; entries: number; tickets: Set<string> }>();
 
-    for (const e of trackerEntries as any[]) {
-      const members = Array.isArray(e.teamMembers) ? e.teamMembers : [];
-      const share = members.length ? e.hoursWorked / members.length : e.hoursWorked;
+    let hours = 0;
+    let slaBreaches = 0;
+    let escalations = 0;
+    let linkedEntries = 0;
+    let minDate = Infinity;
+    let maxDate = -Infinity;
 
-      for (const member of members) {
-        if (!member || member === TEAM_LEAD) continue;
-        const existing = engineerMap.get(member) || {
-          name: member,
+    for (const e of rows) {
+      const ticketKey = parentTicketId(e.ticketId) || e.ticketId || '—';
+      const date = new Date(e.date);
+      const time = date.getTime();
+      const entryHours = e.hoursWorked || 0;
+      const app = normalizeAppName(e.application);
+
+      hours += entryHours;
+      if (e.slaBreach === 'Yes') slaBreaches++;
+      if (e.escalationStatus === 'Yes') escalations++;
+      if (e.linkedArticle) linkedEntries++;
+      if (time < minDate) minDate = time;
+      if (time > maxDate) maxDate = time;
+
+      const ref = taskRefOf(e);
+      if (ref) taskRefs.add(ref);
+
+      const ticket = tickets.get(ticketKey) || {
+        hours: 0,
+        status: undefined,
+        linked: false,
+        latest: -Infinity,
+        app,
+      };
+      ticket.hours += entryHours;
+      ticket.linked = ticket.linked || Boolean(e.linkedArticle);
+      // Entries arrive newest-first, so the first status seen is the current one.
+      if (time > ticket.latest) {
+        ticket.latest = time;
+        if (e.ticketStatus) ticket.status = e.ticketStatus;
+        if (app !== 'Unspecified') ticket.app = app;
+      }
+      tickets.set(ticketKey, ticket);
+
+      for (const name of (e.teamMembers as string[]) || []) {
+        if (!name) continue;
+        const m = members.get(name) || {
           hours: 0,
           entries: 0,
           tickets: new Set<string>(),
           ownerTickets: 0,
-          articlesCreated: 0,
         };
-        existing.hours += share;
-        existing.entries += 1;
-        existing.tickets.add(e.ticketId);
-        if (e.role === 'Owner') existing.ownerTickets += 1;
-        existing.articlesCreated += e.articlesCreated || 0;
-        engineerMap.set(member, existing);
+        // Shared work is split evenly so the per-member hours still add up to
+        // the team total.
+        m.hours += entryHours / (e.teamMembers.length || 1);
+        m.entries += 1;
+        m.tickets.add(ticketKey);
+        if (e.role === 'Owner') m.ownerTickets += 1;
+        members.set(name, m);
       }
+
+      const a = apps.get(app) || { hours: 0, entries: 0, tickets: new Set<string>() };
+      a.hours += entryHours;
+      a.entries += 1;
+      a.tickets.add(ticketKey);
+      apps.set(app, a);
+
+      const wt = e.workType || 'Other';
+      const w = workTypes.get(wt) || { hours: 0, entries: 0 };
+      w.hours += entryHours;
+      w.entries += 1;
+      workTypes.set(wt, w);
+
+      const dk = dayKey(date);
+      const d = perDay.get(dk) || { hours: 0, entries: 0 };
+      d.hours += entryHours;
+      d.entries += 1;
+      perDay.set(dk, d);
+
+      const mk = monthKey(date);
+      const mo = perMonth.get(mk) || { hours: 0, entries: 0, tickets: new Set<string>() };
+      mo.hours += entryHours;
+      mo.entries += 1;
+      mo.tickets.add(ticketKey);
+      perMonth.set(mk, mo);
     }
 
-    const engineerEfficiency = Array.from(engineerMap.values())
-      .map((e) => ({
-        name: e.name,
-        hours: Math.round(e.hours * 100) / 100,
-        entries: e.entries,
-        ticketsHandled: e.tickets.size,
-        ownerTickets: e.ownerTickets,
-        articlesCreated: e.articlesCreated,
+    const ticketList = Array.from(tickets.entries());
+    const activeTickets = ticketList.filter(([, t]) => !isClosedStatus(t.status)).length;
+    const closedTickets = ticketList.length - activeTickets;
+    const linkedTickets = ticketList.filter(([, t]) => t.linked).length;
+
+    const statusBreakdown = Object.entries(
+      ticketList.reduce<Record<string, number>>((acc, [, t]) => {
+        const key = t.status || 'Open';
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {})
+    )
+      .map(([status, count]) => ({ status, tickets: count }))
+      .sort((a, b) => b.tickets - a.tickets);
+
+    // --- Trends ---
+    const now = new Date();
+    const dailyTrend: { date: string; label: string; hours: number; entries: number }[] = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      const key = dayKey(d);
+      const bucket = perDay.get(key) || { hours: 0, entries: 0 };
+      dailyTrend.push({
+        date: key,
+        label: d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }),
+        hours: round2(bucket.hours),
+        entries: bucket.entries,
+      });
+    }
+
+    const articleByMonth = new Map<string, number>(
+      (articleBuckets as any[]).map((b) => [b._id, b.articles])
+    );
+
+    const monthlyTrend: {
+      label: string;
+      entries: number;
+      hours: number;
+      tickets: number;
+      articles: number;
+    }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = monthKey(d);
+      const bucket = perMonth.get(key);
+      monthlyTrend.push({
+        label: d.toLocaleString('default', { month: 'short', year: '2-digit' }),
+        entries: bucket?.entries || 0,
+        hours: round2(bucket?.hours || 0),
+        tickets: bucket?.tickets.size || 0,
+        articles: articleByMonth.get(key) || 0,
+      });
+    }
+
+    // --- Applications: tracker effort + knowledge coverage side by side ---
+    const articlesByApp = await KnowledgeArticle.aggregate([
+      { $group: { _id: '$application', articles: { $sum: 1 } } },
+    ]);
+    const articleAppCounts = new Map<string, number>();
+    for (const a of articlesByApp as any[]) {
+      const name = normalizeAppName(a._id);
+      articleAppCounts.set(name, (articleAppCounts.get(name) || 0) + a.articles);
+    }
+
+    const applications = Array.from(apps.entries())
+      .map(([name, a]) => ({
+        name,
+        hours: round2(a.hours),
+        entries: a.entries,
+        tickets: a.tickets.size,
+        articles: articleAppCounts.get(name) || 0,
       }))
       .sort((a, b) => b.hours - a.hours);
 
-    const monthlyTrend = await Promise.all(
-      months.map(async (m) => {
-        const [regularTickets, onboardingOffboarding, articles] = await Promise.all([
-          TicketLog.countDocuments({
-            $and: [
-              { createdTime: { $gte: m.start, $lt: m.end } },
-              { createdTime: { $gte: april2026 } },
-              { source: { $ne: 'onboardingoffboarding' } },
-            ],
-          }),
-          TicketLog.countDocuments({
-            $and: [
-              { createdTime: { $gte: m.start, $lt: m.end } },
-              { createdTime: { $gte: april2026 } },
-              { source: 'onboardingoffboarding' },
-            ],
-          }),
-          KnowledgeArticle.countDocuments({ createdAt: { $gte: m.start, $lt: m.end } }),
-        ]);
-        return {
-          label: m.label,
-          tickets: regularTickets,
-          onboardingOffboarding,
-          articles,
-        };
-      })
-    );
+    const teamWorkload = Array.from(members.entries())
+      .filter(([name]) => name !== LEAD)
+      .map(([name, m]) => ({
+        name,
+        hours: round2(m.hours),
+        entries: m.entries,
+        tickets: m.tickets.size,
+        ownerTickets: m.ownerTickets,
+      }))
+      .sort((a, b) => b.hours - a.hours);
 
-    const applications = await Application.find({}).sort({ name: 1 }).lean();
+    const workTypeBreakdown = Array.from(workTypes.entries())
+      .map(([type, w]) => ({ type, hours: round2(w.hours), entries: w.entries }))
+      .sort((a, b) => b.hours - a.hours);
 
-    const topApplications = await Promise.all(
-      applications.map(async (app: any) => {
-        const [ticketCount, articleCount] = await Promise.all([
-          Ticket.countDocuments({ application: app.name }),
-          KnowledgeArticle.countDocuments({ application: app.name }),
-        ]);
-        return {
-          _id: app._id.toString(),
-          name: app.name,
-          icon: app.icon || 'apps',
-          color: app.color,
-          ticketCount,
-          articleCount,
-          total: ticketCount + articleCount,
-        };
-      })
-    );
+    const totals = (articleTotals as any[])[0] || {};
+    const activeDays = perDay.size;
+    const last7 = dailyTrend.slice(-7);
 
-    topApplications.sort((a, b) => b.total - a.total);
-
-    const [recentActivity, criticalOpenTickets, recentArticles] = await Promise.all([
-      Activity.find({})
-        .sort({ createdAt: -1 })
-        .limit(10)
-        .populate('user', 'name')
-        .lean(),
-      Ticket.find({ status: 'Open', severity: 'Critical' })
-        .sort({ createdAt: -1 })
-        .limit(5)
-        .populate('assignee', 'name email')
-        .lean(),
-      KnowledgeArticle.find({})
-        .sort({ createdAt: -1 })
-        .limit(5)
-        .select('title application views createdAt')
-        .lean(),
-    ]);
-
-    const activityItems = recentActivity.map((a: any) => ({
-      _id: a._id.toString(),
-      type: a.type,
-      message: activityMessage(a),
-      createdAt: a.createdAt,
+    const recentEntries = rows.slice(0, 8).map((e) => ({
+      _id: e._id.toString(),
+      ticketId: parentTicketId(e.ticketId) || e.ticketId,
+      taskId: taskRefOf(e) || null,
+      title: e.title || '—',
+      application: normalizeAppName(e.application),
+      members: e.teamMembers || [],
+      hours: e.hoursWorked || 0,
+      status: e.ticketStatus || 'Open',
+      date: e.date,
     }));
 
     return successResponse({
-      stats: {
-        openTickets,
-        totalTicketsSinceApril,
-        totalArticles,
-        pendingReviews,
-        appsSupported,
-        avgResTime: Number(avgResTime.toFixed(1)),
-        kbReuseRate,
-        slaBreaches,
-        slaBreachesSinceApril,
-        slaBreachesOurTeam,
-        totalHours: Number(totalHours.toFixed(1)),
-        onboardingCount,
-        offboardingCount,
+      window: {
+        from: Number.isFinite(minDate) ? new Date(minDate).toISOString() : null,
+        to: Number.isFinite(maxDate) ? new Date(maxDate).toISOString() : null,
+        activeDays,
       },
-      topApplications: topApplications.slice(0, 5),
-      recentActivity: activityItems,
-      criticalOpenTickets,
-      recentArticles,
+      stats: {
+        entries: rows.length,
+        hours: round2(hours),
+        uniqueTickets: ticketList.length,
+        activeTickets,
+        closedTickets,
+        subTasks: taskRefs.size,
+        avgHoursPerTicket: ticketList.length ? round2(hours / ticketList.length) : 0,
+        avgHoursPerActiveDay: activeDays ? round2(hours / activeDays) : 0,
+        hoursLast7Days: round2(last7.reduce((s, d) => s + d.hours, 0)),
+        entriesLast7Days: last7.reduce((s, d) => s + d.entries, 0),
+        slaBreaches,
+        escalations,
+        teamMembers: Array.from(members.keys()).filter((n) => n !== LEAD).length,
+        linkedEntries,
+        linkedTickets,
+        kbLinkRate: ticketList.length ? Math.round((linkedTickets / ticketList.length) * 100) : 0,
+        totalArticles: totals.total || 0,
+        publishedArticles: totals.published || 0,
+        articleViews: totals.views || 0,
+        articlesFromTickets: totals.withTicket || 0,
+      },
+      dailyTrend,
       monthlyTrend,
-      engineerEfficiency,
+      statusBreakdown,
+      applications,
+      teamWorkload,
+      workTypeBreakdown,
+      recentEntries,
+      recentArticles: (recentArticles as any[]).map((a) => ({
+        _id: a._id.toString(),
+        title: a.title,
+        application: normalizeAppName(a.application),
+        views: a.views || 0,
+        status: a.status,
+        ticketId: a.ticketId || null,
+        // ObjectId timestamp — reliable even where createdAt was imported badly.
+        createdAt: new Date(parseInt(a._id.toString().slice(0, 8), 16) * 1000).toISOString(),
+      })),
+      recentActivity: (recentActivity as any[]).map((a) => ({
+        _id: a._id.toString(),
+        type: a.type,
+        message: activityMessage(a),
+        createdAt: a.createdAt,
+      })),
     });
   } catch (error: any) {
     console.error('[dashboard:GET] error:', error);

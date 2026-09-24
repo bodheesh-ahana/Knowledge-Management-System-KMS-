@@ -7,77 +7,74 @@ import PacmanLoader from '@/components/PacmanLoader';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 interface DashboardStats {
-  openTickets: number;
-  totalTicketsSinceApril: number;
-  totalArticles: number;
-  pendingReviews: number;
-  appsSupported: number;
-  avgResTime: number;
-  kbReuseRate: number;
+  entries: number;
+  hours: number;
+  uniqueTickets: number;
+  activeTickets: number;
+  closedTickets: number;
+  subTasks: number;
+  avgHoursPerTicket: number;
+  avgHoursPerActiveDay: number;
+  hoursLast7Days: number;
+  entriesLast7Days: number;
   slaBreaches: number;
-  slaBreachesSinceApril: number;
-  slaBreachesOurTeam: number;
-  totalHours: number;
-  onboardingCount: number;
-  offboardingCount: number;
-}
-
-interface TopApp {
-  _id: string;
-  name: string;
-  icon: string;
-  color: string;
-  ticketCount: number;
-  articleCount: number;
-  total: number;
-}
-
-interface ActivityItem {
-  _id: string;
-  type: string;
-  message: string;
-  createdAt: string;
-}
-
-interface TicketItem {
-  _id: string;
-  ticketNumber: string;
-  title: string;
-  assignee?: { name?: string } | null;
-  createdAt: string;
-}
-
-interface ArticleItem {
-  _id: string;
-  title: string;
-  application: string;
-  views: number;
-  createdAt: string;
-}
-
-interface MonthlyPoint {
-  label: string;
-  tickets: number;
-  onboardingOffboarding: number;
-  articles: number;
+  escalations: number;
+  teamMembers: number;
+  linkedEntries: number;
+  linkedTickets: number;
+  kbLinkRate: number;
+  totalArticles: number;
+  publishedArticles: number;
+  articleViews: number;
+  articlesFromTickets: number;
 }
 
 interface DashboardData {
+  window: { from: string | null; to: string | null; activeDays: number };
   stats: DashboardStats;
-  topApplications: TopApp[];
-  recentActivity: ActivityItem[];
-  criticalOpenTickets: TicketItem[];
-  recentArticles: ArticleItem[];
-  monthlyTrend: MonthlyPoint[];
-  engineerEfficiency: {
-    name: string;
+  dailyTrend: { date: string; label: string; hours: number; entries: number }[];
+  monthlyTrend: { label: string; entries: number; hours: number; tickets: number; articles: number }[];
+  statusBreakdown: { status: string; tickets: number }[];
+  applications: { name: string; hours: number; entries: number; tickets: number; articles: number }[];
+  teamWorkload: { name: string; hours: number; entries: number; tickets: number; ownerTickets: number }[];
+  workTypeBreakdown: { type: string; hours: number; entries: number }[];
+  recentEntries: {
+    _id: string;
+    ticketId: string;
+    taskId: string | null;
+    title: string;
+    application: string;
+    members: string[];
     hours: number;
-    entries: number;
-    ticketsHandled: number;
-    ownerTickets: number;
-    articlesCreated: number;
+    status: string;
+    date: string;
   }[];
+  recentArticles: {
+    _id: string;
+    title: string;
+    application: string;
+    views: number;
+    status: string;
+    ticketId: string | null;
+    createdAt: string;
+  }[];
+  recentActivity: { _id: string; type: string; message: string; createdAt: string }[];
 }
+
+const STATUS_COLORS: Record<string, string> = {
+  Closed: '#10b981',
+  Resolved: '#22c55e',
+  Open: '#ef4444',
+  'In Progress': '#3b82f6',
+  Assigned: '#6366f1',
+  'On Hold': '#f59e0b',
+  'Awaiting User Response': '#a855f7',
+  'Awaiting Vendor/OEM': '#ec4899',
+  'Under IT Validation': '#14b8a6',
+  Cancelled: '#94a3b8',
+};
+
+const statusColor = (status: string) => STATUS_COLORS[status] || '#64748b';
 
 function formatDate(iso?: string) {
   if (!iso) return '—';
@@ -114,15 +111,17 @@ function StatCard({
   sub,
   accent,
   icon,
+  href,
 }: {
   label: string;
   value: string | number;
   sub?: string;
   accent: string;
   icon: string;
+  href?: string;
 }) {
-  return (
-    <div className="bg-surface dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-md flex flex-col gap-sm">
+  const card = (
+    <div className="bg-surface dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-md flex flex-col gap-sm h-full hover:border-primary transition-colors">
       <div className="flex justify-between items-start">
         <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
           {label}
@@ -136,6 +135,42 @@ function StatCard({
         )}
       </div>
     </div>
+  );
+  return href ? (
+    <Link href={href} className="block h-full">
+      {card}
+    </Link>
+  ) : (
+    card
+  );
+}
+
+function Panel({
+  title,
+  icon,
+  action,
+  children,
+  className = '',
+}: {
+  title: string;
+  icon?: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <section
+      className={`bg-surface dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-lg flex flex-col gap-md ${className}`}
+    >
+      <div className="flex items-center justify-between gap-sm">
+        <h3 className="font-title-md text-title-md text-on-surface dark:text-on-secondary flex items-center gap-sm">
+          {icon && <span className="material-symbols-outlined text-[20px]">{icon}</span>}
+          {title}
+        </h3>
+        {action}
+      </div>
+      {children}
+    </section>
   );
 }
 
@@ -173,13 +208,12 @@ export default function DashboardPage() {
     URL.revokeObjectURL(url);
   };
 
+  const maxDailyHours = data ? Math.max(...data.dailyTrend.map((d) => d.hours), 1) : 1;
   const maxMonthly = data
-    ? Math.max(...data.monthlyTrend.flatMap((m) => [m.tickets, m.onboardingOffboarding, m.articles])) || 1
+    ? Math.max(...data.monthlyTrend.flatMap((m) => [m.entries, m.tickets, m.articles]), 1)
     : 1;
-
-  const maxTopApp = data
-    ? Math.max(...data.topApplications.map((a) => a.total)) || 1
-    : 1;
+  const maxAppHours = data ? Math.max(...data.applications.map((a) => a.hours), 1) : 1;
+  const maxMemberHours = data ? Math.max(...data.teamWorkload.map((m) => m.hours), 1) : 1;
 
   return (
     <AppLayout>
@@ -197,6 +231,13 @@ export default function DashboardPage() {
                 day: 'numeric',
               })}
             </p>
+            {data?.window.from && (
+              <p className="text-body-sm text-on-surface-variant mt-1">
+                Live from the daily tracker and knowledge base &mdash; work logged{' '}
+                {formatDate(data.window.from)} to {formatDate(data.window.to || undefined)} across{' '}
+                {data.window.activeDays} active days.
+              </p>
+            )}
           </div>
           <button
             onClick={exportReport}
@@ -221,60 +262,77 @@ export default function DashboardPage() {
           <p className="text-body-sm text-on-surface-variant">No dashboard data available.</p>
         ) : (
           <>
-            {/* Stats */}
+            {/* Stats straight from the tracker + knowledge base */}
             <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-md">
               <StatCard
-                label="Total Tickets"
-                value={data.stats.totalTicketsSinceApril}
-                sub="since April 2026"
+                label="Tickets Worked"
+                value={data.stats.uniqueTickets}
+                sub={`${data.stats.subTasks} sub-tasks`}
                 accent="text-primary"
                 icon="confirmation_number"
+                href="/tracker"
+              />
+              <StatCard
+                label="Hours Logged"
+                value={data.stats.hours}
+                sub={`${data.stats.entries} entries`}
+                accent="text-primary"
+                icon="timer"
+                href="/tracker"
+              />
+              <StatCard
+                label="Still Active"
+                value={data.stats.activeTickets}
+                sub={`${data.stats.closedTickets} closed`}
+                accent="text-error"
+                icon="pending_actions"
+                href="/tracker"
               />
               <StatCard
                 label="KB Articles"
                 value={data.stats.totalArticles}
+                sub={`${data.stats.articleViews} views`}
                 accent="text-primary"
                 icon="menu_book"
+                href="/knowledge"
               />
-              <div className="bg-surface dark:bg-surface-container-lowest border-2 border-emerald-300 dark:border-emerald-700 bg-gradient-to-br from-emerald-50 via-surface to-surface dark:from-emerald-900/20 dark:via-surface-container-lowest dark:to-surface-container-lowest rounded-xl p-md flex flex-col gap-sm">
-                <div className="flex justify-between items-start">
-                  <span className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
-                    SLA Breaches
-                  </span>
-                  <span className="material-symbols-outlined text-[20px] text-emerald-500">verified</span>
-                </div>
-                <div className="flex items-end gap-2 mt-auto">
-                  <span className="font-h1 text-h1 font-extrabold text-emerald-600 dark:text-emerald-400 leading-none">
-                    {data.stats.slaBreachesOurTeam}
-                  </span>
-                  {/* <span className="font-body-sm text-body-sm text-on-surface-variant mb-1">
-                    from our team
-                  </span> */}
-                </div>
-                <p className="text-[11px] text-on-surface-variant">
-                  {data.stats.slaBreachesSinceApril} total since April 2026
-                </p>
-              </div>
               <StatCard
-                label="Onboarding"
-                value={data.stats.onboardingCount}
-                sub="since April 2026"
+                label="Last 7 Days"
+                value={data.stats.hoursLast7Days}
+                sub={`h · ${data.stats.entriesLast7Days} entries`}
                 accent="text-secondary"
-                icon="person_add"
+                icon="trending_up"
               />
               <StatCard
-                label="Offboarding"
-                value={data.stats.offboardingCount}
-                sub="since April 2026"
-                accent="text-tertiary"
-                icon="person_remove"
+                label="KB Linked"
+                value={`${data.stats.kbLinkRate}%`}
+                sub={`${data.stats.linkedTickets} of ${data.stats.uniqueTickets} tickets`}
+                accent="text-secondary"
+                icon="link"
               />
-              <StatCard
-                label="KB Reuse Rate"
-                value={`${data.stats.kbReuseRate}%`}
-                accent="text-success"
-                icon="recycling"
-              />
+            </section>
+
+            {/* Secondary metrics */}
+            <section className="grid grid-cols-2 md:grid-cols-5 gap-md">
+              {[
+                { label: 'Avg Hours / Ticket', value: data.stats.avgHoursPerTicket },
+                { label: 'Avg Hours / Active Day', value: data.stats.avgHoursPerActiveDay },
+                { label: 'Engineers Logging Work', value: data.stats.teamMembers },
+                { label: 'SLA Breaches', value: data.stats.slaBreaches },
+                { label: 'Escalations', value: data.stats.escalations },
+              ].map((m) => (
+                <div
+                  key={m.label}
+                  className="bg-surface-container-low dark:bg-surface-container-lowest border border-outline-variant/40 rounded-xl px-md py-sm"
+                >
+                  <p className="text-[11px] uppercase tracking-wider text-on-surface-variant">
+                    {m.label}
+                  </p>
+                  <p className="font-title-md text-title-md font-semibold text-on-surface dark:text-on-secondary">
+                    {m.value}
+                  </p>
+                </div>
+              ))}
             </section>
 
             {/* Quick actions */}
@@ -299,56 +357,36 @@ export default function DashboardPage() {
             </section>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-lg">
-              {/* Monthly trend */}
-              <section className="lg:col-span-2 bg-surface dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-lg flex flex-col gap-md">
-                <h3 className="font-title-md text-title-md text-on-surface dark:text-on-secondary">
-                  Activity Trend (Last 6 Months)
-                </h3>
-                <div className="space-y-md">
-                  {data.monthlyTrend.map((m) => (
-                    <div key={m.label}>
-                      <div className="flex justify-between text-body-sm text-on-surface mb-1">
-                        <span className="font-medium">{m.label}</span>
-                        <span className="text-on-surface-variant">
-                          {m.tickets} - tickets · {m.onboardingOffboarding} - onboarding/offboarding · {m.articles} - articles
-                        </span>
-                      </div>
-                      <div className="flex gap-1 h-2 rounded-full overflow-hidden bg-surface-container-highest">
-                        <div
-                          className="bg-error h-full"
-                          style={{ width: `${(m.tickets / maxMonthly) * 100}%` }}
-                        />
-                        <div
-                          className="bg-tertiary h-full"
-                          style={{ width: `${(m.onboardingOffboarding / maxMonthly) * 100}%` }}
-                        />
-                        <div
-                          className="bg-primary h-full"
-                          style={{ width: `${(m.articles / maxMonthly) * 100}%` }}
-                        />
-                      </div>
+              {/* Daily hours logged */}
+              <Panel title="Hours Logged (Last 30 Days)" className="lg:col-span-2">
+                <div className="flex items-end gap-1 h-40">
+                  {data.dailyTrend.map((d) => (
+                    <div
+                      key={d.date}
+                      className="flex-1 flex flex-col items-center justify-end h-full"
+                      title={`${d.label}: ${d.hours}h · ${d.entries} ${
+                        d.entries === 1 ? 'entry' : 'entries'
+                      }`}
+                    >
+                      <div
+                        className="w-full rounded-t bg-primary hover:bg-secondary transition-colors min-h-[2px]"
+                        style={{ height: `${Math.max((d.hours / maxDailyHours) * 100, 1)}%` }}
+                      />
                     </div>
                   ))}
                 </div>
-                <div className="flex gap-md text-body-sm text-on-surface-variant">
-                  <span className="flex items-center gap-1">
-                    <span className="w-3 h-3 rounded-full bg-error" /> Tickets
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-3 h-3 rounded-full bg-tertiary" /> Onboarding/Offboarding
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-3 h-3 rounded-full bg-primary" /> Articles
-                  </span>
+                <div className="flex justify-between text-[11px] text-on-surface-variant">
+                  <span>{data.dailyTrend[0]?.label}</span>
+                  <span>{data.dailyTrend[Math.floor(data.dailyTrend.length / 2)]?.label}</span>
+                  <span>{data.dailyTrend[data.dailyTrend.length - 1]?.label}</span>
                 </div>
-              </section>
+                <p className="text-body-sm text-on-surface-variant">
+                  Peak day {maxDailyHours}h. Hover a bar for that day&apos;s hours and entries.
+                </p>
+              </Panel>
 
               {/* Recent activity */}
-              <section className="bg-surface dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-lg flex flex-col gap-md">
-                <h3 className="font-title-md text-title-md text-on-surface dark:text-on-secondary flex items-center gap-sm">
-                  <span className="material-symbols-outlined text-[20px]">history</span>
-                  Recent Activity
-                </h3>
+              <Panel title="Recent Activity" icon="history">
                 <div className="flex flex-col gap-sm">
                   {data.recentActivity.length === 0 ? (
                     <p className="text-body-sm text-on-surface-variant">No recent activity.</p>
@@ -356,199 +394,323 @@ export default function DashboardPage() {
                     data.recentActivity.map((item) => (
                       <div
                         key={item._id}
-                        className="flex items-start gap-sm p-sm rounded-lg hover:bg-surface-container-highest/50"
+                        className="flex items-start gap-sm p-sm rounded-lg hover:bg-surface-container-highest"
                       >
                         <span className="material-symbols-outlined text-[18px] text-on-surface-variant mt-0.5">
                           {activityIcon(item.type)}
                         </span>
                         <div>
                           <p className="text-body-sm text-on-surface leading-snug">{item.message}</p>
-                          <p className="text-[11px] text-on-surface-variant">{formatTimeAgo(item.createdAt)}</p>
+                          <p className="text-[11px] text-on-surface-variant">
+                            {formatTimeAgo(item.createdAt)}
+                          </p>
                         </div>
                       </div>
                     ))
                   )}
                 </div>
-              </section>
+              </Panel>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg">
-              {/* Top applications */}
-              <section className="bg-surface dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-lg flex flex-col gap-md">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-title-md text-title-md text-on-surface dark:text-on-secondary">
-                    Top Applications
-                  </h3>
-                  <Link href="/applications" className="text-primary font-label-md text-label-md hover:underline">
-                    View all
-                  </Link>
-                </div>
-                <div className="flex flex-col gap-md">
-                  {data.topApplications.map((app) => (
-                    <Link
-                      key={app._id}
-                      href={`/applications/${app._id}`}
-                      className="group"
-                    >
-                      <div className="flex items-center gap-md mb-1">
-                        <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center"
-                          style={{ backgroundColor: `${app.color}20` }}
-                        >
-                          <span
-                            className="material-symbols-outlined text-[18px]"
-                            style={{ color: app.color }}
-                          >
-                            {app.icon}
-                          </span>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex justify-between text-body-sm text-on-surface mb-1">
-                            <span className="font-medium group-hover:text-primary transition-colors">
-                              {app.name}
-                            </span>
-                            <span className="text-on-surface-variant">
-                              {app.ticketCount} tk · {app.articleCount} kb
-                            </span>
-                          </div>
-                          <div className="h-2 rounded-full bg-surface-container-highest overflow-hidden">
-                            <div
-                              className="h-full rounded-full"
-                              style={{
-                                width: `${(app.total / maxTopApp) * 100}%`,
-                                backgroundColor: app.color,
-                              }}
-                            />
-                          </div>
-                        </div>
+              {/* Monthly trend */}
+              <Panel title="Monthly Trend (Last 6 Months)">
+                <div className="space-y-md">
+                  {data.monthlyTrend.map((m) => (
+                    <div key={m.label}>
+                      <div className="flex justify-between text-body-sm text-on-surface mb-1">
+                        <span className="font-medium">{m.label}</span>
+                        <span className="text-on-surface-variant">
+                          {m.entries} entries · {m.tickets} tickets · {m.articles} articles ·{' '}
+                          {m.hours}h
+                        </span>
                       </div>
-                    </Link>
+                      <div className="flex gap-1 h-2 rounded-full overflow-hidden bg-surface-container-highest">
+                        <div
+                          className="bg-primary h-full"
+                          style={{ width: `${(m.entries / maxMonthly) * 100}%` }}
+                        />
+                        <div
+                          className="bg-error h-full"
+                          style={{ width: `${(m.tickets / maxMonthly) * 100}%` }}
+                        />
+                        <div
+                          className="bg-tertiary h-full"
+                          style={{ width: `${(m.articles / maxMonthly) * 100}%` }}
+                        />
+                      </div>
+                    </div>
                   ))}
                 </div>
-              </section>
+                <div className="flex flex-wrap gap-md text-body-sm text-on-surface-variant">
+                  <span className="flex items-center gap-1">
+                    <span className="w-3 h-3 rounded-full bg-primary" /> Tracker entries
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-3 h-3 rounded-full bg-error" /> Unique tickets
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-3 h-3 rounded-full bg-tertiary" /> Articles created
+                  </span>
+                </div>
+              </Panel>
 
-              {/* Activity Overview Pie Chart */}
-              <section className="bg-surface dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-lg flex flex-col gap-md">
-                <h3 className="font-title-md text-title-md text-on-surface dark:text-on-secondary">
-                  Activity Overview
-                </h3>
+              {/* Ticket status mix */}
+              <Panel
+                title="Ticket Status (Unique Tickets)"
+                action={
+                  <Link href="/tracker" className="text-primary font-label-md text-label-md hover:underline">
+                    Open tracker
+                  </Link>
+                }
+              >
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={[
-                          { name: 'Tickets', value: data.stats.totalTicketsSinceApril, color: '#ef4444' },
-                          { name: 'Articles', value: data.stats.totalArticles, color: '#3b82f6' },
-                          { name: 'Onboarding', value: data.stats.onboardingCount, color: '#10b981' },
-                          { name: 'Offboarding', value: data.stats.offboardingCount, color: '#f59e0b' },
-                        ]}
+                        data={data.statusBreakdown.map((s) => ({
+                          name: s.status,
+                          value: s.tickets,
+                        }))}
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        // Only the larger slices get an inline label, otherwise
+                        // the small ones overlap into an unreadable cluster.
+                        label={({ name, value, percent }) =>
+                          percent >= 0.08 ? `${name}: ${value}` : ''
+                        }
                         outerRadius={80}
-                        fill="#8884d8"
                         dataKey="value"
                       >
-                        <Cell fill="#ef4444" />
-                        <Cell fill="#3b82f6" />
-                        <Cell fill="#10b981" />
-                        <Cell fill="#f59e0b" />
+                        {data.statusBreakdown.map((s) => (
+                          <Cell key={s.status} fill={statusColor(s.status)} />
+                        ))}
                       </Pie>
                       <Tooltip />
                       <Legend />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-              </section>
+                <div className="grid grid-cols-2 gap-x-md gap-y-1">
+                  {data.statusBreakdown.map((s) => (
+                    <div key={s.status} className="flex items-center justify-between text-body-sm">
+                      <span className="flex items-center gap-2 text-on-surface-variant">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{ backgroundColor: statusColor(s.status) }}
+                        />
+                        {s.status}
+                      </span>
+                      <span className="font-medium text-on-surface dark:text-on-secondary">
+                        {s.tickets}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </Panel>
             </div>
 
-            {/* Recent articles */}
-            <section className="bg-surface dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-lg flex flex-col gap-md">
-              <div className="flex items-center justify-between">
-                <h3 className="font-title-md text-title-md text-on-surface dark:text-on-secondary">
-                  Recent Knowledge Articles
-                </h3>
-                <Link href="/knowledge" className="text-primary font-label-md text-label-md hover:underline">
-                  View all
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+              {/* Applications by logged effort */}
+              <Panel
+                title="Applications by Effort"
+                action={
+                  <Link href="/applications" className="text-primary font-label-md text-label-md hover:underline">
+                    View all
+                  </Link>
+                }
+              >
+                <div className="flex flex-col gap-md">
+                  {data.applications.map((app) => (
+                    <div key={app.name}>
+                      <div className="flex justify-between text-body-sm text-on-surface mb-1">
+                        <span className="font-medium">{app.name}</span>
+                        <span className="text-on-surface-variant">
+                          {app.hours}h · {app.tickets} tickets · {app.articles} kb
+                        </span>
+                      </div>
+                      <div className="h-2 rounded-full bg-surface-container-highest overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-primary"
+                          style={{ width: `${(app.hours / maxAppHours) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Panel>
+
+              {/* Team workload */}
+              <Panel title="Team Workload (Tracker)">
+                {data.teamWorkload.length === 0 ? (
+                  <p className="text-body-sm text-on-surface-variant">No work logged yet.</p>
+                ) : (
+                  <div className="flex flex-col gap-md">
+                    {data.teamWorkload.map((m) => (
+                      <div key={m.name}>
+                        <div className="flex justify-between text-body-sm text-on-surface mb-1">
+                          <span className="font-medium">{m.name}</span>
+                          <span className="text-on-surface-variant">
+                            {m.hours}h · {m.entries} entries · {m.tickets} tickets
+                          </span>
+                        </div>
+                        <div className="h-2 rounded-full bg-surface-container-highest overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-secondary"
+                            style={{ width: `${(m.hours / maxMemberHours) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p className="text-[11px] text-on-surface-variant">
+                  Hours on shared entries are split evenly between the members on the entry.
+                </p>
+              </Panel>
+            </div>
+
+            {/* Latest tracker entries */}
+            <Panel
+              title="Latest Work Logged"
+              icon="timer"
+              action={
+                <Link href="/tracker" className="text-primary font-label-md text-label-md hover:underline">
+                  View tracker
                 </Link>
-              </div>
-              {data.recentArticles.length === 0 ? (
-                <p className="text-body-sm text-on-surface-variant">No knowledge articles yet.</p>
+              }
+            >
+              {data.recentEntries.length === 0 ? (
+                <p className="text-body-sm text-on-surface-variant">No tracker entries yet.</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="text-on-surface-variant border-b border-outline-variant/40 text-[12px]">
+                        <th className="py-2 pr-4 font-medium">Ticket</th>
+                        <th className="py-2 pr-4 font-medium">Task</th>
                         <th className="py-2 pr-4 font-medium">Title</th>
                         <th className="py-2 pr-4 font-medium">Application</th>
-                        <th className="py-2 pr-4 font-medium">Views</th>
-                        <th className="py-2 font-medium">Created</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data.recentArticles.map((article) => (
-                        <tr key={article._id} className="border-b border-outline-variant/20 last:border-b-0">
-                          <td className="py-2 pr-4">
-                            <Link
-                              href={`/knowledge/${article._id}`}
-                              className="font-body-md text-body-md text-on-surface hover:text-primary line-clamp-1"
-                            >
-                              {article.title}
-                            </Link>
-                          </td>
-                          <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{article.application}</td>
-                          <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{article.views}</td>
-                          <td className="py-2 text-body-sm text-on-surface-variant">{formatDate(article.createdAt)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </section>
-
-            {/* Engineer efficiency */}
-            {/* <section className="bg-surface dark:bg-surface-container-lowest border border-outline-variant dark:border-outline rounded-xl p-lg flex flex-col gap-md">
-              <div className="flex items-center justify-between">
-                <h3 className="font-title-md text-title-md text-on-surface dark:text-on-secondary">
-                  Engineer Efficiency
-                </h3>
-                <Link href="/analytics" className="text-primary font-label-md text-label-md hover:underline">
-                  View analytics
-                </Link>
-              </div>
-              {data.engineerEfficiency.length === 0 ? (
-                <p className="text-body-sm text-on-surface-variant">No efficiency data available.</p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="text-on-surface-variant border-b border-outline-variant/40 text-[12px]">
-                        <th className="py-2 pr-4 font-medium">Engineer</th>
+                        <th className="py-2 pr-4 font-medium">Members</th>
                         <th className="py-2 pr-4 font-medium">Hours</th>
-                        <th className="py-2 pr-4 font-medium">Entries</th>
-                        <th className="py-2 pr-4 font-medium">Tickets</th>
-                        <th className="py-2 pr-4 font-medium">Owner</th>
-                        <th className="py-2 font-medium">Articles</th>
+                        <th className="py-2 pr-4 font-medium">Status</th>
+                        <th className="py-2 font-medium">Date</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {data.engineerEfficiency.map((eng) => (
-                        <tr key={eng.name} className="border-b border-outline-variant/20 last:border-b-0">
-                          <td className="py-2 pr-4 font-body-md text-body-md text-on-surface">{eng.name}</td>
-                          <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{eng.hours}h</td>
-                          <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{eng.entries}</td>
-                          <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{eng.ticketsHandled}</td>
-                          <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{eng.ownerTickets}</td>
-                          <td className="py-2 text-body-sm text-on-surface-variant">{eng.articlesCreated}</td>
+                      {data.recentEntries.map((e) => (
+                        <tr key={e._id} className="border-b border-outline-variant/20 last:border-b-0">
+                          <td className="py-2 pr-4 font-mono text-body-sm text-primary">{e.ticketId}</td>
+                          <td className="py-2 pr-4 font-mono text-body-sm text-on-surface-variant">
+                            {e.taskId || '—'}
+                          </td>
+                          <td className="py-2 pr-4 text-body-sm text-on-surface max-w-[260px] truncate" title={e.title}>
+                            {e.title}
+                          </td>
+                          <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{e.application}</td>
+                          <td className="py-2 pr-4 text-body-sm text-on-surface-variant max-w-[200px] truncate">
+                            {e.members.join(', ') || '—'}
+                          </td>
+                          <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{e.hours}</td>
+                          <td className="py-2 pr-4 text-body-sm">
+                            <span
+                              className="px-2 py-0.5 rounded-full text-[11px] font-medium"
+                              style={{
+                                backgroundColor: `${statusColor(e.status)}20`,
+                                color: statusColor(e.status),
+                              }}
+                            >
+                              {e.status}
+                            </span>
+                          </td>
+                          <td className="py-2 text-body-sm text-on-surface-variant">{formatDate(e.date)}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
               )}
-            </section> */}
+            </Panel>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+              {/* Recent articles */}
+              <Panel
+                title="Recent Knowledge Articles"
+                className="lg:col-span-2"
+                action={
+                  <Link href="/knowledge" className="text-primary font-label-md text-label-md hover:underline">
+                    View all
+                  </Link>
+                }
+              >
+                {data.recentArticles.length === 0 ? (
+                  <p className="text-body-sm text-on-surface-variant">No knowledge articles yet.</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="text-on-surface-variant border-b border-outline-variant/40 text-[12px]">
+                          <th className="py-2 pr-4 font-medium">Title</th>
+                          <th className="py-2 pr-4 font-medium">Application</th>
+                          <th className="py-2 pr-4 font-medium">Ticket</th>
+                          <th className="py-2 pr-4 font-medium">Views</th>
+                          <th className="py-2 font-medium">Created</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.recentArticles.map((article) => (
+                          <tr key={article._id} className="border-b border-outline-variant/20 last:border-b-0">
+                            <td className="py-2 pr-4">
+                              <Link
+                                href={`/knowledge/${article._id}`}
+                                className="font-body-md text-body-md text-on-surface hover:text-primary line-clamp-1"
+                              >
+                                {article.title}
+                              </Link>
+                            </td>
+                            <td className="py-2 pr-4 text-body-sm text-on-surface-variant">
+                              {article.application}
+                            </td>
+                            <td className="py-2 pr-4 font-mono text-body-sm text-on-surface-variant">
+                              {article.ticketId || '—'}
+                            </td>
+                            <td className="py-2 pr-4 text-body-sm text-on-surface-variant">{article.views}</td>
+                            <td className="py-2 text-body-sm text-on-surface-variant">
+                              {formatDate(article.createdAt)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </Panel>
+
+              {/* Work type mix */}
+              <Panel title="Work Type Mix">
+                {data.workTypeBreakdown.length === 0 ? (
+                  <p className="text-body-sm text-on-surface-variant">No work logged yet.</p>
+                ) : (
+                  <div className="flex flex-col gap-sm">
+                    {data.workTypeBreakdown.map((w) => (
+                      <div key={w.type} className="flex justify-between text-body-sm">
+                        <span className="text-on-surface">{w.type}</span>
+                        <span className="text-on-surface-variant">
+                          {w.hours}h · {w.entries} entries
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="mt-auto pt-sm border-t border-outline-variant/30 text-body-sm text-on-surface-variant">
+                  <p>
+                    {data.stats.publishedArticles} of {data.stats.totalArticles} articles published
+                  </p>
+                  <p>{data.stats.articlesFromTickets} articles traced back to a ticket</p>
+                </div>
+              </Panel>
+            </div>
           </>
         )}
       </div>
